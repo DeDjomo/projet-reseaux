@@ -1,0 +1,271 @@
+/* src/app/globals.css */
+@import "tailwindcss";
+
+/* ============================================================================
+   FLEETMAN - Theme Variables
+   Dark Theme (default) - Inspired by Refine.dev
+   Deep black with cyan/teal accents
+   ============================================================================ */
+:root,
+[data-theme="dark"] {
+  /* Main Colors - Deep black with vibrant accents */
+  --primary-dark: #09090b;
+  --primary-blue: #0ea5e9;
+  --primary-cyan: #14b8a6;
+  --accent-orange: #FF7A00;
+  --accent-purple: #a855f7;
+
+  /* Gradients - Subtle dark gradient */
+  --gradient-primary: linear-gradient(180deg, #09090b 0%, #18181b 50%, #09090b 100%);
+  --gradient-accent: linear-gradient(135deg, #0ea5e9 0%, #14b8a6 100%);
+  --gradient-glow: linear-gradient(135deg, rgba(14, 165, 233, 0.15) 0%, rgba(20, 184, 166, 0.15) 100%);
+
+  /* Surfaces - Very dark glass effect */
+  --surface-glass: rgba(255, 255, 255, 0.02);
+  --surface-glass-hover: rgba(255, 255, 255, 0.04);
+  --surface-card: rgba(24, 24, 27, 0.9);
+  --border-glass: rgba(255, 255, 255, 0.06);
+  --nav-bg: rgba(9, 9, 11, 0.95);
+  --footer-bg: rgba(9, 9, 11, 0.95);
+
+  /* Text - Clean white/gray */
+  --text-primary: #fafafa;
+  --text-secondary: #a1a1aa;
+  --text-muted: #71717a;
+
+  /* Errors */
+  --error-bg: rgba(239, 68, 68, 0.1);
+  --error-border: #ef4444;
+  --error-text: #fecaca;
+
+  /* Success */
+  --success-bg: rgba(34, 197, 94, 0.1);
+  --success-border: #22c55e;
+  --success-text: #bbf7d0;
+
+  /* Shadows - Deeper shadows */
+  --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.5);
+  --shadow-md: 0 4px 20px rgba(0, 0, 0, 0.6);
+  --shadow-lg: 0 8px 40px rgba(0, 0, 0, 0.7);
+  --shadow-glow: 0 0 40px rgba(14, 165, 233, 0.15);
+
+  /* Grid Background - Very subtle */
+  --grid-color: rgba(255, 255, 255, 0.01);
+
+  /* Animations */
+  --transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-bounce: all 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+}
+
+/* ============================================================================
+   Light Theme
+   Colors: White (60%), Blue (30%), Orange #FF7A00 (10%)
+   ============================================================================ */
+[data-theme="light"] {
+  /* Main Colors - White dominant with Blue and Orange accents */
+  --primary-dark: #ffffff;
+  --primary-blue: #2563eb;
+  /* Blue for CTAs, primary buttons */
+  --primary-cyan: #3b82f6;
+  /* Lighter blue for gradients */
+  --accent-orange: #FF7A00;
+  /* Orange for secondary accents */
+  --accent-purple: #FF7A00;
+
+  /* Gradients - Pure white background */
+  --gradient-primary: #ffffff;
+  --gradient-accent: linear-gradient(135deg, #2563eb 0%, #3b82f6 100%);
+  --gradient-glow: linear-gradient(135deg, rgba(37, 99, 235, 0.05) 0%, rgba(255, 122, 0, 0.03) 100%);
+
+  /* Surfaces - Pure white */
+  --surface-glass: #ffffff;
+  --surface-glass-hover: #ffffff;
+  --surface-card: #ffffff;
+  --border-glass: rgba(0, 0, 0, 0.08);
+  --nav-bg: rgba(255, 255, 255, 0.98);
+  --footer-bg: #ffffff;
+
+  /* Text - Dark for contrast on white */
+  --text-primary: #1e293b;
+  --text-secondary: #475569;
+  --text-muted: #64748b;
+
+  /* Errors */
+  --error-bg: rgba(239, 68, 68, 0.1);
+  --error-border: #ef4444;
+  --error-text: #dc2626;
+
+  /* Success */
+  --success-bg: rgba(34, 197, 94, 0.1);
+  --success-border: #22c55e;
+  --success-text: #16a34a;
+
+  /* Shadows - Neutral gray shadows */
+  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.06);
+  --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.08);
+  --shadow-lg: 0 10px 30px rgba(0, 0, 0, 0.1);
+  --shadow-glow: 0 0 25px rgba(255, 122, 0, 0.15);
+
+  /* Grid Background - Invisible */
+  --grid-color: transparent;
+
+  /* Hide animated background in light theme */
+  --bg-animation-opacity: 0;
+}
+
+/* ============================================================================
+   GLOBAL ANIMATIONS
+   ============================================================================ */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes pulse {
+
+  0%,
+  100% {
+    transform: scale(1);
+    opacity: 0.8;
+  }
+
+  50% {
+    transform: scale(1.05);
+    opacity: 1;
+  }
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: -1000px 0;
+  }
+
+  100% {
+    background-position: 1000px 0;
+  }
+}
+
+/* ============================================================================
+   BASE STYLES
+   ============================================================================ */
+* {
+  box-sizing: border-box;
+  padding: 0;
+  margin: 0;
+}
+
+html,
+body {
+  max-width: 100vw;
+  overflow-x: hidden;
+  background: var(--gradient-primary);
+  color: var(--text-primary);
+  transition: background 0.3s ease, color 0.3s ease;
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  min-height: 100vh;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+button {
+  font-family: inherit;
+}
+
+/* Focus states for accessibility */
+*:focus-visible {
+  outline: 2px solid var(--primary-cyan);
+  outline-offset: 2px;
+}
+
+/* ============================================================================
+   COMPONENT: Theme Toggle Button
+   ============================================================================ */
+.theme-toggle {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  background: var(--surface-glass);
+  backdrop-filter: blur(10px);
+  border: 1px solid var(--border-glass);
+  border-radius: 12px;
+  color: var(--text-primary);
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-size: 1.25rem;
+}
+
+.theme-toggle:hover {
+  background: var(--surface-glass-hover);
+  border-color: var(--primary-cyan);
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
+}
+
+.theme-toggle:active {
+  transform: translateY(0);
+}
+
+/* ============================================================================
+   COMPONENT: Language Switcher
+   ============================================================================ */
+.language-switcher {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 0.25rem;
+  background: var(--surface-glass);
+  backdrop-filter: blur(10px);
+  border: 1px solid var(--border-glass);
+  border-radius: 10px;
+  transition: all 0.3s ease;
+}
+
+.language-btn {
+  padding: 0.5rem 0.75rem;
+  border: none;
+  border-radius: 8px;
+  font-size: 0.875rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  background: transparent;
+  color: var(--text-secondary);
+}
+
+.language-btn:hover {
+  color: var(--text-primary);
+}
+
+.language-btn.active {
+  background: var(--gradient-accent);
+  color: white;
+  box-shadow: 0 2px 8px rgba(36, 99, 235, 0.3);
+}

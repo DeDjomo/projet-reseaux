@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { FiTruck, FiMapPin, FiUsers, FiBell, FiBarChart2, FiShield, FiArrowRight, FiZap, FiSun, FiMoon } from 'react-icons/fi';
 import { useTheme } from '@/contexts/ThemeContext';
 import { useLanguage } from '@/contexts/LanguageContext';
+import { Language } from '@/types';
 import styles from './landing.module.css';
 
 export default function Home() {
@@ -28,13 +29,13 @@ export default function Home() {
           <div className="language-switcher">
             <button
               className={`language-btn ${language === 'FR' ? 'active' : ''}`}
-              onClick={() => setLanguage('FR')}
+              onClick={() => setLanguage(Language.FR)}
             >
               FR
             </button>
             <button
-              className={`language-btn ${language === 'EN' ? 'active' : ''}`}
-              onClick={() => setLanguage('EN')}
+              className={`language-btn ${language === 'ENG' ? 'active' : ''}`}
+              onClick={() => setLanguage(Language.ENG)}
             >
               EN
             </button>
@@ -63,13 +64,13 @@ export default function Home() {
           <div className="language-switcher">
             <button
               className={`language-btn ${language === 'FR' ? 'active' : ''}`}
-              onClick={() => setLanguage('FR')}
+              onClick={() => setLanguage(Language.FR)}
             >
               FR
             </button>
             <button
-              className={`language-btn ${language === 'EN' ? 'active' : ''}`}
-              onClick={() => setLanguage('EN')}
+              className={`language-btn ${language === 'ENG' ? 'active' : ''}`}
+              onClick={() => setLanguage(Language.ENG)}
             >
               EN
             </button>

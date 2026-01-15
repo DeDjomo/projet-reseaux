@@ -1,5 +1,7 @@
-/* src/app/globals.css */
-@import "tailwindcss";
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
 
 /* ============================================================================
    FLEETMAN - Theme Variables
@@ -58,53 +60,51 @@
 }
 
 /* ============================================================================
-   Light Theme
-   Colors: White (60%), Blue (30%), Orange #FF7A00 (10%)
+   Light Theme - Premium Design
+   Inspired by Linear, Notion, Vercel dashboards
+   Clean whites with subtle blue undertones
    ============================================================================ */
 [data-theme="light"] {
-  /* Main Colors - White dominant with Blue and Orange accents */
-  --primary-dark: #ffffff;
-  --primary-blue: #2563eb;
-  /* Blue for CTAs, primary buttons */
-  --primary-cyan: #3b82f6;
-  /* Lighter blue for gradients */
-  --accent-orange: #FF7A00;
-  /* Orange for secondary accents */
-  --accent-purple: #FF7A00;
+  /* Main Colors - Softer blue palette */
+  --primary-dark: #fafbfc;
+  --primary-blue: #0066FF;
+  --primary-cyan: #0066FF;
+  --accent-orange: #FF6B00;
+  --accent-purple: #8B5CF6;
 
-  /* Gradients - Pure white background */
-  --gradient-primary: #ffffff;
-  --gradient-accent: linear-gradient(135deg, #2563eb 0%, #3b82f6 100%);
-  --gradient-glow: linear-gradient(135deg, rgba(37, 99, 235, 0.05) 0%, rgba(255, 122, 0, 0.03) 100%);
+  /* Gradients - Subtle warm gradient */
+  --gradient-primary: linear-gradient(135deg, #fafbfc 0%, #f4f6f8 50%, #ffffff 100%);
+  --gradient-accent: linear-gradient(135deg, #0066FF 0%, #0052CC 100%);
+  --gradient-glow: linear-gradient(135deg, rgba(0, 102, 255, 0.03) 0%, rgba(255, 107, 0, 0.02) 100%);
 
-  /* Surfaces - Pure white */
-  --surface-glass: #ffffff;
-  --surface-glass-hover: #ffffff;
+  /* Surfaces - Clear visual hierarchy */
+  --surface-glass: rgba(0, 0, 0, 0.02);
+  --surface-glass-hover: rgba(0, 0, 0, 0.04);
   --surface-card: #ffffff;
-  --border-glass: rgba(0, 0, 0, 0.08);
-  --nav-bg: rgba(255, 255, 255, 0.98);
-  --footer-bg: #ffffff;
+  --border-glass: #e1e5eb;
+  --nav-bg: #f6f8fa;
+  --footer-bg: #f6f8fa;
 
-  /* Text - Dark for contrast on white */
-  --text-primary: #1e293b;
-  --text-secondary: #475569;
-  --text-muted: #64748b;
+  /* Text - High contrast, easy to read */
+  --text-primary: #1a1a2e;
+  --text-secondary: #4a5568;
+  --text-muted: #8492a6;
 
   /* Errors */
-  --error-bg: rgba(239, 68, 68, 0.1);
-  --error-border: #ef4444;
+  --error-bg: #fef2f2;
+  --error-border: #fca5a5;
   --error-text: #dc2626;
 
   /* Success */
-  --success-bg: rgba(34, 197, 94, 0.1);
-  --success-border: #22c55e;
+  --success-bg: #f0fdf4;
+  --success-border: #86efac;
   --success-text: #16a34a;
 
-  /* Shadows - Neutral gray shadows */
-  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.06);
-  --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.08);
-  --shadow-lg: 0 10px 30px rgba(0, 0, 0, 0.1);
-  --shadow-glow: 0 0 25px rgba(255, 122, 0, 0.15);
+  /* Shadows - Modern layered shadows */
+  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.03), 0 1px 3px 0 rgba(0, 0, 0, 0.06);
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -2px rgba(0, 0, 0, 0.05), 0 0 0 1px rgba(0, 0, 0, 0.03);
+  --shadow-lg: 0 10px 25px -3px rgba(0, 0, 0, 0.08), 0 4px 6px -4px rgba(0, 0, 0, 0.05), 0 0 0 1px rgba(0, 0, 0, 0.03);
+  --shadow-glow: 0 0 30px rgba(0, 102, 255, 0.12);
 
   /* Grid Background - Invisible */
   --grid-color: transparent;
@@ -268,4 +268,48 @@ button {
   background: var(--gradient-accent);
   color: white;
   box-shadow: 0 2px 8px rgba(36, 99, 235, 0.3);
+}
+
+/* Animation Utilities */
+.animate-fade-in {
+  animation: fadeIn 0.5s ease-out forwards;
+}
+
+.animate-fade-in-up {
+  animation: fadeInUp 0.5s ease-out forwards;
+}
+
+.animate-pulse {
+  animation: pulse 2s infinite;
+}
+
+/* ============================================================================
+   DASHBOARD MAIN CONTENT - Light Mode Improvements
+   ============================================================================ */
+[data-theme="light"] main {
+  background: linear-gradient(145deg, #f8fafc 0%, #ffffff 50%, #f1f5f9 100%);
+}
+
+[data-theme="light"] .bg-surface {
+  background-color: #ffffff;
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.05), 0 1px 2px -1px rgba(0, 0, 0, 0.05);
+  border: 1px solid #e2e8f0;
+}
+
+[data-theme="light"] .border-glass {
+  border-color: #e2e8f0;
+}
+
+/* Cards in light mode get subtle shadow */
+[data-theme="light"] .bg-surface.rounded-lg {
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.06), 0 1px 2px -1px rgba(0, 0, 0, 0.06);
+}
+
+/* ============================================================================
+   FORM ELEMENT FIXES
+   ============================================================================ */
+/* Fix for Select Option visibility in Dark/Light Mode */
+select option {
+  background-color: var(--surface-card);
+  color: var(--text-primary);
 }

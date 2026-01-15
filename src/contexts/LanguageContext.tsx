@@ -1,100 +1,412 @@
 'use client';
 
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
-
-type Language = 'FR' | 'EN';
+import { Language } from '@/types';
 
 interface Translations {
     [key: string]: {
         FR: string;
-        EN: string;
+        ENG: string;
     };
 }
 
 // Translation dictionary
 export const translations: Translations = {
     // Navigation
-    'nav.features': { FR: 'Fonctionnalités', EN: 'Features' },
-    'nav.stats': { FR: 'Statistiques', EN: 'Statistics' },
-    'nav.register': { FR: 'Créer un compte', EN: 'Create account' },
-    'nav.login': { FR: 'Se connecter', EN: 'Sign in' },
+    'nav.features': { FR: 'Fonctionnalités', ENG: 'Features' },
+    'nav.stats': { FR: 'Statistiques', ENG: 'Statistics' },
+    'nav.register': { FR: 'Créer un compte', ENG: 'Create account' },
+    'nav.login': { FR: 'Se connecter', ENG: 'Sign in' },
 
     // Hero Section
-    'hero.badge': { FR: 'Gestion de flotte nouvelle génération', EN: 'Next-generation fleet management' },
-    'hero.title.part1': { FR: 'La gestion de flotte', EN: 'Fleet management' },
-    'hero.title.part2': { FR: 'et moderne', EN: 'and modern' },
-    'hero.word1': { FR: 'intelligente', EN: 'intelligent' },
-    'hero.word2': { FR: 'sécurisée', EN: 'secure' },
-    'hero.word3': { FR: 'simplifiée', EN: 'simplified' },
-    'hero.word4': { FR: 'fiable', EN: 'reliable' },
-    'hero.word5': { FR: 'efficace', EN: 'efficient' },
+    'hero.badge': { FR: 'Gestion de flotte nouvelle génération', ENG: 'Next-generation fleet management' },
+    'hero.title.part1': { FR: 'La gestion de flotte', ENG: 'Fleet management' },
+    'hero.title.part2': { FR: 'et moderne', ENG: 'and modern' },
+    'hero.word1': { FR: 'intelligente', ENG: 'intelligent' },
+    'hero.word2': { FR: 'sécurisée', ENG: 'secure' },
+    'hero.word3': { FR: 'simplifiée', ENG: 'simplified' },
+    'hero.word4': { FR: 'fiable', ENG: 'reliable' },
+    'hero.word5': { FR: 'efficace', ENG: 'efficient' },
     'hero.subtitle': {
         FR: 'FleetMan est la solution complète pour optimiser la gestion de votre flotte de véhicules. Suivez vos véhicules en temps réel, gérez vos chauffeurs, et prenez des décisions éclairées grâce à nos analyses avancées.',
-        EN: 'FleetMan is the complete solution to optimize your vehicle fleet management. Track your vehicles in real time, manage your drivers, and make informed decisions with our advanced analytics.'
+        ENG: 'FleetMan is the complete solution to optimize your vehicle fleet management. Track your vehicles in real time, manage your drivers, and make informed decisions with our advanced analytics.'
     },
-    'hero.cta.register': { FR: 'Créer un compte gratuit', EN: 'Create free account' },
-    'hero.cta.login': { FR: 'Se connecter', EN: 'Sign in' },
+    'hero.cta.register': { FR: 'Créer un compte gratuit', ENG: 'Create free account' },
+    'hero.cta.login': { FR: 'Se connecter', ENG: 'Sign in' },
 
     // Features Section
-    'features.title': { FR: 'Fonctionnalités puissantes', EN: 'Powerful Features' },
+    'features.title': { FR: 'Fonctionnalités puissantes', ENG: 'Powerful Features' },
     'features.subtitle': {
         FR: 'Tout ce dont vous avez besoin pour gérer efficacement votre flotte de véhicules, au même endroit.',
-        EN: 'Everything you need to efficiently manage your vehicle fleet, in one place.'
+        ENG: 'Everything you need to efficiently manage your vehicle fleet, in one place.'
     },
-    'features.tracking.title': { FR: 'Suivi en temps réel', EN: 'Real-time Tracking' },
+    'features.tracking.title': { FR: 'Suivi en temps réel', ENG: 'Real-time Tracking' },
     'features.tracking.desc': {
         FR: 'Visualisez la position exacte de tous vos véhicules sur une carte interactive. Suivez les trajets et optimisez vos itinéraires.',
-        EN: 'View the exact position of all your vehicles on an interactive map. Track routes and optimize your itineraries.'
+        ENG: 'View the exact position of all your vehicles on an interactive map. Track routes and optimize your itineraries.'
     },
-    'features.drivers.title': { FR: 'Gestion des chauffeurs', EN: 'Driver Management' },
+    'features.drivers.title': { FR: 'Gestion des chauffeurs', ENG: 'Driver Management' },
     'features.drivers.desc': {
         FR: 'Assignez des chauffeurs à vos véhicules, suivez leurs performances et gérez les plannings efficacement.',
-        EN: 'Assign drivers to your vehicles, track their performance and manage schedules efficiently.'
+        ENG: 'Assign drivers to your vehicles, track their performance and manage schedules efficiently.'
     },
-    'features.alerts.title': { FR: 'Alertes intelligentes', EN: 'Smart Alerts' },
+    'features.alerts.title': { FR: 'Alertes intelligentes', ENG: 'Smart Alerts' },
     'features.alerts.desc': {
         FR: 'Recevez des notifications en temps réel pour les événements importants : maintenance, carburant bas, zones de géofencing.',
-        EN: 'Receive real-time notifications for important events: maintenance, low fuel, geofencing zones.'
+        ENG: 'Receive real-time notifications for important events: maintenance, low fuel, geofencing zones.'
     },
-    'features.analytics.title': { FR: 'Analyses avancées', EN: 'Advanced Analytics' },
+    'features.analytics.title': { FR: 'Analyses avancées', ENG: 'Advanced Analytics' },
     'features.analytics.desc': {
         FR: 'Tableaux de bord détaillés avec indicateurs clés : consommation de carburant, kilométrage, coûts de maintenance.',
-        EN: 'Detailed dashboards with key indicators: fuel consumption, mileage, maintenance costs.'
+        ENG: 'Detailed dashboards with key indicators: fuel consumption, mileage, maintenance costs.'
     },
-    'features.management.title': { FR: 'Gestion complète', EN: 'Complete Management' },
+    'features.management.title': { FR: 'Gestion complète', ENG: 'Complete Management' },
     'features.management.desc': {
         FR: 'Centralisez toutes les informations de vos véhicules : documents, assurances, historique de maintenance.',
-        EN: 'Centralize all your vehicle information: documents, insurance, maintenance history.'
+        ENG: 'Centralize all your vehicle information: documents, insurance, maintenance history.'
     },
-    'features.security.title': { FR: 'Sécurité avancée', EN: 'Advanced Security' },
+    'features.security.title': { FR: 'Sécurité avancée', ENG: 'Advanced Security' },
     'features.security.desc': {
         FR: "Données sécurisées et chiffrées. Contrôle d'accès par rôle pour protéger les informations sensibles.",
-        EN: 'Secure and encrypted data. Role-based access control to protect sensitive information.'
+        ENG: 'Secure and encrypted data. Role-based access control to protect sensitive information.'
     },
 
     // Stats Section
-    'stats.availability': { FR: 'Disponibilité du service', EN: 'Service Availability' },
-    'stats.realtime': { FR: 'Suivi en temps réel', EN: 'Real-time Tracking' },
-    'stats.cost': { FR: 'Réduction des coûts', EN: 'Cost Reduction' },
-    'stats.efficiency': { FR: 'Efficacité opérationnelle', EN: 'Operational Efficiency' },
+    'stats.availability': { FR: 'Disponibilité du service', ENG: 'Service Availability' },
+    'stats.realtime': { FR: 'Suivi en temps réel', ENG: 'Real-time Tracking' },
+    'stats.cost': { FR: 'Réduction des coûts', ENG: 'Cost Reduction' },
+    'stats.efficiency': { FR: 'Efficacité opérationnelle', ENG: 'Operational Efficiency' },
 
     // CTA Section
-    'cta.title': { FR: 'Prêt à optimiser votre flotte ?', EN: 'Ready to optimize your fleet?' },
+    'cta.title': { FR: 'Prêt à optimiser votre flotte ?', ENG: 'Ready to optimize your fleet?' },
     'cta.text': {
         FR: "Rejoignez FleetMan et transformez la gestion de vos véhicules dès aujourd'hui.",
-        EN: 'Join FleetMan and transform your vehicle management today.'
+        ENG: 'Join FleetMan and transform your vehicle management today.'
     },
-    'cta.hasAccount': { FR: "J'ai déjà un compte", EN: 'I already have an account' },
+    'cta.hasAccount': { FR: "J'ai déjà un compte", ENG: 'I already have an account' },
 
     // Footer
     'footer.copyright': {
         FR: 'FleetMan 2025 - Tous droits réservés | Solution de gestion de flotte intelligente',
-        EN: 'FleetMan 2025 - All rights reserved | Intelligent fleet management solution'
+        ENG: 'FleetMan 2025 - All rights reserved | Intelligent fleet management solution'
     },
 
     // Theme
-    'theme.light': { FR: 'Thème clair', EN: 'Light theme' },
-    'theme.dark': { FR: 'Thème sombre', EN: 'Dark theme' },
+    'theme.light': { FR: 'Thème clair', ENG: 'Light theme' },
+    'theme.dark': { FR: 'Thème sombre', ENG: 'Dark theme' },
+
+    // Form - Common
+    'form.email': { FR: 'Email', ENG: 'Email' },
+    'form.password': { FR: 'Mot de passe', ENG: 'Password' },
+    'form.confirmPassword': { FR: 'Confirmer le mot de passe', ENG: 'Confirm Password' },
+    'form.firstName': { FR: 'Prénom', ENG: 'First Name' },
+    'form.lastName': { FR: 'Nom', ENG: 'Last Name' },
+    'form.phone': { FR: 'Téléphone', ENG: 'Phone' },
+    'form.address': { FR: 'Adresse', ENG: 'Address' },
+    'form.city': { FR: 'Ville', ENG: 'City' },
+    'form.postalCode': { FR: 'Code Postal', ENG: 'Postal Code' },
+    'form.country': { FR: 'Pays', ENG: 'Country' },
+    'form.next': { FR: 'Suivant', ENG: 'Next' },
+    'form.previous': { FR: 'Précédent', ENG: 'Previous' },
+    'form.submit': { FR: 'Valider', ENG: 'Submit' },
+    'form.loading': { FR: 'Chargement...', ENG: 'Loading...' },
+    'form.login': { FR: 'Se connecter', ENG: 'Login' },
+    'form.register': { FR: "S'inscrire", ENG: 'Register' },
+
+    // Register Page
+    'register.title': { FR: 'Créer un compte Organisation', ENG: 'Create Organization Account' },
+    'register.hasAccount': { FR: 'connectez-vous si vous avez déjà un compte', ENG: 'sign in if you already have an account' },
+    'register.step1': { FR: 'Vos Informations', ENG: 'Your Info' },
+    'register.step1.desc': { FR: "Identité de l'administrateur", ENG: 'Administrator Identity' },
+    'register.step2': { FR: 'Compte', ENG: 'Account' },
+    'register.step2.desc': { FR: 'Sécurité du compte', ENG: 'Account Security' },
+    'register.step3': { FR: 'Organisation', ENG: 'Organization' },
+    'register.step3.desc': { FR: 'Détails de votre entreprise', ENG: 'Company Details' },
+    'register.step4': { FR: 'Validation', ENG: 'Review' },
+    'register.step4.desc': { FR: 'Récapitulatif', ENG: 'Summary' },
+
+    // Login Page
+    'login.title': { FR: 'Connexion', ENG: 'Sign in to your account' },
+    'login.subtitle': { FR: 'Ou', ENG: 'Or' },
+    'login.createAccount': { FR: 'créer un nouveau compte', ENG: 'create a new account' },
+    'login.forgotPassword': { FR: 'Mot de passe oublié ?', ENG: 'Forgot password?' },
+    'login.rememberMe': { FR: 'Se souvenir de moi', ENG: 'Remember me' },
+
+    // Dashboard - Sidebar
+    'sidebar.fleets': { FR: 'Mes Flottes', ENG: 'My Fleets' },
+    'sidebar.vehicles': { FR: 'Mes Véhicules', ENG: 'My Vehicles' },
+    'sidebar.drivers': { FR: 'Mes Chauffeurs', ENG: 'My Drivers' },
+    'sidebar.managers': { FR: 'Mes Gestionnaires', ENG: 'My Managers' },
+    'sidebar.incidents': { FR: 'Incidents', ENG: 'Incidents' },
+    'sidebar.geofences': { FR: 'Zones (Geofencing)', ENG: 'Geofences' },
+    'sidebar.reports': { FR: 'Bilans', ENG: 'Reports' },
+    'sidebar.history': { FR: 'Historique', ENG: 'History' },
+    'sidebar.subscription': { FR: 'Abonnement', ENG: 'Subscription' },
+    'sidebar.support': { FR: 'Support Client', ENG: 'Customer Support' },
+    'dashboard.welcome': { FR: 'Bienvenue sur votre tableau de bord', ENG: 'Welcome to your dashboard' },
+    'dashboard.overview': { FR: "Voici un aperçu de l'activité de votre organisation aujourd'hui.", ENG: "Here's an overview of your organization's activity today." },
+
+    // Fleet Managers Page
+    'managers.title': { FR: 'Mes Gestionnaires', ENG: 'My Fleet Managers' },
+    'managers.subtitle': { FR: 'Gérez les responsables de vos flottes', ENG: 'Manage your fleet managers' },
+    'managers.new': { FR: 'Nouveau Gestionnaire', ENG: 'New Manager' },
+    'managers.searchPlaceholder': { FR: 'Rechercher par nom, email, téléphone...', ENG: 'Search by name, email, phone...' },
+    'managers.noManagers': { FR: 'Aucun gestionnaire trouvé', ENG: 'No managers found' },
+    'managers.addFirst': { FR: 'Ajoutez votre premier gestionnaire de flotte', ENG: 'Add your first fleet manager' },
+    'managers.active': { FR: 'Actif', ENG: 'Active' },
+    'managers.inactive': { FR: 'Inactif', ENG: 'Inactive' },
+    'managers.onLeave': { FR: 'En congé', ENG: 'On leave' },
+    'managers.suspended': { FR: 'Suspendu', ENG: 'Suspended' },
+    'managers.fleetsManaged': { FR: 'flotte(s) gérée(s)', ENG: 'fleet(s) managed' },
+    'managers.notProvided': { FR: 'Non renseigné', ENG: 'Not provided' },
+    'managers.noAdminId': { FR: 'ID administrateur non trouvé', ENG: 'Admin ID not found' },
+    'managers.confirmDelete': { FR: 'Êtes-vous sûr de vouloir supprimer ce gestionnaire ?', ENG: 'Are you sure you want to delete this manager?' },
+    'managers.deleteWarning': { FR: 'Cette action est irréversible. Les flottes associées seront dissociées.', ENG: 'This action is irreversible. Associated fleets will be unlinked.' },
+    'managers.typeNameToConfirm': { FR: 'Saisissez le nom complet du gestionnaire pour confirmer:', ENG: 'Type the full manager name to confirm:' },
+    'managers.nameDoesNotMatch': { FR: 'Le nom ne correspond pas', ENG: 'The name does not match' },
+    'managers.nameMatches': { FR: 'Nom confirmé', ENG: 'Name confirmed' },
+
+
+    // Dashboard - Common
+    'common.search': { FR: 'Rechercher', ENG: 'Search' },
+    'common.new': { FR: 'Nouveau', ENG: 'New' },
+    'common.edit': { FR: 'Modifier', ENG: 'Edit' },
+    'common.delete': { FR: 'Supprimer', ENG: 'Delete' },
+    'common.save': { FR: 'Enregistrer', ENG: 'Save' },
+    'common.cancel': { FR: 'Annuler', ENG: 'Cancel' },
+    'common.close': { FR: 'Fermer', ENG: 'Close' },
+    'common.loading': { FR: 'Chargement...', ENG: 'Loading...' },
+    'common.noResults': { FR: 'Aucun résultat', ENG: 'No results' },
+    'common.allStates': { FR: 'Tous les états', ENG: 'All states' },
+    'common.filter': { FR: 'Filtrer', ENG: 'Filter' },
+
+    // Fleets Page
+    'fleets.title': { FR: 'Mes Flottes', ENG: 'My Fleets' },
+    'fleets.subtitle': { FR: 'Gérez vos flottes de véhicules', ENG: 'Manage your vehicle fleets' },
+    'fleets.new': { FR: 'Nouvelle Flotte', ENG: 'New Fleet' },
+    'fleets.searchPlaceholder': { FR: 'Rechercher une flotte...', ENG: 'Search for a fleet...' },
+    'fleets.noFleets': { FR: 'Aucune flotte trouvée', ENG: 'No fleets found' },
+    'fleets.createFirst': { FR: 'Créez votre première flotte pour commencer', ENG: 'Create your first fleet to get started' },
+    'fleets.noDescription': { FR: 'Aucune description', ENG: 'No description' },
+    'fleets.vehicles': { FR: 'véhicule(s)', ENG: 'vehicle(s)' },
+    'fleets.manager': { FR: 'Manager', ENG: 'Manager' },
+    'fleets.notAssigned': { FR: 'Non assigné', ENG: 'Not assigned' },
+    'fleets.confirmDelete': { FR: 'Êtes-vous sûr de vouloir supprimer cette flotte ?', ENG: 'Are you sure you want to delete this fleet?' },
+    'fleets.deleteWarning': { FR: 'Cette action est irréversible. Tous les véhicules associés seront dissociés.', ENG: 'This action is irreversible. All associated vehicles will be unlinked.' },
+    'fleets.typeNameToConfirm': { FR: 'Saisissez le nom de la flotte pour confirmer:', ENG: 'Type the fleet name to confirm:' },
+    'fleets.nameDoesNotMatch': { FR: 'Le nom ne correspond pas', ENG: 'The name does not match' },
+    'fleets.nameMatches': { FR: 'Nom confirmé', ENG: 'Name confirmed' },
+
+    // Vehicles Page
+    'vehicles.title': { FR: 'Mes Véhicules', ENG: 'My Vehicles' },
+    'vehicles.subtitle': { FR: 'Gérez votre parc automobile', ENG: 'Manage your vehicle fleet' },
+    'vehicles.new': { FR: 'Nouveau Véhicule', ENG: 'New Vehicle' },
+    'vehicles.searchPlaceholder': { FR: 'Rechercher par immatriculation, marque...', ENG: 'Search by registration, brand...' },
+    'vehicles.noVehicles': { FR: 'Aucun véhicule trouvé', ENG: 'No vehicles found' },
+    'vehicles.addFirst': { FR: 'Ajoutez votre premier véhicule', ENG: 'Add your first vehicle' },
+    'vehicles.moving': { FR: 'En mouvement', ENG: 'Moving' },
+    'vehicles.parked': { FR: 'Stationné', ENG: 'Parked' },
+    'vehicles.idle': { FR: 'Au repos', ENG: 'Idle' },
+    'vehicles.maintenance': { FR: 'En maintenance', ENG: 'Under maintenance' },
+    'vehicles.outOfService': { FR: 'Hors service', ENG: 'Out of service' },
+    'vehicles.confirmDelete': { FR: 'Êtes-vous sûr de vouloir supprimer ce véhicule ?', ENG: 'Are you sure you want to delete this vehicle?' },
+    'vehicles.deleteWarning': { FR: 'Cette action est irréversible. Toutes les données associées seront supprimées.', ENG: 'This action is irreversible. All associated data will be deleted.' },
+    'vehicles.typeRegistrationToConfirm': { FR: 'Saisissez l\'immatriculation pour confirmer:', ENG: 'Type the registration number to confirm:' },
+    'vehicles.registrationDoesNotMatch': { FR: 'L\'immatriculation ne correspond pas', ENG: 'Registration does not match' },
+    'vehicles.registrationMatches': { FR: 'Immatriculation confirmée', ENG: 'Registration confirmed' },
+
+    'drivers.title': { FR: 'Mes Chauffeurs', ENG: 'My Drivers' },
+    'drivers.subtitle': { FR: 'Gérez vos conducteurs', ENG: 'Manage your drivers' },
+    'drivers.new': { FR: 'Nouveau Chauffeur', ENG: 'New Driver' },
+    'drivers.searchPlaceholder': { FR: 'Rechercher par nom, email, téléphone...', ENG: 'Search by name, email, phone...' },
+    'drivers.noDrivers': { FR: 'Aucun chauffeur trouvé', ENG: 'No drivers found' },
+    'drivers.addFirst': { FR: 'Ajoutez votre premier chauffeur', ENG: 'Add your first driver' },
+    'drivers.active': { FR: 'Actif', ENG: 'Active' },
+    'drivers.inactive': { FR: 'Inactif', ENG: 'Inactive' },
+    'drivers.onLeave': { FR: 'En congé', ENG: 'On leave' },
+    'drivers.suspended': { FR: 'Suspendu', ENG: 'Suspended' },
+    'drivers.license': { FR: 'Permis', ENG: 'License' },
+    'drivers.notProvided': { FR: 'Non renseigné', ENG: 'Not provided' },
+    'drivers.confirmDelete': { FR: 'Êtes-vous sûr de vouloir supprimer ce chauffeur ?', ENG: 'Are you sure you want to delete this driver?' },
+    'drivers.deleteWarning': { FR: 'Cette action est irréversible. Toutes les données associées seront supprimées.', ENG: 'This action is irreversible. All associated data will be deleted.' },
+    'drivers.typeNameToConfirm': { FR: 'Saisissez le nom complet du chauffeur pour confirmer:', ENG: 'Type the full driver name to confirm:' },
+    'drivers.nameDoesNotMatch': { FR: 'Le nom ne correspond pas', ENG: 'The name does not match' },
+    'drivers.nameMatches': { FR: 'Nom confirmé', ENG: 'Name confirmed' },
+
+    // Reports Page
+    'reports.title': { FR: 'Bilans', ENG: 'Reports' },
+    'reports.subtitle': { FR: "Générez et consultez vos rapports d'activité", ENG: 'Generate and view your activity reports' },
+    'reports.period': { FR: 'Période', ENG: 'Period' },
+    'reports.last7days': { FR: '7 derniers jours', ENG: 'Last 7 days' },
+    'reports.last30days': { FR: '30 derniers jours', ENG: 'Last 30 days' },
+    'reports.last90days': { FR: '90 derniers jours', ENG: 'Last 90 days' },
+    'reports.thisYear': { FR: 'Cette année', ENG: 'This year' },
+    'reports.custom': { FR: 'Personnalisé', ENG: 'Custom' },
+    'reports.generate': { FR: 'Générer', ENG: 'Generate' },
+    'reports.fleetPerformance': { FR: 'Performance des Flottes', ENG: 'Fleet Performance' },
+    'reports.fuelConsumption': { FR: 'Consommation de Carburant', ENG: 'Fuel Consumption' },
+    'reports.maintenanceCosts': { FR: 'Coûts de Maintenance', ENG: 'Maintenance Costs' },
+    'reports.driverActivity': { FR: 'Activité des Chauffeurs', ENG: 'Driver Activity' },
+    'reports.preview': { FR: 'Aperçu du Rapport', ENG: 'Report Preview' },
+    'reports.selectReport': { FR: "Sélectionnez un rapport pour voir l'aperçu ici", ENG: 'Select a report to see preview here' },
+
+    // History Page
+    'history.title': { FR: 'Historique', ENG: 'History' },
+    'history.subtitle': { FR: "Consultez l'historique des trajets et incidents", ENG: 'View trip and incident history' },
+    'history.all': { FR: 'Tout', ENG: 'All' },
+    'history.trips': { FR: 'Trajets', ENG: 'Trips' },
+    'history.incidents': { FR: 'Incidents', ENG: 'Incidents' },
+    'history.noHistory': { FR: 'Aucun historique', ENG: 'No history' },
+    'history.eventsAppear': { FR: 'Les événements apparaîtront ici', ENG: 'Events will appear here' },
+
+    // Subscription Page
+    'subscription.title': { FR: 'Abonnement', ENG: 'Subscription' },
+    'subscription.subtitle': { FR: 'Gérez votre abonnement et vos options de facturation', ENG: 'Manage your subscription and billing options' },
+    'subscription.currentPlan': { FR: 'Plan actuel', ENG: 'Current plan' },
+    'subscription.organization': { FR: 'Organisation', ENG: 'Organization' },
+    'subscription.popular': { FR: 'Populaire', ENG: 'Popular' },
+    'subscription.choose': { FR: 'Choisir', ENG: 'Choose' },
+
+    // Support Page
+    'support.title': { FR: 'Support Client', ENG: 'Customer Support' },
+    'support.subtitle': { FR: "Besoin d'aide ? Nous sommes là pour vous", ENG: 'Need help? We are here for you' },
+    'support.email': { FR: 'Email', ENG: 'Email' },
+    'support.phone': { FR: 'Téléphone', ENG: 'Phone' },
+    'support.liveChat': { FR: 'Chat en direct', ENG: 'Live Chat' },
+    'support.available': { FR: 'Disponible 9h-18h', ENG: 'Available 9am-6pm' },
+    'support.sendEmail': { FR: 'Envoyer un email', ENG: 'Send email' },
+    'support.call': { FR: 'Appeler', ENG: 'Call' },
+    'support.startChat': { FR: 'Démarrer le chat', ENG: 'Start chat' },
+    'support.usefulResources': { FR: 'Ressources utiles', ENG: 'Useful resources' },
+    'support.documentation': { FR: 'Documentation', ENG: 'Documentation' },
+    'support.helpCenter': { FR: "Centre d'aide", ENG: 'Help Center' },
+    'support.faq': { FR: 'Questions fréquentes', ENG: 'Frequently Asked Questions' },
+    'support.contactUs': { FR: 'Nous contacter', ENG: 'Contact Us' },
+    'support.name': { FR: 'Nom', ENG: 'Name' },
+    'support.yourName': { FR: 'Votre nom', ENG: 'Your name' },
+    'support.yourEmail': { FR: 'votre@email.com', ENG: 'your@email.com' },
+    'support.subject': { FR: 'Sujet', ENG: 'Subject' },
+    'support.technicalQuestion': { FR: 'Question technique', ENG: 'Technical question' },
+    'support.billing': { FR: 'Facturation', ENG: 'Billing' },
+    'support.feature': { FR: 'Fonctionnalité', ENG: 'Feature' },
+    'support.other': { FR: 'Autre', ENG: 'Other' },
+    'support.message': { FR: 'Message', ENG: 'Message' },
+    'support.describeRequest': { FR: 'Décrivez votre demande...', ENG: 'Describe your request...' },
+    'support.send': { FR: 'Envoyer', ENG: 'Send' },
+
+    // FAQ
+    'faq.q1': { FR: 'Comment ajouter un nouveau véhicule à ma flotte ?', ENG: 'How do I add a new vehicle to my fleet?' },
+    'faq.a1': { FR: "Rendez-vous dans la section 'Mes Véhicules', cliquez sur 'Nouveau Véhicule' et remplissez les informations requises comme l'immatriculation, la marque et le modèle.", ENG: "Go to 'My Vehicles' section, click 'New Vehicle' and fill in the required information like registration, make and model." },
+    'faq.q2': { FR: 'Comment assigner un chauffeur à un véhicule ?', ENG: 'How do I assign a driver to a vehicle?' },
+    'faq.a2': { FR: "Dans la page de détails du véhicule, vous trouverez une option pour assigner un chauffeur parmi ceux disponibles dans votre organisation.", ENG: "On the vehicle details page, you will find an option to assign a driver from those available in your organization." },
+    'faq.q3': { FR: 'Comment configurer les alertes de géofencing ?', ENG: 'How do I configure geofencing alerts?' },
+    'faq.a3': { FR: "Accédez aux paramètres de votre flotte, puis à la section Géofences. Vous pouvez créer des zones géographiques et configurer des alertes d'entrée/sortie.", ENG: "Go to your fleet settings, then the Geofences section. You can create geographic zones and configure entry/exit alerts." },
+    'faq.q4': { FR: 'Comment exporter mes rapports ?', ENG: 'How do I export my reports?' },
+    'faq.a4': { FR: "Dans la section Bilans, sélectionnez le type de rapport souhaité et cliquez sur le bouton PDF pour télécharger une version exportable.", ENG: "In the Reports section, select the desired report type and click the PDF button to download an exportable version." },
+
+    // Report descriptions
+    'reports.fleetPerformanceDesc': { FR: 'Analyse de la performance globale de vos flottes', ENG: 'Analysis of the overall performance of your fleets' },
+    'reports.fuelConsumptionDesc': { FR: 'Rapport détaillé sur la consommation de carburant', ENG: 'Detailed report on fuel consumption' },
+    'reports.maintenanceCostsDesc': { FR: 'Suivi des dépenses de maintenance par véhicule', ENG: 'Tracking maintenance costs by vehicle' },
+    'reports.driverActivityDesc': { FR: "Statistiques d'activité et de performance des chauffeurs", ENG: 'Driver activity and performance statistics' },
+
+    // Subscription features
+    'subscription.free.f1': { FR: '5 véhicules max', ENG: '5 vehicles max' },
+    'subscription.free.f2': { FR: '1 utilisateur', ENG: '1 user' },
+    'subscription.free.f3': { FR: 'Suivi GPS basique', ENG: 'Basic GPS tracking' },
+    'subscription.free.f4': { FR: 'Support email', ENG: 'Email support' },
+    'subscription.basic.f1': { FR: '20 véhicules', ENG: '20 vehicles' },
+    'subscription.basic.f2': { FR: '5 utilisateurs', ENG: '5 users' },
+    'subscription.basic.f3': { FR: 'Suivi GPS avancé', ENG: 'Advanced GPS tracking' },
+    'subscription.basic.f4': { FR: 'Alertes en temps réel', ENG: 'Real-time alerts' },
+    'subscription.basic.f5': { FR: 'Support prioritaire', ENG: 'Priority support' },
+    'subscription.professional.f1': { FR: '100 véhicules', ENG: '100 vehicles' },
+    'subscription.professional.f2': { FR: 'Utilisateurs illimités', ENG: 'Unlimited users' },
+    'subscription.professional.f3': { FR: 'Analytics avancés', ENG: 'Advanced analytics' },
+    'subscription.professional.f4': { FR: 'Accès API', ENG: 'API access' },
+    'subscription.professional.f5': { FR: 'Support 24/7', ENG: '24/7 support' },
+    'subscription.professional.f6': { FR: 'Géofencing', ENG: 'Geofencing' },
+    'subscription.enterprise.f1': { FR: 'Véhicules illimités', ENG: 'Unlimited vehicles' },
+    'subscription.enterprise.f2': { FR: 'Personnalisation complète', ENG: 'Full customization' },
+    'subscription.enterprise.f3': { FR: 'SLA garanti', ENG: 'Guaranteed SLA' },
+    'subscription.enterprise.f4': { FR: 'Account manager dédié', ENG: 'Dedicated account manager' },
+    'subscription.enterprise.f5': { FR: 'Formation incluse', ENG: 'Training included' },
+    'subscription.onQuote': { FR: 'Sur devis', ENG: 'On quote' },
+    'subscription.perMonth': { FR: '/mois', ENG: '/month' },
+
+    // Fleet Creation Wizard
+    'wizard.step1Title': { FR: 'Étape 1: Créer le Gestionnaire', ENG: 'Step 1: Create Manager' },
+    'wizard.step2Title': { FR: 'Étape 2: Créer la Flotte', ENG: 'Step 2: Create Fleet' },
+    'wizard.complete': { FR: 'Terminé!', ENG: 'Complete!' },
+    'wizard.createManagerFirst': { FR: "Créez d'abord un gestionnaire pour cette flotte", ENG: 'First create a manager for this fleet' },
+    'wizard.managerCreated': { FR: 'Gestionnaire créé ! Maintenant créez la flotte', ENG: 'Manager created! Now create the fleet' },
+    'wizard.next': { FR: 'Suivant', ENG: 'Next' },
+    'wizard.back': { FR: 'Retour', ENG: 'Back' },
+    'wizard.createFleet': { FR: 'Créer la Flotte', ENG: 'Create Fleet' },
+    'wizard.successTitle': { FR: 'Flotte créée avec succès!', ENG: 'Fleet created successfully!' },
+    'wizard.successManager': { FR: 'Gestionnaire', ENG: 'Manager' },
+    'wizard.successFleet': { FR: 'Flotte', ENG: 'Fleet' },
+    'wizard.errorManager': { FR: 'Échec de la création du gestionnaire de flotte', ENG: 'Failed to create fleet manager' },
+    'wizard.errorFleet': { FR: 'Échec de la création de la flotte', ENG: 'Failed to create fleet' },
+    'wizard.errorNoManager': { FR: 'Aucun gestionnaire de flotte créé', ENG: 'No fleet manager created' },
+    'wizard.step1TitleFleet': { FR: 'Étape 1: Informations de la Flotte', ENG: 'Step 1: Fleet Information' },
+    'wizard.step2TitleManager': { FR: 'Étape 2: Gestionnaire de la Flotte', ENG: 'Step 2: Fleet Manager' },
+    'wizard.step3Confirm': { FR: 'Étape 3: Confirmation', ENG: 'Step 3: Confirmation' },
+    'wizard.fleetInfoDesc': { FR: 'Définissez les informations de votre nouvelle flotte', ENG: 'Define the information for your new fleet' },
+    'wizard.managerInfoDesc': { FR: 'Créez le gestionnaire qui sera responsable de cette flotte', ENG: 'Create the manager who will be responsible for this fleet' },
+    'wizard.confirmDesc': { FR: 'Vérifiez les informations avant de créer', ENG: 'Review the information before creating' },
+    'wizard.createAll': { FR: 'Créer la Flotte et le Gestionnaire', ENG: 'Create Fleet and Manager' },
+    'wizard.creating': { FR: 'Création en cours...', ENG: 'Creating...' },
+
+    // Form Fields - Additional (not duplicating existing ones)
+    'form.gender': { FR: 'Genre', ENG: 'Gender' },
+    'form.gender.male': { FR: 'Homme', ENG: 'Male' },
+    'form.gender.female': { FR: 'Femme', ENG: 'Female' },
+    'form.required': { FR: '(obligatoire)', ENG: '(required)' },
+    'form.fleetName': { FR: 'Nom de la flotte', ENG: 'Fleet Name' },
+    'form.description': { FR: 'Description', ENG: 'Description' },
+    'form.fleetType': { FR: 'Type de flotte', ENG: 'Fleet Type' },
+    'form.idCardNumber': { FR: "Numéro de carte d'identité", ENG: 'ID Card Number' },
+    'form.taxNumber': { FR: 'Numéro fiscal', ENG: 'Tax Number' },
+    'form.niu': { FR: 'NIU (Numéro Unique)', ENG: 'NIU (Unique Number)' },
+    'form.language': { FR: 'Langue préférée', ENG: 'Preferred Language' },
+    'form.requiredFields': { FR: '* Champs obligatoires', ENG: '* Required fields' },
+
+    // Fleet Types
+    'fleetType.personal': { FR: 'Personnel', ENG: 'Personal' },
+    'fleetType.passengerTransport': { FR: 'Transport de passagers', ENG: 'Passenger Transport' },
+    'fleetType.cargoTransport': { FR: 'Transport de marchandises', ENG: 'Cargo Transport' },
+    'fleetType.delivery': { FR: 'Livraison', ENG: 'Delivery' },
+    'fleetType.rental': { FR: 'Location', ENG: 'Rental' },
+    'fleetType.mixed': { FR: 'Mixte', ENG: 'Mixed' },
+    'fleetType.other': { FR: 'Autre', ENG: 'Other' },
+
+    // Geofences Page
+    'geofences.title': { FR: 'Zones (Geofencing)', ENG: 'Geofences' },
+    'geofences.subtitle': { FR: 'Gérez vos zones de surveillance', ENG: 'Manage your monitoring zones' },
+    'geofences.circle': { FR: 'Cercle', ENG: 'Circle' },
+    'geofences.polygon': { FR: 'Polygone', ENG: 'Polygon' },
+    'geofences.newZone': { FR: 'Nouvelle Zone', ENG: 'New Zone' },
+    'geofences.circular': { FR: 'Circulaire', ENG: 'Circular' },
+    'geofences.name': { FR: 'Nom', ENG: 'Name' },
+    'geofences.description': { FR: 'Description', ENG: 'Description' },
+    'geofences.namePlaceholder': { FR: 'Ex: Entrepôt Principal', ENG: 'Ex: Main Warehouse' },
+    'geofences.radius': { FR: 'Rayon (mètres)', ENG: 'Radius (meters)' },
+    'geofences.circleHint': { FR: 'Cliquez sur la carte pour définir le centre de la zone.', ENG: 'Click on the map to define the zone center.' },
+    'geofences.polygonHint': { FR: 'Cliquez sur la carte pour ajouter des points. Le polygone se fermera automatiquement.', ENG: 'Click on the map to add points. The polygon will close automatically.' },
+    'geofences.loading': { FR: 'Chargement...', ENG: 'Loading...' },
+    'geofences.noZones': { FR: 'Aucune zone définie.', ENG: 'No zones defined.' },
+    'geofences.loadError': { FR: 'Erreur lors du chargement des zones', ENG: 'Error loading zones' },
+    'geofences.nameRequired': { FR: 'Le nom est obligatoire', ENG: 'Name is required' },
+    'geofences.sessionInvalid': { FR: 'Session invalide. Veuillez vous reconnecter.', ENG: 'Invalid session. Please log in again.' },
+    'geofences.selectCenter': { FR: 'Veuillez sélectionner un centre sur la carte', ENG: 'Please select a center on the map' },
+    'geofences.minPoints': { FR: 'Un polygone doit avoir au moins 3 points', ENG: 'A polygon must have at least 3 points' },
+    'geofences.createSuccess': { FR: 'Zone créée avec succès', ENG: 'Zone created successfully' },
+    'geofences.createError': { FR: 'Erreur lors de la création', ENG: 'Error during creation' },
+    'geofences.deleteConfirm': { FR: 'Êtes-vous sûr de vouloir supprimer cette zone ?', ENG: 'Are you sure you want to delete this zone?' },
+    'geofences.deleteSuccess': { FR: 'Zone supprimée', ENG: 'Zone deleted' },
+    'geofences.deleteError': { FR: 'Erreur lors de la suppression', ENG: 'Error during deletion' },
+    'geofences.loadingMap': { FR: 'Chargement de la carte...', ENG: 'Loading map...' },
 };
 
 interface LanguageContextType {
@@ -107,15 +419,15 @@ interface LanguageContextType {
 const LanguageContext = createContext<LanguageContextType | undefined>(undefined);
 
 export function LanguageProvider({ children }: { children: ReactNode }) {
-    const [language, setLanguageState] = useState<Language>('FR');
+    const [language, setLanguageState] = useState<Language>(Language.FR);
     const [mounted, setMounted] = useState(false);
 
     // Load saved language on mount
     useEffect(() => {
         setMounted(true);
-        const savedLang = localStorage.getItem('fleetman-language') as Language;
-        if (savedLang && (savedLang === 'FR' || savedLang === 'EN')) {
-            setLanguageState(savedLang);
+        const savedLang = localStorage.getItem('fleetman-language');
+        if (savedLang && Object.values(Language).includes(savedLang as Language)) {
+            setLanguageState(savedLang as Language);
         }
     }, []);
 
@@ -131,13 +443,13 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
     };
 
     const toggleLanguage = () => {
-        setLanguageState(prev => prev === 'FR' ? 'EN' : 'FR');
+        setLanguageState(prev => prev === Language.FR ? Language.ENG : Language.FR);
     };
 
     // Translation function
     const t = (key: string): string => {
         if (translations[key]) {
-            return translations[key][language];
+            return translations[key][language as keyof typeof translations[typeof key]];
         }
         console.warn(`Translation missing for key: ${key}`);
         return key;

@@ -1,36 +1,164 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# FleetMan - Système de Gestion de Flotte
 
-## Getting Started
+Application de gestion de flotte de véhicules avec suivi en temps réel, gestion des conducteurs et géofencing.
 
-First, run the development server:
+## 🏗️ Architecture
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+```
+com.polytechnique.fleetman/
+├── backend/          # API Spring Boot (Java 17+)
+├── fleetman-frontend/ # Application Next.js (React 18+)
+└── frontend/         # (Legacy - non utilisé)
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## 📋 Prérequis
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+- **Node.js** 18+ et npm
+- **Java** 17+
+- **Docker** (pour PostgreSQL)
+- **Maven** (inclus via wrapper)
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## 🚀 Lancement du Projet
 
-## Learn More
+### 1. Base de données PostgreSQL
 
-To learn more about Next.js, take a look at the following resources:
+```bash
+# Démarrer le conteneur PostgreSQL
+docker run -d \
+  --name fleetman-postgres \
+  -e POSTGRES_USER=admin \
+  -e POSTGRES_PASSWORD=admin \
+  -e POSTGRES_DB=fleetmanBD \
+  -p 5432:5432 \
+  postgis/postgis:15-3.3
+```
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+### 2. Backend (API Spring Boot)
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+```bash
+cd backend
 
-## Deploy on Vercel
+# Lancer le serveur (port 9080)
+./mvnw spring-boot:run
+```
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+L'API sera disponible sur `http://localhost:9080`
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+### 3. Frontend (Next.js)
+
+```bash
+cd fleetman-frontend
+
+# Installer les dépendances
+npm install
+
+# Mode développement (port 3000)
+npm run dev
+
+# OU Mode production
+npm run build && npm start
+```
+
+L'application sera disponible sur `http://localhost:3000`
+
+## 👥 Rôles Utilisateurs
+
+| Rôle | Description | Dashboard |
+|------|-------------|-----------|
+| `SUPER_ADMIN` | Administrateur système | `/dashboard/superadmin` |
+| `ORGANIZATION_MANAGER` | Gestionnaire d'organisation | `/dashboard/manager` |
+| `DRIVER` | Conducteur | `/dashboard/driver` |
+
+## 📱 Fonctionnalités Principales
+
+- **Gestion des véhicules** : CRUD, suivi position, historique trajets
+- **Gestion des conducteurs** : Profil, permis, contact d'urgence
+- **Gestion des flottes** : Organisation des véhicules par flotte
+- **Géofencing** : Création de zones géographiques (cercles/polygones)
+- **Incidents** : Signalement et suivi des incidents
+- **Tableau de bord** : Statistiques en temps réel
+
+## 🔧 Configuration
+
+### Backend (`backend/src/main/resources/application.properties`)
+
+```properties
+server.port=9080
+spring.datasource.url=jdbc:postgresql://localhost:5432/fleetmanBD
+spring.datasource.username=admin
+spring.datasource.password=admin
+```
+
+### Frontend (`fleetman-frontend/src/lib/axios.ts`)
+
+```typescript
+const API_BASE_URL = 'http://localhost:9080';
+```
+
+## 📁 Structure Frontend
+
+```
+fleetman-frontend/src/
+├── app/
+│   ├── dashboard/manager/   # Pages gestionnaire
+│   │   ├── vehicles/        # Liste + détail véhicules
+│   │   ├── drivers/         # Liste + détail conducteurs
+│   │   ├── fleets/          # Gestion flottes
+│   │   ├── geofences/       # Géofencing
+│   │   └── incidents/       # Incidents
+│   ├── login/               # Authentification
+│   └── register/            # Inscription
+├── components/
+│   ├── dashboard/           # Composants dashboard
+│   └── vehicle/             # Jauges véhicule
+├── services/                # API clients
+├── types/                   # TypeScript types
+└── contexts/                # React contexts
+```
+
+## 🧪 Scripts Utiles
+
+```bash
+# Frontend
+npm run dev          # Développement
+npm run build        # Build production
+npm run lint         # Vérification ESLint
+
+# Backend
+./mvnw spring-boot:run           # Lancer le serveur
+./mvnw clean install -DskipTests # Build sans tests
+
+# Base de données
+docker exec -it fleetman-postgres psql -U admin -d fleetmanBD
+```
+
+## 🔐 Premier Démarrage
+
+1. Lancez PostgreSQL, Backend, puis Frontend
+2. Accédez à `http://localhost:3000/register`
+3. Créez un compte (automatiquement `ORGANIZATION_MANAGER`)
+4. Créez une organisation
+5. Commencez à ajouter véhicules, conducteurs, etc.
+
+## 📝 API Endpoints Principaux
+
+| Méthode | Endpoint | Description |
+|---------|----------|-------------|
+| POST | `/login/admin` | Connexion admin |
+| GET | `/vehicles` | Liste véhicules |
+| GET | `/drivers` | Liste conducteurs |
+| GET | `/organizations/{id}/geofences` | Geofences org |
+| POST | `/geofences/circle/admin/{id}` | Créer geofence |
+
+## 🐛 Dépannage
+
+**CORS Error** : Vérifiez que le backend autorise `http://localhost:3000`
+
+**DB Connection** : Vérifiez que PostgreSQL tourne et les credentials sont corrects
+
+**Build Error Leaflet** : Le premier build peut être lent à cause de la bibliothèque de cartes
+
+---
+
+**Auteurs** : Équipe FleetMan - Polytechnique  
+**Licence** : MIT

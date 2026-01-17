@@ -1,46 +1,88 @@
 "use client";
 
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { useLanguage } from '@/contexts/LanguageContext';
-import { FileText, Download, Calendar, BarChart2, PieChart, TrendingUp } from 'lucide-react';
+import { fuelRechargeApi, maintenanceApi, vehicleApi, incidentApi, tripApi } from '@/services';
+import { FuelRecharge, Maintenance, Vehicle, Incident, Trip } from '@/types';
+import {
+    Fuel,
+    Wrench,
+    TrendingUp,
+    AlertTriangle,
+    Calendar,
+    DollarSign,
+    Gauge,
+    MapPin,
+    Clock,
+    Car
+} from 'lucide-react';
 
 export default function ReportsPage() {
     const { t } = useLanguage();
+    const [loading, setLoading] = useState(true);
+    const [fuelRecharges, setFuelRecharges] = useState<FuelRecharge[]>([]);
+    const [maintenances, setMaintenances] = useState<Maintenance[]>([]);
+    const [vehicles, setVehicles] = useState<Vehicle[]>([]);
+    const [incidents, setIncidents] = useState<Incident[]>([]);
+    const [trips, setTrips] = useState<Trip[]>([]);
 
-    const reportTypes = [
-        {
-            id: 'fleet-performance',
-            nameKey: 'reports.fleetPerformance',
-            descKey: 'reports.fleetPerformanceDesc',
-            icon: TrendingUp,
-            color: 'text-blue-500',
-            bg: 'bg-blue-100 dark:bg-blue-900/20'
-        },
-        {
-            id: 'fuel-consumption',
-            nameKey: 'reports.fuelConsumption',
-            descKey: 'reports.fuelConsumptionDesc',
-            icon: BarChart2,
-            color: 'text-green-500',
-            bg: 'bg-green-100 dark:bg-green-900/20'
-        },
-        {
-            id: 'maintenance-costs',
-            nameKey: 'reports.maintenanceCosts',
-            descKey: 'reports.maintenanceCostsDesc',
-            icon: PieChart,
-            color: 'text-orange-500',
-            bg: 'bg-orange-100 dark:bg-orange-900/20'
-        },
-        {
-            id: 'driver-activity',
-            nameKey: 'reports.driverActivity',
-            descKey: 'reports.driverActivityDesc',
-            icon: FileText,
-            color: 'text-purple-500',
-            bg: 'bg-purple-100 dark:bg-purple-900/20'
-        },
-    ];
+    useEffect(() => {
+        fetchData();
+    }, []);
+
+    const fetchData = async () => {
+        try {
+            setLoading(true);
+            const [fuelData, maintenanceData, vehicleData, incidentData, tripData] = await Promise.all([
+                fuelRechargeApi.getAll().catch(() => []),
+                maintenanceApi.getAll().catch(() => []),
+                vehicleApi.getAll().catch(() => []),
+                incidentApi.getAll().catch(() => []),
+                tripApi.getAll().catch(() => [])
+            ]);
+
+            setFuelRecharges(fuelData);
+            setMaintenances(maintenanceData);
+            setVehicles(vehicleData);
+            setIncidents(incidentData);
+            setTrips(tripData);
+        } catch (error) {
+            console.error('Erreur lors du chargement des données:', error);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const formatDate = (dateStr: string) => {
+        return new Date(dateStr).toLocaleDateString('fr-FR', {
+            year: 'numeric',
+            month: 'short',
+            day: 'numeric'
+        });
+    };
+
+    const formatCurrency = (amount: number) => {
+        return new Intl.NumberFormat('fr-FR', {
+            style: 'decimal',
+            minimumFractionDigits: 0,
+            maximumFractionDigits: 0
+        }).format(amount) + ' FCFA';
+    };
+
+    // Calcul des statistiques
+    const totalFuelCost = fuelRecharges.reduce((sum, r) => sum + (r.fuelCost || 0), 0);
+    const totalFuelAmount = fuelRecharges.reduce((sum, r) => sum + (r.fuelAmount || 0), 0);
+    const totalMaintenanceCost = maintenances.reduce((sum, m) => sum + (m.maintenanceCost || 0), 0);
+    const totalDistance = trips.reduce((sum, t) => sum + (t.tripDistance || 0), 0);
+    const activeVehicles = vehicles.filter(v => v.state === 'ACTIVE').length;
+
+    if (loading) {
+        return (
+            <div className="flex items-center justify-center h-64">
+                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-secondary"></div>
+            </div>
+        );
+    }
 
     return (
         <div className="space-y-6">
@@ -50,60 +92,228 @@ export default function ReportsPage() {
                     {t('reports.title')}
                 </h1>
                 <p className="mt-1 text-sm text-text-muted">
-                    {t('reports.subtitle')}
+                    Bilans et statistiques de votre organisation
                 </p>
             </div>
 
-            {/* Date Range Selector */}
-            <div className="bg-surface rounded-lg border border-glass p-4 flex flex-wrap items-center gap-4">
-                <div className="flex items-center gap-2">
-                    <Calendar size={20} className="text-text-muted" />
-                    <span className="text-text-sub">{t('reports.period')}:</span>
-                </div>
-                <select className="px-3 py-2 border border-glass rounded-lg bg-surface text-text-main focus:outline-none focus:ring-2 focus:ring-secondary">
-                    <option>{t('reports.last7days')}</option>
-                    <option>{t('reports.last30days')}</option>
-                    <option>{t('reports.last90days')}</option>
-                    <option>{t('reports.thisYear')}</option>
-                    <option>{t('reports.custom')}</option>
-                </select>
-            </div>
-
-            {/* Report Types Grid */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                {reportTypes.map((report) => (
-                    <div
-                        key={report.id}
-                        className="bg-surface rounded-lg border border-glass shadow-sm hover:shadow-md transition-shadow p-6"
-                    >
-                        <div className="flex items-start gap-4">
-                            <div className={`p-3 rounded-lg ${report.bg}`}>
-                                <report.icon size={24} className={report.color} />
-                            </div>
-                            <div className="flex-1">
-                                <h3 className="font-semibold text-text-main">{t(report.nameKey)}</h3>
-                                <p className="text-sm text-text-muted mt-1">{t(report.descKey)}</p>
-                            </div>
+            {/* Summary Cards */}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                <div className="bg-surface rounded-xl border border-glass p-5">
+                    <div className="flex items-center gap-3">
+                        <div className="p-3 rounded-lg bg-green-100 dark:bg-green-900/20">
+                            <Fuel size={24} className="text-green-600" />
                         </div>
-
-                        <div className="mt-4 pt-4 border-t border-glass flex gap-3">
-                            <button className="flex-1 px-4 py-2 bg-secondary text-white rounded-lg hover:bg-secondary/90 transition-colors text-sm font-medium">
-                                {t('reports.generate')}
-                            </button>
-                            <button className="px-4 py-2 border border-glass text-text-main rounded-lg hover:bg-glass transition-colors text-sm font-medium flex items-center gap-2">
-                                <Download size={16} />
-                                PDF
-                            </button>
+                        <div>
+                            <p className="text-sm text-text-muted">Coût Total Carburant</p>
+                            <p className="text-xl font-bold text-text-main">{formatCurrency(totalFuelCost)}</p>
+                            <p className="text-xs text-text-sub">{totalFuelAmount.toFixed(1)} L consommés</p>
                         </div>
                     </div>
-                ))}
+                </div>
+
+                <div className="bg-surface rounded-xl border border-glass p-5">
+                    <div className="flex items-center gap-3">
+                        <div className="p-3 rounded-lg bg-orange-100 dark:bg-orange-900/20">
+                            <Wrench size={24} className="text-orange-600" />
+                        </div>
+                        <div>
+                            <p className="text-sm text-text-muted">Coût Maintenances</p>
+                            <p className="text-xl font-bold text-text-main">{formatCurrency(totalMaintenanceCost)}</p>
+                            <p className="text-xs text-text-sub">{maintenances.length} maintenances</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div className="bg-surface rounded-xl border border-glass p-5">
+                    <div className="flex items-center gap-3">
+                        <div className="p-3 rounded-lg bg-blue-100 dark:bg-blue-900/20">
+                            <MapPin size={24} className="text-blue-600" />
+                        </div>
+                        <div>
+                            <p className="text-sm text-text-muted">Distance Parcourue</p>
+                            <p className="text-xl font-bold text-text-main">{totalDistance.toFixed(1)} km</p>
+                            <p className="text-xs text-text-sub">{trips.length} trajets</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div className="bg-surface rounded-xl border border-glass p-5">
+                    <div className="flex items-center gap-3">
+                        <div className="p-3 rounded-lg bg-red-100 dark:bg-red-900/20">
+                            <AlertTriangle size={24} className="text-red-600" />
+                        </div>
+                        <div>
+                            <p className="text-sm text-text-muted">Incidents</p>
+                            <p className="text-xl font-bold text-text-main">{incidents.length}</p>
+                            <p className="text-xs text-text-sub">{activeVehicles} véhicules actifs</p>
+                        </div>
+                    </div>
+                </div>
             </div>
 
-            {/* Placeholder for Report Preview */}
-            <div className="bg-surface rounded-lg border border-glass p-8 text-center">
-                <FileText size={48} className="mx-auto text-text-muted mb-4" />
-                <h3 className="text-lg font-medium text-text-main">{t('reports.preview')}</h3>
-                <p className="text-text-muted mt-1">{t('reports.selectReport')}</p>
+            {/* Two Column Layout */}
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                {/* Recent Fuel Recharges */}
+                <div className="bg-surface rounded-xl border border-glass overflow-hidden">
+                    <div className="px-5 py-4 border-b border-glass flex items-center justify-between">
+                        <div className="flex items-center gap-2">
+                            <Fuel size={20} className="text-green-600" />
+                            <h3 className="font-semibold text-text-main">Recharges de Carburant</h3>
+                        </div>
+                        <span className="text-sm text-text-muted">{fuelRecharges.length} recharges</span>
+                    </div>
+                    <div className="divide-y divide-glass max-h-80 overflow-y-auto">
+                        {fuelRecharges.length === 0 ? (
+                            <div className="p-8 text-center text-text-muted">
+                                Aucune recharge enregistrée
+                            </div>
+                        ) : (
+                            fuelRecharges.slice(0, 10).map((recharge) => (
+                                <div key={recharge.fuelRechargeId} className="px-5 py-3 hover:bg-glass/30 transition-colors">
+                                    <div className="flex items-center justify-between">
+                                        <div>
+                                            <p className="font-medium text-text-main">
+                                                {recharge.fuelAmount} L
+                                            </p>
+                                            <p className="text-sm text-text-muted">
+                                                {recharge.fuelStation || 'Station inconnue'}
+                                            </p>
+                                        </div>
+                                        <div className="text-right">
+                                            <p className="font-semibold text-green-600">
+                                                {formatCurrency(recharge.fuelCost)}
+                                            </p>
+                                            <p className="text-xs text-text-muted">
+                                                {formatDate(recharge.rechargeDate)}
+                                            </p>
+                                        </div>
+                                    </div>
+                                </div>
+                            ))
+                        )}
+                    </div>
+                </div>
+
+                {/* Recent Maintenances */}
+                <div className="bg-surface rounded-xl border border-glass overflow-hidden">
+                    <div className="px-5 py-4 border-b border-glass flex items-center justify-between">
+                        <div className="flex items-center gap-2">
+                            <Wrench size={20} className="text-orange-600" />
+                            <h3 className="font-semibold text-text-main">Maintenances</h3>
+                        </div>
+                        <span className="text-sm text-text-muted">{maintenances.length} maintenances</span>
+                    </div>
+                    <div className="divide-y divide-glass max-h-80 overflow-y-auto">
+                        {maintenances.length === 0 ? (
+                            <div className="p-8 text-center text-text-muted">
+                                Aucune maintenance enregistrée
+                            </div>
+                        ) : (
+                            maintenances.slice(0, 10).map((maintenance) => (
+                                <div key={maintenance.maintenanceId} className="px-5 py-3 hover:bg-glass/30 transition-colors">
+                                    <div className="flex items-center justify-between">
+                                        <div>
+                                            <p className="font-medium text-text-main">
+                                                {maintenance.maintenanceSubject}
+                                            </p>
+                                            <p className="text-sm text-text-muted">
+                                                {maintenance.maintenanceReport || 'Pas de rapport'}
+                                            </p>
+                                        </div>
+                                        <div className="text-right">
+                                            <p className="font-semibold text-orange-600">
+                                                {formatCurrency(maintenance.maintenanceCost || 0)}
+                                            </p>
+                                            <p className="text-xs text-text-muted">
+                                                {formatDate(maintenance.maintenanceDateTime)}
+                                            </p>
+                                        </div>
+                                    </div>
+                                </div>
+                            ))
+                        )}
+                    </div>
+                </div>
+            </div>
+
+            {/* Incidents Section */}
+            <div className="bg-surface rounded-xl border border-glass overflow-hidden">
+                <div className="px-5 py-4 border-b border-glass flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                        <AlertTriangle size={20} className="text-red-600" />
+                        <h3 className="font-semibold text-text-main">Incidents Récents</h3>
+                    </div>
+                    <span className="text-sm text-text-muted">{incidents.length} incidents</span>
+                </div>
+                <div className="divide-y divide-glass max-h-64 overflow-y-auto">
+                    {incidents.length === 0 ? (
+                        <div className="p-8 text-center text-text-muted">
+                            Aucun incident enregistré
+                        </div>
+                    ) : (
+                        incidents.slice(0, 5).map((incident) => (
+                            <div key={incident.incidentId} className="px-5 py-3 hover:bg-glass/30 transition-colors">
+                                <div className="flex items-center justify-between">
+                                    <div className="flex items-center gap-3">
+                                        <span className={`px-2 py-1 rounded-full text-xs font-medium ${incident.incidentSeverity === 'CRITICAL' ? 'bg-red-100 text-red-700 dark:bg-red-900/20' :
+                                                incident.incidentSeverity === 'HIGH' ? 'bg-orange-100 text-orange-700 dark:bg-orange-900/20' :
+                                                    incident.incidentSeverity === 'MEDIUM' ? 'bg-yellow-100 text-yellow-700 dark:bg-yellow-900/20' :
+                                                        'bg-green-100 text-green-700 dark:bg-green-900/20'
+                                            }`}>
+                                            {incident.incidentSeverity}
+                                        </span>
+                                        <div>
+                                            <p className="font-medium text-text-main">{incident.incidentTitle}</p>
+                                            <p className="text-sm text-text-muted">{incident.incidentType}</p>
+                                        </div>
+                                    </div>
+                                    <div className="text-right">
+                                        <span className={`px-2 py-1 rounded text-xs font-medium ${incident.incidentStatus === 'RESOLVED' ? 'bg-green-100 text-green-700' :
+                                                incident.incidentStatus === 'IN_PROGRESS' ? 'bg-blue-100 text-blue-700' :
+                                                    'bg-gray-100 text-gray-700'
+                                            }`}>
+                                            {incident.incidentStatus}
+                                        </span>
+                                        <p className="text-xs text-text-muted mt-1">
+                                            {formatDate(incident.incidentDate)}
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+                        ))
+                    )}
+                </div>
+            </div>
+
+            {/* Fleet Overview */}
+            <div className="bg-surface rounded-xl border border-glass overflow-hidden">
+                <div className="px-5 py-4 border-b border-glass flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                        <Car size={20} className="text-secondary" />
+                        <h3 className="font-semibold text-text-main">Aperçu de la Flotte</h3>
+                    </div>
+                    <span className="text-sm text-text-muted">{vehicles.length} véhicules</span>
+                </div>
+                <div className="p-5">
+                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                        <div className="text-center p-4 rounded-lg bg-glass/30">
+                            <p className="text-3xl font-bold text-green-600">{vehicles.filter(v => v.state === 'ACTIVE').length}</p>
+                            <p className="text-sm text-text-muted">Actifs</p>
+                        </div>
+                        <div className="text-center p-4 rounded-lg bg-glass/30">
+                            <p className="text-3xl font-bold text-yellow-600">{vehicles.filter(v => v.state === 'INACTIVE').length}</p>
+                            <p className="text-sm text-text-muted">Inactifs</p>
+                        </div>
+                        <div className="text-center p-4 rounded-lg bg-glass/30">
+                            <p className="text-3xl font-bold text-orange-600">{vehicles.filter(v => v.state === 'MAINTENANCE').length}</p>
+                            <p className="text-sm text-text-muted">En maintenance</p>
+                        </div>
+                        <div className="text-center p-4 rounded-lg bg-glass/30">
+                            <p className="text-3xl font-bold text-blue-600">{vehicles.filter(v => v.state === 'MOVING' || v.state === 'PARKED').length}</p>
+                            <p className="text-sm text-text-muted">En service</p>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
     );

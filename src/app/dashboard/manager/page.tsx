@@ -2,14 +2,11 @@
 
 import React from 'react';
 import { useLanguage } from '@/contexts/LanguageContext';
-import { Truck, Users, AlertTriangle, CheckCircle } from 'lucide-react';
-import vehicleApi from '@/services/vehicleApi';
-import driverApi from '@/services/driverApi';
-import incidentApi from '@/services/incidentApi';
-import fleetApi from '@/services/fleetApi';
+import { Truck, Users, AlertTriangle } from 'lucide-react';
+import { organizationApi } from '@/services';
 import { LayoutDashboard } from 'lucide-react';
 
-export default function DashboardAdminPage() {
+export default function DashboardManagerPage() {
     const { t } = useLanguage();
     const [counts, setCounts] = React.useState({
         vehicles: 0,
@@ -18,63 +15,45 @@ export default function DashboardAdminPage() {
         fleets: 0
     });
     const [loading, setLoading] = React.useState(true);
+    const [organizationName, setOrganizationName] = React.useState<string>('');
 
     React.useEffect(() => {
         const fetchData = async () => {
             try {
-                // Get user from localStorage to find organizationId
+                // Get organization from localStorage
+                const orgStr = localStorage.getItem('fleetman-organization');
                 const userStr = localStorage.getItem('fleetman-user');
+
                 let organizationId: number | undefined;
-                if (userStr) {
+
+                if (orgStr) {
+                    const org = JSON.parse(orgStr);
+                    organizationId = org.organizationId;
+                    setOrganizationName(org.organizationName || '');
+                } else if (userStr) {
                     const user = JSON.parse(userStr);
                     organizationId = user.organizationId;
                 }
 
-                let vehicleCount, driverCount, incidentCount, fleetCount;
+                if (!organizationId) {
+                    console.warn('No organization found for this user');
+                    setLoading(false);
+                    return;
+                }
 
-                // Use adminId if available for better filtering support via existing endpoints
-                const adminId = userStr ? JSON.parse(userStr).userId : undefined;
+                // Fetch counts using organization-based endpoints
+                const [fleetCount, driverCount, incidentCount] = await Promise.all([
+                    organizationApi.countFleets(organizationId),
+                    organizationApi.countDrivers(organizationId),
+                    organizationApi.countIncidents(organizationId)
+                ]);
 
-                if (adminId) {
-                    // Parallel fetch using adminId
-                    [
-                        vehicleCount,
-                        driverCount,
-                        incidentCount,
-                        fleetCount
-                    ] = await Promise.all([
-                        vehicleApi.countByAdminId(adminId),
-                        // Prefer organization-based count for drivers as backend supports it directly
-                        organizationId ? driverApi.countByOrganization(organizationId) : driverApi.countByAdminId(adminId),
-                        incidentApi.countByAdminId(adminId),
-                        fleetApi.countByAdminId(adminId)
-                    ]);
-                } else if (organizationId) {
-                    // Fallback to organizationId
-                    [
-                        vehicleCount,
-                        driverCount,
-                        incidentCount,
-                        fleetCount
-                    ] = await Promise.all([
-                        vehicleApi.countByOrganization(organizationId),
-                        driverApi.countByOrganization(organizationId),
-                        incidentApi.countByOrganization(organizationId),
-                        fleetApi.countByOrganization(organizationId)
-                    ]);
-                } else {
-                    // Fallback to all (or maybe should handle as error if strictly org-based)
-                    [
-                        vehicleCount,
-                        driverCount, // drivers.length
-                        incidentCount,
-                        fleetCount
-                    ] = await Promise.all([
-                        vehicleApi.countAll(),
-                        driverApi.getAll().then(drivers => drivers.length),
-                        incidentApi.count(),
-                        fleetApi.count()
-                    ]);
+                // For vehicles, we need to get fleets first then count vehicles
+                const fleets = await organizationApi.getFleets(organizationId);
+                let vehicleCount = 0;
+                for (const fleet of fleets) {
+                    // Count vehicles per fleet (use existing vehicle API or estimate)
+                    vehicleCount += fleet.vehiclesCount || 0;
                 }
 
                 setCounts({

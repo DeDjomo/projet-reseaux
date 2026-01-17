@@ -1,14 +1,18 @@
 "use client";
 
 import React, { useEffect, useState } from 'react';
+import { useRouter } from 'next/navigation';
 import { useLanguage } from '@/contexts/LanguageContext';
 import vehicleApi from '@/services/vehicleApi';
+
 import fleetApi from '@/services/fleetApi';
+import organizationApi from '@/services/organizationApi';
 import { Vehicle, VehicleState, Fleet, VehicleType, FuelType } from '@/types';
 import { Plus, Car, Edit, Trash2, Search, Filter, X, AlertTriangle, AlertCircle, CheckCircle, Upload, ImageIcon } from 'lucide-react';
 
 export default function VehiclesPage() {
     const { t } = useLanguage();
+    const router = useRouter();
     const [vehicles, setVehicles] = useState<Vehicle[]>([]);
     const [loading, setLoading] = useState(true);
     const [searchTerm, setSearchTerm] = useState('');
@@ -161,7 +165,11 @@ export default function VehiclesPage() {
                             </thead>
                             <tbody className="divide-y divide-glass">
                                 {filteredVehicles.map((vehicle) => (
-                                    <tr key={vehicle.vehicleId} className="hover:bg-glass/30 transition-colors">
+                                    <tr
+                                        key={vehicle.vehicleId}
+                                        className="hover:bg-glass/30 transition-colors cursor-pointer"
+                                        onClick={() => router.push(`/dashboard/manager/vehicles/${vehicle.vehicleId}`)}
+                                    >
                                         <td className="px-6 py-4 whitespace-nowrap">
                                             <div className="flex items-center gap-3">
                                                 <div className="p-2 rounded-lg bg-secondary/10">
@@ -188,7 +196,7 @@ export default function VehiclesPage() {
                                             {vehicle.fuelType} ({vehicle.fuelLevel}%)
                                         </td>
                                         <td className="px-6 py-4 whitespace-nowrap text-right">
-                                            <div className="flex justify-end gap-2">
+                                            <div className="flex justify-end gap-2" onClick={(e) => e.stopPropagation()}>
                                                 <button
                                                     onClick={() => setEditingVehicle(vehicle)}
                                                     className="p-1.5 rounded hover:bg-glass text-text-muted hover:text-text-main transition-colors"
@@ -380,31 +388,18 @@ function EditVehicleModal({ vehicle, onClose, onSuccess }: { vehicle: Vehicle; o
                         </div>
                     </div>
 
-                    <div className="grid grid-cols-2 gap-4">
-                        <div>
-                            <label className="block text-sm font-medium text-text-sub mb-1">Carburant</label>
-                            <select
-                                value={formData.fuelType}
-                                onChange={(e) => setFormData(prev => ({ ...prev, fuelType: e.target.value as FuelType }))}
-                                className="w-full px-4 py-2 border border-glass rounded-lg bg-surface text-text-main focus:outline-none focus:ring-2 focus:ring-secondary"
-                            >
-                                <option value={FuelType.PETROL}>Essence</option>
-                                <option value={FuelType.DIESEL}>Diesel</option>
-                                <option value={FuelType.ELECTRIC}>Électrique</option>
-                                <option value={FuelType.HYBRID}>Hybride</option>
-                            </select>
-                        </div>
-                        <div>
-                            <label className="block text-sm font-medium text-text-sub mb-1">Niveau carburant (%)</label>
-                            <input
-                                type="number"
-                                min={0}
-                                max={100}
-                                value={formData.fuelLevel}
-                                onChange={(e) => setFormData(prev => ({ ...prev, fuelLevel: parseInt(e.target.value) }))}
-                                className="w-full px-4 py-2 border border-glass rounded-lg bg-surface text-text-main focus:outline-none focus:ring-2 focus:ring-secondary"
-                            />
-                        </div>
+                    <div>
+                        <label className="block text-sm font-medium text-text-sub mb-1">Carburant</label>
+                        <select
+                            value={formData.fuelType}
+                            onChange={(e) => setFormData(prev => ({ ...prev, fuelType: e.target.value as FuelType }))}
+                            className="w-full px-4 py-2 border border-glass rounded-lg bg-surface text-text-main focus:outline-none focus:ring-2 focus:ring-secondary"
+                        >
+                            <option value={FuelType.PETROL}>Essence</option>
+                            <option value={FuelType.DIESEL}>Diesel</option>
+                            <option value={FuelType.ELECTRIC}>Électrique</option>
+                            <option value={FuelType.HYBRID}>Hybride</option>
+                        </select>
                     </div>
 
                     <div className="flex gap-3 pt-4">
@@ -599,7 +594,7 @@ function CreateVehicleModal({ onClose, onSuccess }: { onClose: () => void; onSuc
                 if (userStr) {
                     const user = JSON.parse(userStr);
                     if (user.organizationId) {
-                        data = await fleetApi.getByOrganization(user.organizationId);
+                        data = await organizationApi.getFleets(user.organizationId);
                     } else {
                         data = await fleetApi.getAll();
                     }
@@ -756,29 +751,7 @@ function CreateVehicleModal({ onClose, onSuccess }: { onClose: () => void; onSuc
                         </div>
                     </div>
 
-                    <div className="grid grid-cols-2 gap-4">
-                        <div>
-                            <label className="block text-sm font-medium text-text-sub mb-1">Passagers</label>
-                            <input
-                                type="number"
-                                min={1}
-                                value={formData.numberOfPassengers}
-                                onChange={(e) => setFormData(prev => ({ ...prev, numberOfPassengers: parseInt(e.target.value) }))}
-                                className="w-full px-4 py-2 border border-glass rounded-lg bg-surface text-text-main focus:outline-none focus:ring-2 focus:ring-secondary"
-                            />
-                        </div>
-                        <div>
-                            <label className="block text-sm font-medium text-text-sub mb-1">Niveau carburant (%)</label>
-                            <input
-                                type="number"
-                                min={0}
-                                max={100}
-                                value={formData.fuelLevel}
-                                onChange={(e) => setFormData(prev => ({ ...prev, fuelLevel: parseInt(e.target.value) }))}
-                                className="w-full px-4 py-2 border border-glass rounded-lg bg-surface text-text-main focus:outline-none focus:ring-2 focus:ring-secondary"
-                            />
-                        </div>
-                    </div>
+
 
                     {/* Vehicle Images Upload */}
                     <div>

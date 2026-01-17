@@ -74,7 +74,7 @@ export default function Header() {
             try {
                 await notificationApi.markAllAsReadByAdminId(adminId);
                 setUnreadCount(0);
-                setNotifications(prev => prev.map(n => ({ ...n, state: 'READ' as any })));
+                setNotifications(prev => prev.map(n => ({ ...n, notificationState: 'READ' })));
             } catch (error) {
                 console.error('Failed to mark all as read:', error);
             }
@@ -197,22 +197,22 @@ export default function Header() {
                                     notifications.map((notif) => (
                                         <div
                                             key={notif.notificationId}
-                                            className={`p-3 border-b border-glass last:border-0 hover:bg-glass/30 transition cursor-pointer ${notif.state === 'UNREAD' ? 'bg-secondary/5' : ''
+                                            className={`p-3 border-b border-glass last:border-0 hover:bg-glass/30 transition cursor-pointer ${notif.notificationState === 'UNREAD' ? 'bg-secondary/5' : ''
                                                 }`}
                                         >
                                             <div className="flex items-start gap-3">
                                                 <div className="mt-1">
-                                                    {getNotificationIcon(notif.type)}
+                                                    {getNotificationIcon(notif.notificationType)}
                                                 </div>
                                                 <div className="flex-1 min-w-0">
-                                                    <p className={`text-sm ${notif.state === 'UNREAD' ? 'font-medium text-text-main' : 'text-text-sub'}`}>
-                                                        {notif.message}
+                                                    <p className={`text-sm ${notif.notificationState === 'UNREAD' ? 'font-medium text-text-main' : 'text-text-sub'}`}>
+                                                        {notif.notificationSubject}
                                                     </p>
                                                     <p className="text-xs text-text-muted mt-1">
-                                                        {formatTime(notif.createdAt)}
+                                                        {formatTime(notif.notificationDate)}
                                                     </p>
                                                 </div>
-                                                {notif.state === 'UNREAD' && (
+                                                {notif.notificationState === 'UNREAD' && (
                                                     <div className="w-2 h-2 bg-secondary rounded-full mt-2"></div>
                                                 )}
                                             </div>

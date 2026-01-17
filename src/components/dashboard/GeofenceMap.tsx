@@ -3,6 +3,7 @@
 
 import React, { useEffect, useState, useRef, useId } from 'react';
 import { Geofence, GeofenceType } from '@/types';
+import 'leaflet/dist/leaflet.css';
 
 interface GeofenceMapProps {
     geofences: Geofence[];
@@ -46,7 +47,6 @@ export default function GeofenceMap({
 
         const initMap = async () => {
             const L = (await import('leaflet')).default;
-            await import('leaflet/dist/leaflet.css');
 
             if (!isMounted) return;
 

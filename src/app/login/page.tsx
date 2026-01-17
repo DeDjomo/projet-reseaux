@@ -57,12 +57,36 @@ export default function LoginPage() {
             const response = await authApi.loginAdmin(data);
 
             if (response && response.success) {
-                // Security is currently open (permitAll), so no token handling yet.
-                // We rely on backend 'success' flag.
+                // Store user data
                 localStorage.setItem('fleetman-user', JSON.stringify(response));
 
-                // Redirect based on role (simple default for now)
-                router.push('/dashboard/admin');
+                // Fetch organization for the admin
+                try {
+                    const { adminApi } = await import('@/services');
+                    const organization = await adminApi.getOrganization(response.userId);
+                    // Store organization data
+                    localStorage.setItem('fleetman-organization', JSON.stringify(organization));
+                    // Update user data with organizationId if not already present
+                    if (!response.organizationId && organization.organizationId) {
+                        const updatedUser = { ...response, organizationId: organization.organizationId };
+                        localStorage.setItem('fleetman-user', JSON.stringify(updatedUser));
+                    }
+                } catch (orgError) {
+                    console.warn('Could not fetch organization:', orgError);
+                }
+
+                // Redirect based on role
+                const role = response.role?.toUpperCase();
+                console.log('Login successful, role:', role);
+
+                if (role === 'SUPER_ADMIN') {
+                    router.push('/dashboard/superadmin');
+                } else if (role === 'ORGANIZATION_MANAGER' || role === 'ORG_MANAGER') {
+                    router.push('/dashboard/manager');
+                } else {
+                    // Default fallback for any admin role
+                    router.push('/dashboard/manager');
+                }
             } else {
                 throw new Error(response?.message || "Échec de la connexion");
             }

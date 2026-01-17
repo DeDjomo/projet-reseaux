@@ -1,5 +1,5 @@
 import apiClient from '@/lib/axios';
-import { Admin, AdminCreate, AdminUpdate, AdminRole, PasswordChangeRequest, PasswordResetRequest, PasswordVerificationRequest } from '@/types';
+import { Admin, AdminCreate, AdminUpdate, AdminRole, PasswordChangeRequest, PasswordResetRequest, PasswordVerificationRequest, Organization } from '@/types';
 
 // Admin endpoints from AdminController - Base path: /admins
 
@@ -69,6 +69,17 @@ export const adminApi = {
     resetPassword: async (adminId: number, resetData: PasswordResetRequest): Promise<{ success: boolean; message: string }> => {
         const response = await apiClient.put<{ success: boolean; message: string }>(`/admins/${adminId}/password/reset`, resetData);
         return response.data;
+    },
+
+    // Get admin's organization (backend returns organizationId, we then fetch the full org)
+    getOrganization: async (adminId: number): Promise<Organization> => {
+        // First get the organization ID from the admin
+        const orgIdResponse = await apiClient.get<number>(`/admins/${adminId}/organization`);
+        const organizationId = orgIdResponse.data;
+
+        // Then fetch the full organization details
+        const { organizationApi } = await import('./organizationApi');
+        return organizationApi.getById(organizationId);
     },
 };
 

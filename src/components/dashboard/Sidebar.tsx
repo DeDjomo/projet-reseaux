@@ -33,16 +33,16 @@ export default function Sidebar({ isOpen, setIsOpen }: SidebarProps) {
     const { theme } = useTheme();
 
     const menuItems = [
-        { name: t('sidebar.fleets'), icon: LayoutDashboard, href: '/dashboard/admin/fleets' },
-        { name: t('sidebar.vehicles'), icon: Car, href: '/dashboard/admin/vehicles' },
-        { name: t('sidebar.drivers'), icon: Users, href: '/dashboard/admin/drivers' },
-        { name: t('sidebar.managers'), icon: UserCog, href: '/dashboard/admin/managers' },
-        { name: t('sidebar.incidents'), icon: AlertTriangle, href: '/dashboard/admin/incidents' },
-        { name: t('sidebar.geofences'), icon: MapPin, href: '/dashboard/admin/geofences' },
-        { name: t('sidebar.reports'), icon: FileText, href: '/dashboard/admin/reports' },
-        { name: t('sidebar.history'), icon: History, href: '/dashboard/admin/history' },
-        { name: t('sidebar.subscription'), icon: CreditCard, href: '/dashboard/admin/subscription' },
-        { name: t('sidebar.support'), icon: LifeBuoy, href: '/dashboard/admin/support' },
+        { name: t('sidebar.fleets'), icon: LayoutDashboard, href: '/dashboard/manager/fleets' },
+        { name: t('sidebar.vehicles'), icon: Car, href: '/dashboard/manager/vehicles' },
+        { name: t('sidebar.drivers'), icon: Users, href: '/dashboard/manager/drivers' },
+        { name: t('sidebar.managers'), icon: UserCog, href: '/dashboard/manager/managers' },
+        { name: t('sidebar.incidents'), icon: AlertTriangle, href: '/dashboard/manager/incidents' },
+        { name: t('sidebar.geofences'), icon: MapPin, href: '/dashboard/manager/geofences' },
+        { name: t('sidebar.reports'), icon: FileText, href: '/dashboard/manager/reports' },
+        { name: t('sidebar.history'), icon: History, href: '/dashboard/manager/history' },
+        { name: t('sidebar.subscription'), icon: CreditCard, href: '/dashboard/manager/subscription' },
+        { name: t('sidebar.support'), icon: LifeBuoy, href: '/dashboard/manager/support' },
     ];
 
     return (

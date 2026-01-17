@@ -4,6 +4,7 @@ import React, { useEffect, useState } from 'react';
 import { useLanguage } from '@/contexts/LanguageContext';
 import fleetApi from '@/services/fleetApi';
 import fleetManagerApi from '@/services/fleetManagerApi';
+import { organizationApi } from '@/services';
 import { Fleet, FleetCreate, FleetType, FleetManagerCreate, Gender, Language } from '@/types';
 import { Plus, Truck, Edit, Trash2, Search, X, UserPlus, CheckCircle, AlertCircle, AlertTriangle } from 'lucide-react';
 
@@ -22,22 +23,30 @@ export default function FleetsPage() {
 
     const fetchFleets = async () => {
         try {
+            // Get organization from localStorage
+            const orgStr = localStorage.getItem('fleetman-organization');
             const userStr = localStorage.getItem('fleetman-user');
+
+            let organizationId: number | undefined;
+
+            if (orgStr) {
+                const org = JSON.parse(orgStr);
+                organizationId = org.organizationId;
+            } else if (userStr) {
+                const user = JSON.parse(userStr);
+                organizationId = user.organizationId;
+            }
+
             let data: Fleet[] = [];
 
-            if (userStr) {
-                const user = JSON.parse(userStr);
-                // Use adminId (user.userId) to fetch fleets directly via the new endpoint
-                if (user.userId) {
-                    data = await fleetApi.getByAdminId(user.userId);
-                } else if (user.organizationId) {
-                    data = await fleetApi.getByOrganization(user.organizationId);
-                } else {
-                    data = await fleetApi.getAll();
-                }
+            if (organizationId) {
+                // Use organization-based endpoint
+                data = await organizationApi.getFleets(organizationId);
             } else {
+                console.warn('No organization found, fetching all fleets');
                 data = await fleetApi.getAll();
             }
+
             setFleets(data);
         } catch (error) {
             console.error("Failed to fetch fleets", error);
@@ -98,54 +107,132 @@ export default function FleetsPage() {
                     <p className="text-text-muted mt-1">{t('fleets.createFirst')}</p>
                 </div>
             ) : (
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                    {filteredFleets.map((fleet) => (
-                        <div
-                            key={fleet.fleetId}
-                            className="bg-surface rounded-lg border border-glass shadow-sm hover:shadow-md transition-shadow p-5"
-                        >
-                            <div className="flex items-start justify-between">
-                                <div className="flex items-center gap-3">
-                                    <div className="p-2 rounded-lg bg-secondary/10">
-                                        <Truck size={24} className="text-secondary" />
+                <div className="bg-surface rounded-xl border border-glass shadow-sm overflow-hidden">
+                    {/* Desktop Table View */}
+                    <div className="hidden md:block overflow-x-auto">
+                        <table className="w-full">
+                            <thead className="bg-glass/50">
+                                <tr>
+                                    <th className="text-left px-6 py-4 text-xs font-semibold text-text-muted uppercase tracking-wider">
+                                        Flotte
+                                    </th>
+                                    <th className="text-left px-6 py-4 text-xs font-semibold text-text-muted uppercase tracking-wider">
+                                        Type
+                                    </th>
+                                    <th className="text-center px-6 py-4 text-xs font-semibold text-text-muted uppercase tracking-wider">
+                                        Véhicules
+                                    </th>
+                                    <th className="text-left px-6 py-4 text-xs font-semibold text-text-muted uppercase tracking-wider">
+                                        Gestionnaire
+                                    </th>
+                                    <th className="text-right px-6 py-4 text-xs font-semibold text-text-muted uppercase tracking-wider">
+                                        Actions
+                                    </th>
+                                </tr>
+                            </thead>
+                            <tbody className="divide-y divide-glass">
+                                {filteredFleets.map((fleet) => (
+                                    <tr key={fleet.fleetId} className="hover:bg-glass/30 transition-colors">
+                                        <td className="px-6 py-4">
+                                            <div className="flex items-center gap-3">
+                                                <div className="p-2 rounded-lg bg-secondary/10">
+                                                    <Truck size={20} className="text-secondary" />
+                                                </div>
+                                                <div>
+                                                    <p className="font-medium text-text-main">
+                                                        {fleet.fleetName}
+                                                    </p>
+                                                    <p className="text-xs text-text-muted line-clamp-1 max-w-[200px]">
+                                                        {fleet.fleetDescription || t('fleets.noDescription')}
+                                                    </p>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td className="px-6 py-4">
+                                            <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-accent/10 text-accent">
+                                                {fleet.fleetType}
+                                            </span>
+                                        </td>
+                                        <td className="px-6 py-4 text-center">
+                                            <span className="inline-flex items-center justify-center w-8 h-8 rounded-lg bg-secondary/10 text-secondary font-semibold text-sm">
+                                                {fleet.vehiclesCount || 0}
+                                            </span>
+                                        </td>
+                                        <td className="px-6 py-4">
+                                            <span className="text-sm text-text-sub">
+                                                {fleet.fleetManagerName || t('fleets.notAssigned')}
+                                            </span>
+                                        </td>
+                                        <td className="px-6 py-4">
+                                            <div className="flex items-center justify-end gap-2">
+                                                <button
+                                                    onClick={() => setEditingFleet(fleet)}
+                                                    className="p-2 rounded-lg hover:bg-glass text-text-muted hover:text-accent transition-colors"
+                                                    title={t('common.edit')}
+                                                >
+                                                    <Edit size={18} />
+                                                </button>
+                                                <button
+                                                    onClick={() => setDeletingFleet(fleet)}
+                                                    className="p-2 rounded-lg hover:bg-red-50 dark:hover:bg-red-900/20 text-text-muted hover:text-red-500 transition-colors"
+                                                    title={t('common.delete')}
+                                                >
+                                                    <Trash2 size={18} />
+                                                </button>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                ))}
+                            </tbody>
+                        </table>
+                    </div>
+
+                    {/* Mobile List View */}
+                    <div className="md:hidden divide-y divide-glass">
+                        {filteredFleets.map((fleet) => (
+                            <div key={fleet.fleetId} className="p-4 hover:bg-glass/30 transition-colors">
+                                <div className="flex items-start justify-between">
+                                    <div className="flex items-center gap-3">
+                                        <div className="p-2 rounded-lg bg-secondary/10">
+                                            <Truck size={24} className="text-secondary" />
+                                        </div>
+                                        <div>
+                                            <p className="font-semibold text-text-main">
+                                                {fleet.fleetName}
+                                            </p>
+                                            <span className="inline-flex items-center mt-1 px-2 py-0.5 rounded-full text-xs font-medium bg-accent/10 text-accent">
+                                                {fleet.fleetType}
+                                            </span>
+                                        </div>
                                     </div>
-                                    <div>
-                                        <h3 className="font-semibold text-text-main">{fleet.fleetName}</h3>
-                                        <p className="text-sm text-text-muted">{fleet.fleetType}</p>
+                                    <div className="flex gap-1">
+                                        <button
+                                            onClick={() => setEditingFleet(fleet)}
+                                            className="p-2 rounded-lg hover:bg-glass text-text-muted"
+                                        >
+                                            <Edit size={18} />
+                                        </button>
+                                        <button
+                                            onClick={() => setDeletingFleet(fleet)}
+                                            className="p-2 rounded-lg hover:bg-red-50 text-text-muted hover:text-red-500"
+                                        >
+                                            <Trash2 size={18} />
+                                        </button>
                                     </div>
                                 </div>
-                                <div className="flex gap-1">
-                                    <button
-                                        onClick={() => setEditingFleet(fleet)}
-                                        className="p-1.5 rounded hover:bg-glass text-text-muted hover:text-text-main transition-colors"
-                                        title={t('common.edit')}
-                                    >
-                                        <Edit size={16} />
-                                    </button>
-                                    <button
-                                        onClick={() => setDeletingFleet(fleet)}
-                                        className="p-1.5 rounded hover:bg-red-100 dark:hover:bg-red-900/20 text-text-muted hover:text-red-500 transition-colors"
-                                        title={t('common.delete')}
-                                    >
-                                        <Trash2 size={16} />
-                                    </button>
+                                <div className="mt-3 ml-12 space-y-1 text-sm">
+                                    <p className="text-text-sub line-clamp-2">
+                                        {fleet.fleetDescription || t('fleets.noDescription')}
+                                    </p>
+                                    <div className="flex items-center gap-4 text-text-muted pt-2">
+                                        <span>{fleet.vehiclesCount || 0} {t('fleets.vehicles')}</span>
+                                        <span>•</span>
+                                        <span>{fleet.fleetManagerName || t('fleets.notAssigned')}</span>
+                                    </div>
                                 </div>
                             </div>
-
-                            <p className="mt-3 text-sm text-text-sub line-clamp-2">
-                                {fleet.fleetDescription || t('fleets.noDescription')}
-                            </p>
-
-                            <div className="mt-4 pt-4 border-t border-glass flex items-center justify-between text-sm">
-                                <span className="text-text-muted">
-                                    {fleet.vehiclesCount || 0} {t('fleets.vehicles')}
-                                </span>
-                                <span className="text-text-muted">
-                                    {t('fleets.manager')}: {fleet.fleetManagerName || t('fleets.notAssigned')}
-                                </span>
-                            </div>
-                        </div>
-                    ))}
+                        ))}
+                    </div>
                 </div>
             )}
 

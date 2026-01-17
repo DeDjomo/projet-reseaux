@@ -147,7 +147,7 @@ export default function RegisterPage() {
                 adminEmail: data.adminEmail,
                 adminPassword: data.adminPassword,
                 adminPhoneNumber: data.adminPhoneNumber,
-                adminRole: AdminRole.SUPER_ADMIN, // Must be Super Admin to create Org
+                adminRole: AdminRole.ORGANIZATION_MANAGER, // Organization managers register here
                 adminIdCardNumber: data.adminIdCardNumber,
                 personalAddress: data.personalAddress,
                 personalCity: data.personalCity,

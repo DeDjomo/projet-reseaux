@@ -1,58 +1,70 @@
 "use client";
 
 import React, { useEffect, useState } from 'react';
+import { useRouter } from 'next/navigation';
 import { useLanguage } from '@/contexts/LanguageContext';
-import fleetManagerApi from '@/services/fleetManagerApi';
-import { FleetManager, FleetManagerCreate, DriverState, Gender, Language } from '@/types';
-import { Plus, UserCog, Edit, Trash2, Search, Filter, Phone, Mail, X, AlertTriangle, AlertCircle, CheckCircle, Building2 } from 'lucide-react';
+import driverApi from '@/services/driverApi';
+import { organizationApi } from '@/services';
+import { Driver, DriverState } from '@/types';
+import { Plus, Users, Edit, Trash2, Search, Filter, Phone, Mail, X, AlertTriangle, AlertCircle, CheckCircle } from 'lucide-react';
 
-export default function ManagersPage() {
+export default function DriversPage() {
     const { t } = useLanguage();
-    const [managers, setManagers] = useState<FleetManager[]>([]);
+    const router = useRouter();
+    const [drivers, setDrivers] = useState<Driver[]>([]);
     const [loading, setLoading] = useState(true);
     const [searchTerm, setSearchTerm] = useState('');
     const [stateFilter, setStateFilter] = useState<DriverState | 'ALL'>('ALL');
     const [showCreateModal, setShowCreateModal] = useState(false);
-    const [editingManager, setEditingManager] = useState<FleetManager | null>(null);
-    const [deletingManager, setDeletingManager] = useState<FleetManager | null>(null);
+    const [editingDriver, setEditingDriver] = useState<Driver | null>(null);
+    const [deletingDriver, setDeletingDriver] = useState<Driver | null>(null);
 
     useEffect(() => {
-        fetchManagers();
+        fetchDrivers();
     }, []);
 
-    const fetchManagers = async () => {
+    const fetchDrivers = async () => {
         try {
+            // Get organization from localStorage
+            const orgStr = localStorage.getItem('fleetman-organization');
             const userStr = localStorage.getItem('fleetman-user');
-            let data: FleetManager[] = [];
 
-            if (userStr) {
+            let organizationId: number | undefined;
+
+            if (orgStr) {
+                const org = JSON.parse(orgStr);
+                organizationId = org.organizationId;
+            } else if (userStr) {
                 const user = JSON.parse(userStr);
-                // Use adminId (userId from login response) to fetch managers
-                if (user.userId) {
-                    data = await fleetManagerApi.getByAdminId(user.userId);
-                } else {
-                    // Fallback to all if no userId
-                    data = await fleetManagerApi.getAll();
-                }
-            } else {
-                data = await fleetManagerApi.getAll();
+                organizationId = user.organizationId;
             }
-            setManagers(data);
+
+            let data: Driver[] = [];
+
+            if (organizationId) {
+                // Use organization-based endpoint
+                data = await organizationApi.getDrivers(organizationId);
+            } else {
+                console.warn('No organization found, fetching all drivers');
+                data = await driverApi.getAll();
+            }
+
+            setDrivers(data);
         } catch (error) {
-            console.error("Failed to fetch managers", error);
+            console.error("Failed to fetch drivers", error);
         } finally {
             setLoading(false);
         }
     };
 
-    const filteredManagers = managers.filter(manager => {
-        const fullName = `${manager.managerFirstName} ${manager.managerLastName}`.toLowerCase();
+    const filteredDrivers = drivers.filter(driver => {
+        const fullName = `${driver.driverFirstName} ${driver.driverLastName}`.toLowerCase();
         const matchesSearch =
             fullName.includes(searchTerm.toLowerCase()) ||
-            manager.managerEmail?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-            manager.managerPhoneNumber?.includes(searchTerm);
+            driver.driverEmail?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            driver.driverPhoneNumber?.includes(searchTerm);
 
-        const matchesState = stateFilter === 'ALL' || manager.managerState === stateFilter;
+        const matchesState = stateFilter === 'ALL' || driver.driverState === stateFilter;
 
         return matchesSearch && matchesState;
     });
@@ -69,10 +81,10 @@ export default function ManagersPage() {
 
     const getStateLabel = (state: DriverState) => {
         switch (state) {
-            case DriverState.ACTIVE: return t('managers.active');
-            case DriverState.INACTIVE: return t('managers.inactive');
-            case DriverState.ON_LEAVE: return t('managers.onLeave');
-            case DriverState.SUSPENDED: return t('managers.suspended');
+            case DriverState.ACTIVE: return t('drivers.active');
+            case DriverState.INACTIVE: return t('drivers.inactive');
+            case DriverState.ON_LEAVE: return t('drivers.onLeave');
+            case DriverState.SUSPENDED: return t('drivers.suspended');
             default: return state;
         }
     };
@@ -83,10 +95,10 @@ export default function ManagersPage() {
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                 <div>
                     <h1 className="text-2xl font-bold text-text-main">
-                        {t('managers.title')}
+                        {t('drivers.title')}
                     </h1>
                     <p className="mt-1 text-sm text-text-muted">
-                        {t('managers.subtitle')}
+                        {t('drivers.subtitle')}
                     </p>
                 </div>
                 <button
@@ -94,7 +106,7 @@ export default function ManagersPage() {
                     className="inline-flex items-center gap-2 px-4 py-2 bg-secondary text-white rounded-lg hover:bg-secondary/90 transition-colors"
                 >
                     <Plus size={20} />
-                    <span>{t('managers.new')}</span>
+                    <span>{t('drivers.new')}</span>
                 </button>
             </div>
 
@@ -106,7 +118,7 @@ export default function ManagersPage() {
                     </div>
                     <input
                         type="text"
-                        placeholder={t('managers.searchPlaceholder')}
+                        placeholder={t('drivers.searchPlaceholder')}
                         value={searchTerm}
                         onChange={(e) => setSearchTerm(e.target.value)}
                         className="block w-full pl-10 pr-3 py-2 border border-glass rounded-lg bg-surface text-text-main placeholder-text-muted focus:outline-none focus:ring-2 focus:ring-secondary focus:border-secondary transition-all"
@@ -120,24 +132,24 @@ export default function ManagersPage() {
                         className="px-3 py-2 border border-glass rounded-lg bg-surface text-text-main focus:outline-none focus:ring-2 focus:ring-secondary"
                     >
                         <option value="ALL">{t('common.allStates')}</option>
-                        <option value={DriverState.ACTIVE}>{t('managers.active')}</option>
-                        <option value={DriverState.INACTIVE}>{t('managers.inactive')}</option>
-                        <option value={DriverState.ON_LEAVE}>{t('managers.onLeave')}</option>
-                        <option value={DriverState.SUSPENDED}>{t('managers.suspended')}</option>
+                        <option value={DriverState.ACTIVE}>{t('drivers.active')}</option>
+                        <option value={DriverState.INACTIVE}>{t('drivers.inactive')}</option>
+                        <option value={DriverState.ON_LEAVE}>{t('drivers.onLeave')}</option>
+                        <option value={DriverState.SUSPENDED}>{t('drivers.suspended')}</option>
                     </select>
                 </div>
             </div>
 
-            {/* Managers Grid */}
+            {/* Drivers Grid */}
             {loading ? (
                 <div className="flex items-center justify-center h-64">
                     <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-secondary"></div>
                 </div>
-            ) : filteredManagers.length === 0 ? (
+            ) : filteredDrivers.length === 0 ? (
                 <div className="text-center py-12 bg-surface rounded-lg border border-glass">
-                    <UserCog size={48} className="mx-auto text-text-muted mb-4" />
-                    <h3 className="text-lg font-medium text-text-main">{t('managers.noManagers')}</h3>
-                    <p className="text-text-muted mt-1">{t('managers.addFirst')}</p>
+                    <Users size={48} className="mx-auto text-text-muted mb-4" />
+                    <h3 className="text-lg font-medium text-text-main">{t('drivers.noDrivers')}</h3>
+                    <p className="text-text-muted mt-1">{t('drivers.addFirst')}</p>
                 </div>
             ) : (
                 <div className="bg-surface rounded-xl border border-glass shadow-sm overflow-hidden">
@@ -147,7 +159,7 @@ export default function ManagersPage() {
                             <thead className="bg-glass/50">
                                 <tr>
                                     <th className="text-left px-6 py-4 text-xs font-semibold text-text-muted uppercase tracking-wider">
-                                        Gestionnaire
+                                        Chauffeur
                                     </th>
                                     <th className="text-left px-6 py-4 text-xs font-semibold text-text-muted uppercase tracking-wider">
                                         Coordonnées
@@ -155,8 +167,8 @@ export default function ManagersPage() {
                                     <th className="text-left px-6 py-4 text-xs font-semibold text-text-muted uppercase tracking-wider">
                                         Statut
                                     </th>
-                                    <th className="text-center px-6 py-4 text-xs font-semibold text-text-muted uppercase tracking-wider">
-                                        Flottes
+                                    <th className="text-left px-6 py-4 text-xs font-semibold text-text-muted uppercase tracking-wider">
+                                        Permis
                                     </th>
                                     <th className="text-right px-6 py-4 text-xs font-semibold text-text-muted uppercase tracking-wider">
                                         Actions
@@ -164,19 +176,23 @@ export default function ManagersPage() {
                                 </tr>
                             </thead>
                             <tbody className="divide-y divide-glass">
-                                {filteredManagers.map((manager) => (
-                                    <tr key={manager.managerId} className="hover:bg-glass/30 transition-colors">
+                                {filteredDrivers.map((driver) => (
+                                    <tr
+                                        key={driver.driverId}
+                                        className="hover:bg-glass/30 transition-colors cursor-pointer"
+                                        onClick={() => router.push(`/dashboard/manager/drivers/${driver.driverId}`)}
+                                    >
                                         <td className="px-6 py-4">
                                             <div className="flex items-center gap-3">
-                                                <div className="w-10 h-10 rounded-full bg-gradient-to-br from-accent to-secondary flex items-center justify-center text-white font-bold text-sm">
-                                                    {manager.managerFirstName?.[0]}{manager.managerLastName?.[0]}
+                                                <div className="w-10 h-10 rounded-full bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center text-white font-bold text-sm">
+                                                    {driver.driverFirstName?.[0]}{driver.driverLastName?.[0]}
                                                 </div>
                                                 <div>
                                                     <p className="font-medium text-text-main">
-                                                        {manager.managerFirstName} {manager.managerLastName}
+                                                        {driver.driverFirstName} {driver.driverLastName}
                                                     </p>
                                                     <p className="text-xs text-text-muted">
-                                                        ID: {manager.managerId}
+                                                        ID: {driver.driverId}
                                                     </p>
                                                 </div>
                                             </div>
@@ -185,35 +201,33 @@ export default function ManagersPage() {
                                             <div className="space-y-1">
                                                 <div className="flex items-center gap-2 text-sm text-text-main">
                                                     <Mail size={14} className="text-text-muted flex-shrink-0" />
-                                                    <span className="truncate max-w-[200px]">{manager.managerEmail}</span>
+                                                    <span className="truncate max-w-[200px]">{driver.driverEmail}</span>
                                                 </div>
                                                 <div className="flex items-center gap-2 text-sm text-text-sub">
                                                     <Phone size={14} className="text-text-muted flex-shrink-0" />
-                                                    <span>{manager.managerPhoneNumber || '-'}</span>
+                                                    <span>{driver.driverPhoneNumber || '-'}</span>
                                                 </div>
                                             </div>
                                         </td>
                                         <td className="px-6 py-4">
-                                            <span className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium ${getStateColor(manager.managerState)}`}>
-                                                {getStateLabel(manager.managerState)}
+                                            <span className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium ${getStateColor(driver.driverState)}`}>
+                                                {getStateLabel(driver.driverState)}
                                             </span>
                                         </td>
-                                        <td className="px-6 py-4 text-center">
-                                            <span className="inline-flex items-center justify-center w-8 h-8 rounded-lg bg-accent/10 text-accent font-semibold text-sm">
-                                                {manager.fleetsCount || 0}
-                                            </span>
+                                        <td className="px-6 py-4 text-sm text-text-sub">
+                                            {driver.driverLicenseNumber || '-'}
                                         </td>
                                         <td className="px-6 py-4">
-                                            <div className="flex items-center justify-end gap-2">
+                                            <div className="flex items-center justify-end gap-2" onClick={(e) => e.stopPropagation()}>
                                                 <button
-                                                    onClick={() => setEditingManager(manager)}
+                                                    onClick={() => setEditingDriver(driver)}
                                                     className="p-2 rounded-lg hover:bg-glass text-text-muted hover:text-accent transition-colors"
                                                     title={t('common.edit')}
                                                 >
                                                     <Edit size={18} />
                                                 </button>
                                                 <button
-                                                    onClick={() => setDeletingManager(manager)}
+                                                    onClick={() => setDeletingDriver(driver)}
                                                     className="p-2 rounded-lg hover:bg-red-50 dark:hover:bg-red-900/20 text-text-muted hover:text-red-500 transition-colors"
                                                     title={t('common.delete')}
                                                 >
@@ -229,31 +243,35 @@ export default function ManagersPage() {
 
                     {/* Mobile List View */}
                     <div className="md:hidden divide-y divide-glass">
-                        {filteredManagers.map((manager) => (
-                            <div key={manager.managerId} className="p-4 hover:bg-glass/30 transition-colors">
+                        {filteredDrivers.map((driver) => (
+                            <div
+                                key={driver.driverId}
+                                className="p-4 hover:bg-glass/30 transition-colors cursor-pointer"
+                                onClick={() => router.push(`/dashboard/manager/drivers/${driver.driverId}`)}
+                            >
                                 <div className="flex items-start justify-between">
                                     <div className="flex items-center gap-3">
-                                        <div className="w-12 h-12 rounded-full bg-gradient-to-br from-accent to-secondary flex items-center justify-center text-white font-bold">
-                                            {manager.managerFirstName?.[0]}{manager.managerLastName?.[0]}
+                                        <div className="w-12 h-12 rounded-full bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center text-white font-bold">
+                                            {driver.driverFirstName?.[0]}{driver.driverLastName?.[0]}
                                         </div>
                                         <div>
                                             <p className="font-semibold text-text-main">
-                                                {manager.managerFirstName} {manager.managerLastName}
+                                                {driver.driverFirstName} {driver.driverLastName}
                                             </p>
-                                            <span className={`inline-flex items-center mt-1 px-2 py-0.5 rounded-full text-xs font-medium ${getStateColor(manager.managerState)}`}>
-                                                {getStateLabel(manager.managerState)}
+                                            <span className={`inline-flex items-center mt-1 px-2 py-0.5 rounded-full text-xs font-medium ${getStateColor(driver.driverState)}`}>
+                                                {getStateLabel(driver.driverState)}
                                             </span>
                                         </div>
                                     </div>
-                                    <div className="flex gap-1">
+                                    <div className="flex gap-1" onClick={(e) => e.stopPropagation()}>
                                         <button
-                                            onClick={() => setEditingManager(manager)}
+                                            onClick={() => setEditingDriver(driver)}
                                             className="p-2 rounded-lg hover:bg-glass text-text-muted"
                                         >
                                             <Edit size={18} />
                                         </button>
                                         <button
-                                            onClick={() => setDeletingManager(manager)}
+                                            onClick={() => setDeletingDriver(driver)}
                                             className="p-2 rounded-lg hover:bg-red-50 text-text-muted hover:text-red-500"
                                         >
                                             <Trash2 size={18} />
@@ -263,15 +281,15 @@ export default function ManagersPage() {
                                 <div className="mt-3 ml-15 space-y-1 text-sm">
                                     <div className="flex items-center gap-2 text-text-sub">
                                         <Mail size={14} className="text-text-muted" />
-                                        <span className="truncate">{manager.managerEmail}</span>
+                                        <span className="truncate">{driver.driverEmail}</span>
                                     </div>
                                     <div className="flex items-center gap-2 text-text-sub">
                                         <Phone size={14} className="text-text-muted" />
-                                        <span>{manager.managerPhoneNumber || '-'}</span>
+                                        <span>{driver.driverPhoneNumber || '-'}</span>
                                     </div>
                                     <div className="flex items-center gap-2 text-text-sub">
-                                        <Building2 size={14} className="text-text-muted" />
-                                        <span>{manager.fleetsCount || 0} {t('managers.fleetsManaged')}</span>
+                                        <span className="text-text-muted">Permis:</span>
+                                        <span>{driver.driverLicenseNumber || '-'}</span>
                                     </div>
                                 </div>
                             </div>
@@ -280,37 +298,37 @@ export default function ManagersPage() {
                 </div>
             )}
 
-            {/* Create Manager Modal */}
+            {/* Create Driver Modal */}
             {showCreateModal && (
-                <CreateManagerModal
+                <CreateDriverModal
                     onClose={() => setShowCreateModal(false)}
                     onSuccess={() => {
                         setShowCreateModal(false);
-                        fetchManagers();
+                        fetchDrivers();
                     }}
                 />
             )}
 
-            {/* Edit Manager Modal */}
-            {editingManager && (
-                <EditManagerModal
-                    manager={editingManager}
-                    onClose={() => setEditingManager(null)}
+            {/* Edit Driver Modal */}
+            {editingDriver && (
+                <EditDriverModal
+                    driver={editingDriver}
+                    onClose={() => setEditingDriver(null)}
                     onSuccess={() => {
-                        setEditingManager(null);
-                        fetchManagers();
+                        setEditingDriver(null);
+                        fetchDrivers();
                     }}
                 />
             )}
 
-            {/* Delete Manager Modal */}
-            {deletingManager && (
-                <DeleteManagerModal
-                    manager={deletingManager}
-                    onClose={() => setDeletingManager(null)}
+            {/* Delete Driver Modal */}
+            {deletingDriver && (
+                <DeleteDriverModal
+                    driver={deletingDriver}
+                    onClose={() => setDeletingDriver(null)}
                     onSuccess={() => {
-                        setDeletingManager(null);
-                        fetchManagers();
+                        setDeletingDriver(null);
+                        fetchDrivers();
                     }}
                 />
             )}
@@ -318,19 +336,21 @@ export default function ManagersPage() {
     );
 }
 
-// Edit Manager Modal
-function EditManagerModal({ manager, onClose, onSuccess }: { manager: FleetManager; onClose: () => void; onSuccess: () => void }) {
+// Edit Driver Modal
+function EditDriverModal({ driver, onClose, onSuccess }: { driver: Driver; onClose: () => void; onSuccess: () => void }) {
     const { t } = useLanguage();
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState('');
     const [formData, setFormData] = useState({
-        managerFirstName: manager.managerFirstName || '',
-        managerLastName: manager.managerLastName || '',
-        managerPhoneNumber: manager.managerPhoneNumber || '',
-        managerIdCardNumber: manager.managerIdCardNumber || '',
-        personalAddress: manager.personalAddress || '',
-        personalCity: manager.personalCity || '',
-        gender: manager.gender || Gender.MALE
+        driverFirstName: driver.driverFirstName || '',
+        driverLastName: driver.driverLastName || '',
+        driverEmail: driver.driverEmail || '',
+        driverPhoneNumber: driver.driverPhoneNumber || '',
+        driverLicenseNumber: driver.driverLicenseNumber || '',
+        driverLicenseExpiryDate: driver.driverLicenseExpiryDate || '',
+        driverEmergencyContactName: driver.driverEmergencyContactName || '',
+        driverEmergencyContactPhone: driver.driverEmergencyContactPhone || '',
+        driverState: driver.driverState || DriverState.ACTIVE
     });
 
     const handleSubmit = async (e: React.FormEvent) => {
@@ -339,7 +359,7 @@ function EditManagerModal({ manager, onClose, onSuccess }: { manager: FleetManag
         setError('');
 
         try {
-            await fleetManagerApi.update(manager.managerId, formData);
+            await driverApi.update(driver.driverId, formData);
             onSuccess();
         } catch (err) {
             setError(t('common.error'));
@@ -356,7 +376,7 @@ function EditManagerModal({ manager, onClose, onSuccess }: { manager: FleetManag
                     <div className="flex items-center justify-between">
                         <h2 className="text-xl font-semibold text-text-main flex items-center gap-2">
                             <Edit size={20} />
-                            {t('common.edit')} - {manager.managerFirstName} {manager.managerLastName}
+                            {t('common.edit')} - {driver.driverFirstName} {driver.driverLastName}
                         </h2>
                         <button onClick={onClose} className="p-1 hover:bg-glass rounded-full text-text-muted">
                             <X size={20} />
@@ -377,8 +397,8 @@ function EditManagerModal({ manager, onClose, onSuccess }: { manager: FleetManag
                             <label className="block text-sm font-medium text-text-sub mb-1">Prénom</label>
                             <input
                                 type="text"
-                                value={formData.managerFirstName}
-                                onChange={(e) => setFormData(prev => ({ ...prev, managerFirstName: e.target.value }))}
+                                value={formData.driverFirstName}
+                                onChange={(e) => setFormData(prev => ({ ...prev, driverFirstName: e.target.value }))}
                                 className="w-full px-4 py-2 border border-glass rounded-lg bg-surface text-text-main focus:outline-none focus:ring-2 focus:ring-secondary"
                             />
                         </div>
@@ -386,11 +406,21 @@ function EditManagerModal({ manager, onClose, onSuccess }: { manager: FleetManag
                             <label className="block text-sm font-medium text-text-sub mb-1">Nom</label>
                             <input
                                 type="text"
-                                value={formData.managerLastName}
-                                onChange={(e) => setFormData(prev => ({ ...prev, managerLastName: e.target.value }))}
+                                value={formData.driverLastName}
+                                onChange={(e) => setFormData(prev => ({ ...prev, driverLastName: e.target.value }))}
                                 className="w-full px-4 py-2 border border-glass rounded-lg bg-surface text-text-main focus:outline-none focus:ring-2 focus:ring-secondary"
                             />
                         </div>
+                    </div>
+
+                    <div>
+                        <label className="block text-sm font-medium text-text-sub mb-1">Email</label>
+                        <input
+                            type="email"
+                            value={formData.driverEmail}
+                            onChange={(e) => setFormData(prev => ({ ...prev, driverEmail: e.target.value }))}
+                            className="w-full px-4 py-2 border border-glass rounded-lg bg-surface text-text-main focus:outline-none focus:ring-2 focus:ring-secondary"
+                        />
                     </div>
 
                     <div className="grid grid-cols-2 gap-4">
@@ -398,50 +428,42 @@ function EditManagerModal({ manager, onClose, onSuccess }: { manager: FleetManag
                             <label className="block text-sm font-medium text-text-sub mb-1">Téléphone</label>
                             <input
                                 type="tel"
-                                value={formData.managerPhoneNumber}
-                                onChange={(e) => setFormData(prev => ({ ...prev, managerPhoneNumber: e.target.value }))}
+                                value={formData.driverPhoneNumber}
+                                onChange={(e) => setFormData(prev => ({ ...prev, driverPhoneNumber: e.target.value }))}
                                 className="w-full px-4 py-2 border border-glass rounded-lg bg-surface text-text-main focus:outline-none focus:ring-2 focus:ring-secondary"
                             />
                         </div>
                         <div>
-                            <label className="block text-sm font-medium text-text-sub mb-1">Genre</label>
+                            <label className="block text-sm font-medium text-text-sub mb-1">État</label>
                             <select
-                                value={formData.gender}
-                                onChange={(e) => setFormData(prev => ({ ...prev, gender: e.target.value as Gender }))}
+                                value={formData.driverState}
+                                onChange={(e) => setFormData(prev => ({ ...prev, driverState: e.target.value as DriverState }))}
                                 className="w-full px-4 py-2 border border-glass rounded-lg bg-surface text-text-main focus:outline-none focus:ring-2 focus:ring-secondary"
                             >
-                                <option value={Gender.MALE}>Homme</option>
-                                <option value={Gender.FEMALE}>Femme</option>
+                                <option value={DriverState.ACTIVE}>Actif</option>
+                                <option value={DriverState.INACTIVE}>Inactif</option>
+                                <option value={DriverState.ON_LEAVE}>En congé</option>
+                                <option value={DriverState.SUSPENDED}>Suspendu</option>
                             </select>
                         </div>
                     </div>
 
-                    <div>
-                        <label className="block text-sm font-medium text-text-sub mb-1">N° Carte d'identité</label>
-                        <input
-                            type="text"
-                            value={formData.managerIdCardNumber}
-                            onChange={(e) => setFormData(prev => ({ ...prev, managerIdCardNumber: e.target.value }))}
-                            className="w-full px-4 py-2 border border-glass rounded-lg bg-surface text-text-main focus:outline-none focus:ring-2 focus:ring-secondary"
-                        />
-                    </div>
-
                     <div className="grid grid-cols-2 gap-4">
                         <div>
-                            <label className="block text-sm font-medium text-text-sub mb-1">Adresse</label>
+                            <label className="block text-sm font-medium text-text-sub mb-1">N° Permis</label>
                             <input
                                 type="text"
-                                value={formData.personalAddress}
-                                onChange={(e) => setFormData(prev => ({ ...prev, personalAddress: e.target.value }))}
+                                value={formData.driverLicenseNumber}
+                                onChange={(e) => setFormData(prev => ({ ...prev, driverLicenseNumber: e.target.value }))}
                                 className="w-full px-4 py-2 border border-glass rounded-lg bg-surface text-text-main focus:outline-none focus:ring-2 focus:ring-secondary"
                             />
                         </div>
                         <div>
-                            <label className="block text-sm font-medium text-text-sub mb-1">Ville</label>
+                            <label className="block text-sm font-medium text-text-sub mb-1">Expiration permis</label>
                             <input
-                                type="text"
-                                value={formData.personalCity}
-                                onChange={(e) => setFormData(prev => ({ ...prev, personalCity: e.target.value }))}
+                                type="date"
+                                value={formData.driverLicenseExpiryDate}
+                                onChange={(e) => setFormData(prev => ({ ...prev, driverLicenseExpiryDate: e.target.value }))}
                                 className="w-full px-4 py-2 border border-glass rounded-lg bg-surface text-text-main focus:outline-none focus:ring-2 focus:ring-secondary"
                             />
                         </div>
@@ -469,15 +491,15 @@ function EditManagerModal({ manager, onClose, onSuccess }: { manager: FleetManag
     );
 }
 
-// Delete Manager Modal with name confirmation
-function DeleteManagerModal({ manager, onClose, onSuccess }: { manager: FleetManager; onClose: () => void; onSuccess: () => void }) {
+// Delete Driver Modal with name confirmation
+function DeleteDriverModal({ driver, onClose, onSuccess }: { driver: Driver; onClose: () => void; onSuccess: () => void }) {
     const { t } = useLanguage();
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState('');
     const [confirmationName, setConfirmationName] = useState('');
 
-    const managerFullName = `${manager.managerFirstName} ${manager.managerLastName}`;
-    const isNameMatching = confirmationName === managerFullName;
+    const driverFullName = `${driver.driverFirstName} ${driver.driverLastName}`;
+    const isNameMatching = confirmationName === driverFullName;
 
     const handleDelete = async () => {
         if (!isNameMatching) return;
@@ -486,7 +508,7 @@ function DeleteManagerModal({ manager, onClose, onSuccess }: { manager: FleetMan
         setError('');
 
         try {
-            await fleetManagerApi.delete(manager.managerId);
+            await driverApi.delete(driver.driverId);
             onSuccess();
         } catch (err) {
             setError(t('common.error'));
@@ -524,26 +546,26 @@ function DeleteManagerModal({ manager, onClose, onSuccess }: { manager: FleetMan
                             <Trash2 size={32} className="text-red-500" />
                         </div>
                         <p className="text-text-main">
-                            {t('managers.confirmDelete')}
+                            {t('drivers.confirmDelete')}
                         </p>
                         <p className="text-text-sub font-semibold mt-2">
-                            "{managerFullName}"
+                            "{driverFullName}"
                         </p>
                         <p className="text-sm text-text-muted mt-2">
-                            {t('managers.deleteWarning')}
+                            {t('drivers.deleteWarning')}
                         </p>
                     </div>
 
                     {/* Confirmation input */}
                     <div className="mt-4 p-4 bg-red-50 dark:bg-red-900/10 rounded-lg border border-red-200 dark:border-red-800">
                         <label className="block text-sm font-medium text-text-main mb-2">
-                            {t('managers.typeNameToConfirm')}
+                            {t('drivers.typeNameToConfirm')}
                         </label>
                         <input
                             type="text"
                             value={confirmationName}
                             onChange={(e) => setConfirmationName(e.target.value)}
-                            placeholder={managerFullName}
+                            placeholder={driverFullName}
                             className={`w-full px-4 py-2 border rounded-lg bg-surface text-text-main focus:outline-none focus:ring-2 ${confirmationName && !isNameMatching
                                 ? 'border-red-400 focus:ring-red-500'
                                 : isNameMatching
@@ -552,12 +574,12 @@ function DeleteManagerModal({ manager, onClose, onSuccess }: { manager: FleetMan
                                 }`}
                         />
                         {confirmationName && !isNameMatching && (
-                            <p className="text-xs text-red-500 mt-1">{t('managers.nameDoesNotMatch')}</p>
+                            <p className="text-xs text-red-500 mt-1">{t('drivers.nameDoesNotMatch')}</p>
                         )}
                         {isNameMatching && (
                             <p className="text-xs text-green-500 mt-1 flex items-center gap-1">
                                 <CheckCircle size={12} />
-                                {t('managers.nameMatches')}
+                                {t('drivers.nameMatches')}
                             </p>
                         )}
                     </div>
@@ -585,20 +607,20 @@ function DeleteManagerModal({ manager, onClose, onSuccess }: { manager: FleetMan
     );
 }
 
-// Create Manager Modal
-function CreateManagerModal({ onClose, onSuccess }: { onClose: () => void; onSuccess: () => void }) {
-    const { t, language } = useLanguage();
-    const [formData, setFormData] = useState<FleetManagerCreate>({
-        managerEmail: '',
-        managerPassword: '',
-        managerFirstName: '',
-        managerLastName: '',
-        managerPhoneNumber: '',
-        gender: Gender.MALE,
-        managerIdCardNumber: '',
-        personalAddress: '',
-        personalCity: '',
-        language: language
+// Create Driver Modal Component
+function CreateDriverModal({ onClose, onSuccess }: { onClose: () => void; onSuccess: () => void }) {
+    const { t } = useLanguage();
+    const [formData, setFormData] = useState({
+        driverFirstName: '',
+        driverLastName: '',
+        driverEmail: '',
+        driverPassword: '',
+        driverPhoneNumber: '',
+        driverLicenseNumber: '',
+        driverLicenseExpiryDate: '',
+        driverEmergencyContactName: '',
+        driverEmergencyContactPhone: '',
+        driverPersonalInformation: ''
     });
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState('');
@@ -611,14 +633,22 @@ function CreateManagerModal({ onClose, onSuccess }: { onClose: () => void; onSuc
         try {
             const userStr = localStorage.getItem('fleetman-user');
             const adminId = userStr ? JSON.parse(userStr).userId : null;
+
             if (!adminId) {
-                setError(t('managers.noAdminId'));
+                setError('Admin ID non trouvé. Veuillez vous reconnecter.');
                 return;
             }
-            await fleetManagerApi.create(adminId, formData);
+
+            await driverApi.createAsAdmin(adminId, formData);
             onSuccess();
-        } catch (err) {
-            setError(t('common.error'));
+        } catch (err: any) {
+            if (err?.response?.status === 409) {
+                setError('Un conducteur avec cet email existe déjà. Veuillez utiliser une autre adresse email.');
+            } else if (err?.response?.status === 400) {
+                setError('Données invalides. Vérifiez les champs obligatoires.');
+            } else {
+                setError(t('common.error'));
+            }
             console.error(err);
         } finally {
             setLoading(false);
@@ -629,7 +659,7 @@ function CreateManagerModal({ onClose, onSuccess }: { onClose: () => void; onSuc
         <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
             <div className="bg-surface rounded-lg border border-glass shadow-xl w-full max-w-lg max-h-[90vh] overflow-y-auto">
                 <div className="p-6 border-b border-glass flex items-center justify-between sticky top-0 bg-surface">
-                    <h2 className="text-xl font-semibold text-text-main">{t('managers.new')}</h2>
+                    <h2 className="text-xl font-semibold text-text-main">{t('drivers.new')}</h2>
                     <button onClick={onClose} className="p-1 hover:bg-glass rounded-full text-text-muted">
                         <X size={20} />
                     </button>
@@ -648,8 +678,8 @@ function CreateManagerModal({ onClose, onSuccess }: { onClose: () => void; onSuc
                             <input
                                 type="text"
                                 required
-                                value={formData.managerFirstName}
-                                onChange={(e) => setFormData(prev => ({ ...prev, managerFirstName: e.target.value }))}
+                                value={formData.driverFirstName}
+                                onChange={(e) => setFormData(prev => ({ ...prev, driverFirstName: e.target.value }))}
                                 className="w-full px-4 py-2 border border-glass rounded-lg bg-surface text-text-main focus:outline-none focus:ring-2 focus:ring-secondary"
                             />
                         </div>
@@ -658,8 +688,8 @@ function CreateManagerModal({ onClose, onSuccess }: { onClose: () => void; onSuc
                             <input
                                 type="text"
                                 required
-                                value={formData.managerLastName}
-                                onChange={(e) => setFormData(prev => ({ ...prev, managerLastName: e.target.value }))}
+                                value={formData.driverLastName}
+                                onChange={(e) => setFormData(prev => ({ ...prev, driverLastName: e.target.value }))}
                                 className="w-full px-4 py-2 border border-glass rounded-lg bg-surface text-text-main focus:outline-none focus:ring-2 focus:ring-secondary"
                             />
                         </div>
@@ -670,8 +700,8 @@ function CreateManagerModal({ onClose, onSuccess }: { onClose: () => void; onSuc
                         <input
                             type="email"
                             required
-                            value={formData.managerEmail}
-                            onChange={(e) => setFormData(prev => ({ ...prev, managerEmail: e.target.value }))}
+                            value={formData.driverEmail}
+                            onChange={(e) => setFormData(prev => ({ ...prev, driverEmail: e.target.value }))}
                             className="w-full px-4 py-2 border border-glass rounded-lg bg-surface text-text-main focus:outline-none focus:ring-2 focus:ring-secondary"
                         />
                     </div>
@@ -682,53 +712,65 @@ function CreateManagerModal({ onClose, onSuccess }: { onClose: () => void; onSuc
                             type="password"
                             required
                             minLength={8}
-                            value={formData.managerPassword}
-                            onChange={(e) => setFormData(prev => ({ ...prev, managerPassword: e.target.value }))}
+                            value={formData.driverPassword}
+                            onChange={(e) => setFormData(prev => ({ ...prev, driverPassword: e.target.value }))}
                             className="w-full px-4 py-2 border border-glass rounded-lg bg-surface text-text-main focus:outline-none focus:ring-2 focus:ring-secondary"
                         />
                     </div>
 
                     <div className="grid grid-cols-2 gap-4">
                         <div>
-                            <label className="block text-sm font-medium text-text-sub mb-1">Téléphone</label>
+                            <label className="block text-sm font-medium text-text-sub mb-1">Téléphone *</label>
                             <input
                                 type="tel"
-                                value={formData.managerPhoneNumber || ''}
-                                onChange={(e) => setFormData(prev => ({ ...prev, managerPhoneNumber: e.target.value }))}
+                                required
+                                value={formData.driverPhoneNumber}
+                                onChange={(e) => setFormData(prev => ({ ...prev, driverPhoneNumber: e.target.value }))}
                                 className="w-full px-4 py-2 border border-glass rounded-lg bg-surface text-text-main focus:outline-none focus:ring-2 focus:ring-secondary"
                             />
                         </div>
                         <div>
-                            <label className="block text-sm font-medium text-text-sub mb-1">Genre</label>
-                            <select
-                                value={formData.gender}
-                                onChange={(e) => setFormData(prev => ({ ...prev, gender: e.target.value as Gender }))}
+                            <label className="block text-sm font-medium text-text-sub mb-1">N° Permis</label>
+                            <input
+                                type="text"
+                                value={formData.driverLicenseNumber}
+                                onChange={(e) => setFormData(prev => ({ ...prev, driverLicenseNumber: e.target.value }))}
                                 className="w-full px-4 py-2 border border-glass rounded-lg bg-surface text-text-main focus:outline-none focus:ring-2 focus:ring-secondary"
-                            >
-                                <option value={Gender.MALE}>Homme</option>
-                                <option value={Gender.FEMALE}>Femme</option>
-                            </select>
+                            />
                         </div>
                     </div>
 
-                    <div className="grid grid-cols-2 gap-4">
-                        <div>
-                            <label className="block text-sm font-medium text-text-sub mb-1">Adresse</label>
-                            <input
-                                type="text"
-                                value={formData.personalAddress || ''}
-                                onChange={(e) => setFormData(prev => ({ ...prev, personalAddress: e.target.value }))}
-                                className="w-full px-4 py-2 border border-glass rounded-lg bg-surface text-text-main focus:outline-none focus:ring-2 focus:ring-secondary"
-                            />
-                        </div>
-                        <div>
-                            <label className="block text-sm font-medium text-text-sub mb-1">Ville</label>
-                            <input
-                                type="text"
-                                value={formData.personalCity || ''}
-                                onChange={(e) => setFormData(prev => ({ ...prev, personalCity: e.target.value }))}
-                                className="w-full px-4 py-2 border border-glass rounded-lg bg-surface text-text-main focus:outline-none focus:ring-2 focus:ring-secondary"
-                            />
+                    <div>
+                        <label className="block text-sm font-medium text-text-sub mb-1">Date d'expiration du permis</label>
+                        <input
+                            type="date"
+                            value={formData.driverLicenseExpiryDate}
+                            onChange={(e) => setFormData(prev => ({ ...prev, driverLicenseExpiryDate: e.target.value }))}
+                            className="w-full px-4 py-2 border border-glass rounded-lg bg-surface text-text-main focus:outline-none focus:ring-2 focus:ring-secondary"
+                        />
+                    </div>
+
+                    <div className="border-t border-glass pt-4 mt-4">
+                        <h3 className="text-sm font-semibold text-text-main mb-3">Contact d'urgence</h3>
+                        <div className="grid grid-cols-2 gap-4">
+                            <div>
+                                <label className="block text-sm font-medium text-text-sub mb-1">Nom</label>
+                                <input
+                                    type="text"
+                                    value={formData.driverEmergencyContactName}
+                                    onChange={(e) => setFormData(prev => ({ ...prev, driverEmergencyContactName: e.target.value }))}
+                                    className="w-full px-4 py-2 border border-glass rounded-lg bg-surface text-text-main focus:outline-none focus:ring-2 focus:ring-secondary"
+                                />
+                            </div>
+                            <div>
+                                <label className="block text-sm font-medium text-text-sub mb-1">Téléphone</label>
+                                <input
+                                    type="tel"
+                                    value={formData.driverEmergencyContactPhone}
+                                    onChange={(e) => setFormData(prev => ({ ...prev, driverEmergencyContactPhone: e.target.value }))}
+                                    className="w-full px-4 py-2 border border-glass rounded-lg bg-surface text-text-main focus:outline-none focus:ring-2 focus:ring-secondary"
+                                />
+                            </div>
                         </div>
                     </div>
 

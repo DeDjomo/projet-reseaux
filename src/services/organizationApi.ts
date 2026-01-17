@@ -1,5 +1,6 @@
 import apiClient from '@/lib/axios';
-import { Organization, OrganizationCreate, OrganizationUpdate, OrganizationType, SubscriptionPlan } from '@/types';
+import { Organization, OrganizationCreate, OrganizationUpdate, OrganizationType, SubscriptionPlan, Fleet, Driver, Trip, Incident, Maintenance, FleetManager, Admin } from '@/types';
+import { Geofence } from '@/types/geofence';
 
 // Organization endpoints from OrganizationController - Base path: /organizations
 
@@ -54,6 +55,108 @@ export const organizationApi = {
 
     countByPlan: async (plan: SubscriptionPlan): Promise<number> => {
         const response = await apiClient.get<number>(`/organizations/count/subscription/${plan}`);
+        return response.data;
+    },
+
+    // ========== ORGANIZATION RESOURCES ==========
+
+    // Fleets
+    getFleets: async (organizationId: number): Promise<Fleet[]> => {
+        const response = await apiClient.get<Fleet[]>(`/organizations/${organizationId}/fleets`);
+        return response.data;
+    },
+
+    countFleets: async (organizationId: number): Promise<number> => {
+        const response = await apiClient.get<number>(`/organizations/${organizationId}/fleets/count`);
+        return response.data;
+    },
+
+    // Drivers
+    getDrivers: async (organizationId: number): Promise<Driver[]> => {
+        const response = await apiClient.get<Driver[]>(`/organizations/${organizationId}/drivers`);
+        return response.data;
+    },
+
+    countDrivers: async (organizationId: number): Promise<number> => {
+        const response = await apiClient.get<number>(`/organizations/${organizationId}/drivers/count`);
+        return response.data;
+    },
+
+    // Trips
+    getTrips: async (organizationId: number): Promise<Trip[]> => {
+        const response = await apiClient.get<Trip[]>(`/organizations/${organizationId}/trips`);
+        return response.data;
+    },
+
+    countTrips: async (organizationId: number): Promise<number> => {
+        const response = await apiClient.get<number>(`/organizations/${organizationId}/trips/count`);
+        return response.data;
+    },
+
+    // Incidents
+    getIncidents: async (organizationId: number): Promise<Incident[]> => {
+        const response = await apiClient.get<Incident[]>(`/organizations/${organizationId}/incidents`);
+        return response.data;
+    },
+
+    countIncidents: async (organizationId: number): Promise<number> => {
+        const response = await apiClient.get<number>(`/organizations/${organizationId}/incidents/count`);
+        return response.data;
+    },
+
+    // Maintenances
+    getMaintenances: async (organizationId: number): Promise<Maintenance[]> => {
+        const response = await apiClient.get<Maintenance[]>(`/organizations/${organizationId}/maintenances`);
+        return response.data;
+    },
+
+    countMaintenances: async (organizationId: number): Promise<number> => {
+        const response = await apiClient.get<number>(`/organizations/${organizationId}/maintenances/count`);
+        return response.data;
+    },
+
+    // Geofences
+    getGeofences: async (organizationId: number): Promise<Geofence[]> => {
+        const response = await apiClient.get<Geofence[]>(`/organizations/${organizationId}/geofences`);
+        return response.data;
+    },
+
+    countGeofences: async (organizationId: number): Promise<number> => {
+        const response = await apiClient.get<number>(`/organizations/${organizationId}/geofences/count`);
+        return response.data;
+    },
+
+    // Fleet Managers
+    getFleetManagers: async (organizationId: number): Promise<FleetManager[]> => {
+        const response = await apiClient.get<FleetManager[]>(`/organizations/${organizationId}/fleet-managers`);
+        return response.data;
+    },
+
+    countFleetManagers: async (organizationId: number): Promise<number> => {
+        const response = await apiClient.get<number>(`/organizations/${organizationId}/fleet-managers/count`);
+        return response.data;
+    },
+
+    // Admins
+    getAdmins: async (organizationId: number): Promise<Admin[]> => {
+        const response = await apiClient.get<Admin[]>(`/organizations/${organizationId}/admins`);
+        return response.data;
+    },
+
+    countAdmins: async (organizationId: number): Promise<number> => {
+        const response = await apiClient.get<number>(`/organizations/${organizationId}/admins/count`);
+        return response.data;
+    },
+
+    // Members (total count)
+    countMembers: async (organizationId: number): Promise<number> => {
+        const response = await apiClient.get<number>(`/organizations/${organizationId}/members/count`);
+        return response.data;
+    },
+
+    // Creator
+    getCreator: async (organizationId: number): Promise<Admin> => {
+        const response = await apiClient.get<Admin>(`/organizations/${organizationId}/creator`);
         return response.data;
     },
 };

@@ -1,0 +1,58 @@
+.container {
+    background: rgba(15, 23, 42, 0.6);
+    backdrop-filter: blur(12px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 16px;
+    padding: 1.5rem;
+    text-align: center;
+}
+
+.gauge {
+    position: relative;
+    margin-bottom: 0.5rem;
+}
+
+.svg {
+    width: 100%;
+    max-width: 200px;
+}
+
+.progressArc {
+    transition: stroke-dasharray 0.5s ease-out;
+}
+
+.marker {
+    font-size: 12px;
+    fill: #94a3b8;
+    font-weight: 500;
+}
+
+.display {
+    position: absolute;
+    bottom: 10px;
+    left: 50%;
+    transform: translateX(-50%);
+    text-align: center;
+}
+
+.speed {
+    display: block;
+    font-size: 2rem;
+    font-weight: 700;
+    color: #f1f5f9;
+    line-height: 1;
+}
+
+.unit {
+    display: block;
+    font-size: 0.875rem;
+    color: #94a3b8;
+    font-weight: 500;
+}
+
+.label {
+    margin: 0;
+    font-size: 0.9rem;
+    color: #94a3b8;
+    font-weight: 600;
+}

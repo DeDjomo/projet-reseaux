@@ -6,6 +6,7 @@ import dynamic from 'next/dynamic';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { Geofence, GeofenceType } from '@/types';
 import geofenceApi from '@/services/geofenceApi';
+import { organizationApi } from '@/services';
 import { Plus, Trash, Circle as CircleIcon, Hexagon, Save, X } from 'lucide-react';
 import toast from 'react-hot-toast';
 
@@ -35,21 +36,30 @@ export default function GeofencesPage() {
 
     const fetchGeofences = async () => {
         try {
+            // Get organization from localStorage
+            const orgStr = localStorage.getItem('fleetman-organization');
             const userStr = localStorage.getItem('fleetman-user');
+
+            let organizationId: number | undefined;
+
+            if (orgStr) {
+                const org = JSON.parse(orgStr);
+                organizationId = org.organizationId;
+            } else if (userStr) {
+                const user = JSON.parse(userStr);
+                organizationId = user.organizationId;
+            }
+
             let data: Geofence[] = [];
 
-            if (userStr) {
-                const user = JSON.parse(userStr);
-                if (user.userId) {
-                    data = await geofenceApi.getByAdminId(user.userId);
-                } else if (user.organizationId) {
-                    data = await geofenceApi.getByOrganization(user.organizationId);
-                } else {
-                    data = await geofenceApi.getAll();
-                }
+            if (organizationId) {
+                // Use organization-based endpoint
+                data = await organizationApi.getGeofences(organizationId);
             } else {
+                console.warn('No organization found, fetching all geofences');
                 data = await geofenceApi.getAll();
             }
+
             setGeofences(data);
         } catch (error) {
             console.error('Error fetching geofences:', error);
@@ -249,8 +259,8 @@ export default function GeofencesPage() {
                                         key={geo.geofenceId}
                                         onClick={() => setSelectedGeofence(selectedGeofence?.geofenceId === geo.geofenceId ? null : geo)}
                                         className={`p-3 border rounded-lg cursor-pointer transition flex justify-between items-center group ${selectedGeofence?.geofenceId === geo.geofenceId
-                                                ? 'border-orange-500 bg-orange-50 dark:bg-orange-900/20'
-                                                : 'border-glass bg-glass hover:bg-glass/50'
+                                            ? 'border-orange-500 bg-orange-50 dark:bg-orange-900/20'
+                                            : 'border-glass bg-glass hover:bg-glass/50'
                                             }`}
                                     >
                                         <div>

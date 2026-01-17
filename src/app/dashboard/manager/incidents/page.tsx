@@ -4,6 +4,7 @@
 import React, { useEffect, useState } from 'react';
 import { useLanguage } from '@/contexts/LanguageContext';
 import incidentApi from '@/services/incidentApi';
+import { organizationApi } from '@/services';
 import { Incident } from '@/types';
 import { AlertTriangle, CheckCircle, Clock, Filter, Search, XCircle } from 'lucide-react';
 import toast from 'react-hot-toast';
@@ -21,22 +22,30 @@ export default function IncidentsPage() {
     const fetchIncidents = async () => {
         try {
             setLoading(true);
+            // Get organization from localStorage
+            const orgStr = localStorage.getItem('fleetman-organization');
             const userStr = localStorage.getItem('fleetman-user');
+
+            let organizationId: number | undefined;
+
+            if (orgStr) {
+                const org = JSON.parse(orgStr);
+                organizationId = org.organizationId;
+            } else if (userStr) {
+                const user = JSON.parse(userStr);
+                organizationId = user.organizationId;
+            }
+
             let data: Incident[] = [];
 
-            if (userStr) {
-                const user = JSON.parse(userStr);
-                // Use adminId (user.userId) to fetch incidents via the new composite method
-                if (user.userId) {
-                    data = await incidentApi.getByAdminId(user.userId);
-                } else if (user.organizationId) {
-                    data = await incidentApi.getByOrganization(user.organizationId);
-                } else {
-                    data = await incidentApi.getAll();
-                }
+            if (organizationId) {
+                // Use organization-based endpoint
+                data = await organizationApi.getIncidents(organizationId);
             } else {
+                console.warn('No organization found, fetching all incidents');
                 data = await incidentApi.getAll();
             }
+
             setIncidents(data);
         } catch (error) {
             console.error('Error fetching incidents:', error);

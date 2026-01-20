@@ -114,19 +114,19 @@ export default function FleetsPage() {
                             <thead className="bg-glass/50">
                                 <tr>
                                     <th className="text-left px-6 py-4 text-xs font-semibold text-text-muted uppercase tracking-wider">
-                                        Flotte
+                                        {t('fleets.table.fleet')}
                                     </th>
                                     <th className="text-left px-6 py-4 text-xs font-semibold text-text-muted uppercase tracking-wider">
-                                        Type
+                                        {t('fleets.table.type')}
                                     </th>
                                     <th className="text-center px-6 py-4 text-xs font-semibold text-text-muted uppercase tracking-wider">
-                                        Véhicules
+                                        {t('fleets.table.vehicles')}
                                     </th>
                                     <th className="text-left px-6 py-4 text-xs font-semibold text-text-muted uppercase tracking-wider">
-                                        Gestionnaire
+                                        {t('fleets.table.manager')}
                                     </th>
                                     <th className="text-right px-6 py-4 text-xs font-semibold text-text-muted uppercase tracking-wider">
-                                        Actions
+                                        {t('fleets.table.actions')}
                                     </th>
                                 </tr>
                             </thead>
@@ -612,7 +612,7 @@ function CreateFleetWizard({ onClose, onSuccess }: { onClose: () => void; onSucc
                                 value={fleetData.fleetName}
                                 onChange={(e) => setFleetData(prev => ({ ...prev, fleetName: e.target.value }))}
                                 className="w-full px-4 py-2 border border-glass rounded-lg bg-surface text-text-main focus:outline-none focus:ring-2 focus:ring-secondary"
-                                placeholder="Ex: Flotte Paris Nord"
+                                placeholder={t('fleets.form.namePlaceholder')}
                             />
                         </div>
 
@@ -623,7 +623,7 @@ function CreateFleetWizard({ onClose, onSuccess }: { onClose: () => void; onSucc
                                 value={fleetData.fleetDescription}
                                 onChange={(e) => setFleetData(prev => ({ ...prev, fleetDescription: e.target.value }))}
                                 className="w-full px-4 py-2 border border-glass rounded-lg bg-surface text-text-main focus:outline-none focus:ring-2 focus:ring-secondary resize-none"
-                                placeholder="Description optionnelle de la flotte..."
+                                placeholder={t('fleets.form.descPlaceholder')}
                             />
                         </div>
 
@@ -721,7 +721,7 @@ function CreateFleetWizard({ onClose, onSuccess }: { onClose: () => void; onSucc
                                     value={managerData.managerPassword}
                                     onChange={(e) => setManagerData(prev => ({ ...prev, managerPassword: e.target.value }))}
                                     className="w-full px-4 py-2 border border-glass rounded-lg bg-surface text-text-main focus:outline-none focus:ring-2 focus:ring-secondary"
-                                    placeholder="Min. 8 caractères"
+                                    placeholder={t('fleets.form.pwdPlaceholder')}
                                 />
                             </div>
                         </div>
@@ -729,7 +729,7 @@ function CreateFleetWizard({ onClose, onSuccess }: { onClose: () => void; onSucc
                         {/* Optional fields section */}
                         <div className="space-y-4 mt-6">
                             <h3 className="text-sm font-semibold text-text-main border-b border-glass pb-2">
-                                Informations optionnelles
+                                {t('fleets.wizard.optionalInfo')}
                             </h3>
 
                             <div className="grid grid-cols-2 gap-4">

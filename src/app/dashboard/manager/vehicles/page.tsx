@@ -66,21 +66,21 @@ export default function VehiclesPage() {
 
     const getStateColor = (state: VehicleState) => {
         switch (state) {
-            case VehicleState.MOVING: return 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400';
+            case VehicleState.IN_SERVICE: return 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400';
             case VehicleState.PARKED: return 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400';
-            case VehicleState.MAINTENANCE: return 'bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-400';
+            case VehicleState.UNDER_MAINTENANCE: return 'bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-400';
             case VehicleState.OUT_OF_SERVICE: return 'bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-400';
-            case VehicleState.IDLE: return 'bg-orange-100 text-orange-700 dark:bg-orange-900/30 dark:text-orange-400';
+            case VehicleState.IN_ALARM: return 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400';
             default: return 'bg-gray-100 text-gray-700';
         }
     };
 
     const getStateLabel = (state: VehicleState) => {
         switch (state) {
-            case VehicleState.MOVING: return t('vehicles.moving');
+            case VehicleState.IN_SERVICE: return t('vehicles.inService');
             case VehicleState.PARKED: return t('vehicles.parked');
-            case VehicleState.IDLE: return t('vehicles.idle');
-            case VehicleState.MAINTENANCE: return t('vehicles.maintenance');
+            case VehicleState.IN_ALARM: return t('vehicles.inAlarm');
+            case VehicleState.UNDER_MAINTENANCE: return t('vehicles.maintenance');
             case VehicleState.OUT_OF_SERVICE: return t('vehicles.outOfService');
             default: return state;
         }
@@ -129,10 +129,10 @@ export default function VehiclesPage() {
                         className="px-3 py-2 border border-glass rounded-lg bg-surface text-text-main focus:outline-none focus:ring-2 focus:ring-secondary"
                     >
                         <option value="ALL">{t('common.allStates')}</option>
-                        <option value={VehicleState.MOVING}>{t('vehicles.moving')}</option>
+                        <option value={VehicleState.IN_SERVICE}>{t('vehicles.inService')}</option>
                         <option value={VehicleState.PARKED}>{t('vehicles.parked')}</option>
-                        <option value={VehicleState.IDLE}>{t('vehicles.idle')}</option>
-                        <option value={VehicleState.MAINTENANCE}>{t('vehicles.maintenance')}</option>
+                        <option value={VehicleState.IN_ALARM}>{t('vehicles.inAlarm')}</option>
+                        <option value={VehicleState.UNDER_MAINTENANCE}>{t('vehicles.maintenance')}</option>
                         <option value={VehicleState.OUT_OF_SERVICE}>{t('vehicles.outOfService')}</option>
                     </select>
                 </div>
@@ -156,11 +156,11 @@ export default function VehiclesPage() {
                             <thead className="bg-glass/50">
                                 <tr>
                                     <th className="px-6 py-3 text-left text-xs font-medium text-text-sub uppercase tracking-wider">{t('vehicles.title')}</th>
-                                    <th className="px-6 py-3 text-left text-xs font-medium text-text-sub uppercase tracking-wider">Immatriculation</th>
-                                    <th className="px-6 py-3 text-left text-xs font-medium text-text-sub uppercase tracking-wider">Type</th>
-                                    <th className="px-6 py-3 text-left text-xs font-medium text-text-sub uppercase tracking-wider">État</th>
-                                    <th className="px-6 py-3 text-left text-xs font-medium text-text-sub uppercase tracking-wider">Carburant</th>
-                                    <th className="px-6 py-3 text-right text-xs font-medium text-text-sub uppercase tracking-wider">Actions</th>
+                                    <th className="px-6 py-3 text-left text-xs font-medium text-text-sub uppercase tracking-wider">{t('vehicles.table.registration')}</th>
+                                    <th className="px-6 py-3 text-left text-xs font-medium text-text-sub uppercase tracking-wider">{t('vehicles.table.type')}</th>
+                                    <th className="px-6 py-3 text-left text-xs font-medium text-text-sub uppercase tracking-wider">{t('vehicles.table.state')}</th>
+                                    <th className="px-6 py-3 text-left text-xs font-medium text-text-sub uppercase tracking-wider">{t('vehicles.table.fuel')}</th>
+                                    <th className="px-6 py-3 text-right text-xs font-medium text-text-sub uppercase tracking-wider">{t('vehicles.table.actions')}</th>
                                 </tr>
                             </thead>
                             <tbody className="divide-y divide-glass">
@@ -317,7 +317,7 @@ function EditVehicleModal({ vehicle, onClose, onSuccess }: { vehicle: Vehicle; o
 
                     <div className="grid grid-cols-2 gap-4">
                         <div>
-                            <label className="block text-sm font-medium text-text-sub mb-1">Marque</label>
+                            <label className="block text-sm font-medium text-text-sub mb-1">{t('vehicles.form.make')}</label>
                             <input
                                 type="text"
                                 value={formData.vehicleMake}
@@ -326,7 +326,7 @@ function EditVehicleModal({ vehicle, onClose, onSuccess }: { vehicle: Vehicle; o
                             />
                         </div>
                         <div>
-                            <label className="block text-sm font-medium text-text-sub mb-1">Modèle</label>
+                            <label className="block text-sm font-medium text-text-sub mb-1">{t('vehicles.form.model')}</label>
                             <input
                                 type="text"
                                 value={formData.vehicleModel}
@@ -338,7 +338,7 @@ function EditVehicleModal({ vehicle, onClose, onSuccess }: { vehicle: Vehicle; o
 
                     <div className="grid grid-cols-2 gap-4">
                         <div>
-                            <label className="block text-sm font-medium text-text-sub mb-1">Immatriculation</label>
+                            <label className="block text-sm font-medium text-text-sub mb-1">{t('vehicles.form.registration')}</label>
                             <input
                                 type="text"
                                 value={formData.vehicleRegistrationNumber}
@@ -347,7 +347,7 @@ function EditVehicleModal({ vehicle, onClose, onSuccess }: { vehicle: Vehicle; o
                             />
                         </div>
                         <div>
-                            <label className="block text-sm font-medium text-text-sub mb-1">N° VIN</label>
+                            <label className="block text-sm font-medium text-text-sub mb-1">{t('vehicles.form.vin')}</label>
                             <input
                                 type="text"
                                 value={formData.vehicleIdentificationNumber}
@@ -359,46 +359,46 @@ function EditVehicleModal({ vehicle, onClose, onSuccess }: { vehicle: Vehicle; o
 
                     <div className="grid grid-cols-2 gap-4">
                         <div>
-                            <label className="block text-sm font-medium text-text-sub mb-1">Type</label>
+                            <label className="block text-sm font-medium text-text-sub mb-1">{t('vehicles.form.type')}</label>
                             <select
                                 value={formData.type}
                                 onChange={(e) => setFormData(prev => ({ ...prev, type: e.target.value as VehicleType }))}
                                 className="w-full px-4 py-2 border border-glass rounded-lg bg-surface text-text-main focus:outline-none focus:ring-2 focus:ring-secondary"
                             >
-                                <option value={VehicleType.CAR}>Voiture</option>
-                                <option value={VehicleType.TRUCK}>Camion</option>
-                                <option value={VehicleType.VAN}>Van</option>
-                                <option value={VehicleType.MOTORCYCLE}>Moto</option>
-                                <option value={VehicleType.BUS}>Bus</option>
+                                <option value={VehicleType.CAR}>{t('vehicles.type.car')}</option>
+                                <option value={VehicleType.TRUCK}>{t('vehicles.type.truck')}</option>
+                                <option value={VehicleType.VAN}>{t('vehicles.type.van')}</option>
+                                <option value={VehicleType.MOTORCYCLE}>{t('vehicles.type.motorcycle')}</option>
+                                <option value={VehicleType.BUS}>{t('vehicles.type.bus')}</option>
                             </select>
                         </div>
                         <div>
-                            <label className="block text-sm font-medium text-text-sub mb-1">État</label>
+                            <label className="block text-sm font-medium text-text-sub mb-1">{t('vehicles.form.state')}</label>
                             <select
                                 value={formData.state}
                                 onChange={(e) => setFormData(prev => ({ ...prev, state: e.target.value as VehicleState }))}
                                 className="w-full px-4 py-2 border border-glass rounded-lg bg-surface text-text-main focus:outline-none focus:ring-2 focus:ring-secondary"
                             >
-                                <option value={VehicleState.PARKED}>Garé</option>
-                                <option value={VehicleState.MOVING}>En mouvement</option>
-                                <option value={VehicleState.IDLE}>Au repos</option>
-                                <option value={VehicleState.MAINTENANCE}>En maintenance</option>
-                                <option value={VehicleState.OUT_OF_SERVICE}>Hors service</option>
+                                <option value={VehicleState.PARKED}>{t('vehicles.parked')}</option>
+                                <option value={VehicleState.IN_SERVICE}>{t('vehicles.inService')}</option>
+                                <option value={VehicleState.IN_ALARM}>{t('vehicles.inAlarm')}</option>
+                                <option value={VehicleState.UNDER_MAINTENANCE}>{t('vehicles.maintenance')}</option>
+                                <option value={VehicleState.OUT_OF_SERVICE}>{t('vehicles.outOfService')}</option>
                             </select>
                         </div>
                     </div>
 
                     <div>
-                        <label className="block text-sm font-medium text-text-sub mb-1">Carburant</label>
+                        <label className="block text-sm font-medium text-text-sub mb-1">{t('vehicles.form.fuel')}</label>
                         <select
                             value={formData.fuelType}
                             onChange={(e) => setFormData(prev => ({ ...prev, fuelType: e.target.value as FuelType }))}
                             className="w-full px-4 py-2 border border-glass rounded-lg bg-surface text-text-main focus:outline-none focus:ring-2 focus:ring-secondary"
                         >
-                            <option value={FuelType.PETROL}>Essence</option>
-                            <option value={FuelType.DIESEL}>Diesel</option>
-                            <option value={FuelType.ELECTRIC}>Électrique</option>
-                            <option value={FuelType.HYBRID}>Hybride</option>
+                            <option value={FuelType.PETROL}>{t('vehicles.fuel.petrol')}</option>
+                            <option value={FuelType.DIESEL}>{t('vehicles.fuel.diesel')}</option>
+                            <option value={FuelType.ELECTRIC}>{t('vehicles.fuel.electric')}</option>
+                            <option value={FuelType.HYBRID}>{t('vehicles.fuel.hybrid')}</option>
                         </select>
                     </div>
 
@@ -658,7 +658,7 @@ function CreateVehicleModal({ onClose, onSuccess }: { onClose: () => void; onSuc
                     )}
 
                     <div>
-                        <label className="block text-sm font-medium text-text-sub mb-1">Flotte *</label>
+                        <label className="block text-sm font-medium text-text-sub mb-1">{t('fleets.table.fleet')} *</label>
                         <select
                             required
                             value={formData.fleetId}
@@ -673,7 +673,7 @@ function CreateVehicleModal({ onClose, onSuccess }: { onClose: () => void; onSuc
 
                     <div className="grid grid-cols-2 gap-4">
                         <div>
-                            <label className="block text-sm font-medium text-text-sub mb-1">Marque *</label>
+                            <label className="block text-sm font-medium text-text-sub mb-1">{t('vehicles.form.make')} *</label>
                             <input
                                 type="text"
                                 required
@@ -684,7 +684,7 @@ function CreateVehicleModal({ onClose, onSuccess }: { onClose: () => void; onSuc
                             />
                         </div>
                         <div>
-                            <label className="block text-sm font-medium text-text-sub mb-1">Modèle *</label>
+                            <label className="block text-sm font-medium text-text-sub mb-1">{t('vehicles.form.model')} *</label>
                             <input
                                 type="text"
                                 required
@@ -698,7 +698,7 @@ function CreateVehicleModal({ onClose, onSuccess }: { onClose: () => void; onSuc
 
                     <div className="grid grid-cols-2 gap-4">
                         <div>
-                            <label className="block text-sm font-medium text-text-sub mb-1">Immatriculation *</label>
+                            <label className="block text-sm font-medium text-text-sub mb-1">{t('vehicles.form.registration')} *</label>
                             <input
                                 type="text"
                                 required
@@ -709,7 +709,7 @@ function CreateVehicleModal({ onClose, onSuccess }: { onClose: () => void; onSuc
                             />
                         </div>
                         <div>
-                            <label className="block text-sm font-medium text-text-sub mb-1">VIN *</label>
+                            <label className="block text-sm font-medium text-text-sub mb-1">{t('vehicles.form.vin')} *</label>
                             <input
                                 type="text"
                                 required
@@ -723,30 +723,30 @@ function CreateVehicleModal({ onClose, onSuccess }: { onClose: () => void; onSuc
 
                     <div className="grid grid-cols-2 gap-4">
                         <div>
-                            <label className="block text-sm font-medium text-text-sub mb-1">Type</label>
+                            <label className="block text-sm font-medium text-text-sub mb-1">{t('vehicles.form.type')}</label>
                             <select
                                 value={formData.type}
                                 onChange={(e) => setFormData(prev => ({ ...prev, type: e.target.value as VehicleType }))}
                                 className="w-full px-4 py-2 border border-glass rounded-lg bg-surface text-text-main focus:outline-none focus:ring-2 focus:ring-secondary"
                             >
-                                <option value={VehicleType.CAR}>Voiture</option>
-                                <option value={VehicleType.TRUCK}>Camion</option>
-                                <option value={VehicleType.VAN}>Van</option>
-                                <option value={VehicleType.MOTORCYCLE}>Moto</option>
-                                <option value={VehicleType.BUS}>Bus</option>
+                                <option value={VehicleType.CAR}>{t('vehicles.type.car')}</option>
+                                <option value={VehicleType.TRUCK}>{t('vehicles.type.truck')}</option>
+                                <option value={VehicleType.VAN}>{t('vehicles.type.van')}</option>
+                                <option value={VehicleType.MOTORCYCLE}>{t('vehicles.type.motorcycle')}</option>
+                                <option value={VehicleType.BUS}>{t('vehicles.type.bus')}</option>
                             </select>
                         </div>
                         <div>
-                            <label className="block text-sm font-medium text-text-sub mb-1">Carburant</label>
+                            <label className="block text-sm font-medium text-text-sub mb-1">{t('vehicles.form.fuel')}</label>
                             <select
                                 value={formData.fuelType}
                                 onChange={(e) => setFormData(prev => ({ ...prev, fuelType: e.target.value as FuelType }))}
                                 className="w-full px-4 py-2 border border-glass rounded-lg bg-surface text-text-main focus:outline-none focus:ring-2 focus:ring-secondary"
                             >
-                                <option value={FuelType.PETROL}>Essence</option>
-                                <option value={FuelType.DIESEL}>Diesel</option>
-                                <option value={FuelType.ELECTRIC}>Électrique</option>
-                                <option value={FuelType.HYBRID}>Hybride</option>
+                                <option value={FuelType.PETROL}>{t('vehicles.fuel.petrol')}</option>
+                                <option value={FuelType.DIESEL}>{t('vehicles.fuel.diesel')}</option>
+                                <option value={FuelType.ELECTRIC}>{t('vehicles.fuel.electric')}</option>
+                                <option value={FuelType.HYBRID}>{t('vehicles.fuel.hybrid')}</option>
                             </select>
                         </div>
                     </div>

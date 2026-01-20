@@ -143,6 +143,8 @@ export const translations: Translations = {
     'sidebar.history': { FR: 'Historique', ENG: 'History' },
     'sidebar.subscription': { FR: 'Abonnement', ENG: 'Subscription' },
     'sidebar.support': { FR: 'Support Client', ENG: 'Customer Support' },
+    'sidebar.profile.admin': { FR: 'Administrateur', ENG: 'Administrator' },
+    'sidebar.profile.manager': { FR: 'Gestionnaire', ENG: 'Manager' },
     'dashboard.welcome': { FR: 'Bienvenue sur votre tableau de bord', ENG: 'Welcome to your dashboard' },
     'dashboard.overview': { FR: "Voici un aperçu de l'activité de votre organisation aujourd'hui.", ENG: "Here's an overview of your organization's activity today." },
 
@@ -180,40 +182,6 @@ export const translations: Translations = {
     'common.allStates': { FR: 'Tous les états', ENG: 'All states' },
     'common.filter': { FR: 'Filtrer', ENG: 'Filter' },
 
-    // Fleets Page
-    'fleets.title': { FR: 'Mes Flottes', ENG: 'My Fleets' },
-    'fleets.subtitle': { FR: 'Gérez vos flottes de véhicules', ENG: 'Manage your vehicle fleets' },
-    'fleets.new': { FR: 'Nouvelle Flotte', ENG: 'New Fleet' },
-    'fleets.searchPlaceholder': { FR: 'Rechercher une flotte...', ENG: 'Search for a fleet...' },
-    'fleets.noFleets': { FR: 'Aucune flotte trouvée', ENG: 'No fleets found' },
-    'fleets.createFirst': { FR: 'Créez votre première flotte pour commencer', ENG: 'Create your first fleet to get started' },
-    'fleets.noDescription': { FR: 'Aucune description', ENG: 'No description' },
-    'fleets.vehicles': { FR: 'véhicule(s)', ENG: 'vehicle(s)' },
-    'fleets.manager': { FR: 'Manager', ENG: 'Manager' },
-    'fleets.notAssigned': { FR: 'Non assigné', ENG: 'Not assigned' },
-    'fleets.confirmDelete': { FR: 'Êtes-vous sûr de vouloir supprimer cette flotte ?', ENG: 'Are you sure you want to delete this fleet?' },
-    'fleets.deleteWarning': { FR: 'Cette action est irréversible. Tous les véhicules associés seront dissociés.', ENG: 'This action is irreversible. All associated vehicles will be unlinked.' },
-    'fleets.typeNameToConfirm': { FR: 'Saisissez le nom de la flotte pour confirmer:', ENG: 'Type the fleet name to confirm:' },
-    'fleets.nameDoesNotMatch': { FR: 'Le nom ne correspond pas', ENG: 'The name does not match' },
-    'fleets.nameMatches': { FR: 'Nom confirmé', ENG: 'Name confirmed' },
-
-    // Vehicles Page
-    'vehicles.title': { FR: 'Mes Véhicules', ENG: 'My Vehicles' },
-    'vehicles.subtitle': { FR: 'Gérez votre parc automobile', ENG: 'Manage your vehicle fleet' },
-    'vehicles.new': { FR: 'Nouveau Véhicule', ENG: 'New Vehicle' },
-    'vehicles.searchPlaceholder': { FR: 'Rechercher par immatriculation, marque...', ENG: 'Search by registration, brand...' },
-    'vehicles.noVehicles': { FR: 'Aucun véhicule trouvé', ENG: 'No vehicles found' },
-    'vehicles.addFirst': { FR: 'Ajoutez votre premier véhicule', ENG: 'Add your first vehicle' },
-    'vehicles.moving': { FR: 'En mouvement', ENG: 'Moving' },
-    'vehicles.parked': { FR: 'Stationné', ENG: 'Parked' },
-    'vehicles.idle': { FR: 'Au repos', ENG: 'Idle' },
-    'vehicles.maintenance': { FR: 'En maintenance', ENG: 'Under maintenance' },
-    'vehicles.outOfService': { FR: 'Hors service', ENG: 'Out of service' },
-    'vehicles.confirmDelete': { FR: 'Êtes-vous sûr de vouloir supprimer ce véhicule ?', ENG: 'Are you sure you want to delete this vehicle?' },
-    'vehicles.deleteWarning': { FR: 'Cette action est irréversible. Toutes les données associées seront supprimées.', ENG: 'This action is irreversible. All associated data will be deleted.' },
-    'vehicles.typeRegistrationToConfirm': { FR: 'Saisissez l\'immatriculation pour confirmer:', ENG: 'Type the registration number to confirm:' },
-    'vehicles.registrationDoesNotMatch': { FR: 'L\'immatriculation ne correspond pas', ENG: 'Registration does not match' },
-    'vehicles.registrationMatches': { FR: 'Immatriculation confirmée', ENG: 'Registration confirmed' },
 
     'drivers.title': { FR: 'Mes Chauffeurs', ENG: 'My Drivers' },
     'drivers.subtitle': { FR: 'Gérez vos conducteurs', ENG: 'Manage your drivers' },
@@ -407,13 +375,190 @@ export const translations: Translations = {
     'geofences.deleteSuccess': { FR: 'Zone supprimée', ENG: 'Zone deleted' },
     'geofences.deleteError': { FR: 'Erreur lors de la suppression', ENG: 'Error during deletion' },
     'geofences.loadingMap': { FR: 'Chargement de la carte...', ENG: 'Loading map...' },
+
+    // Header & Global
+    'header.search.placeholder': { FR: 'Rechercher véhicule (plaque), conducteur...', ENG: 'Search vehicle (plate), driver...' },
+    'header.search.loading': { FR: 'Recherche en cours...', ENG: 'Searching...' },
+    'header.search.noResults': { FR: 'Aucun résultat trouvé', ENG: 'No results found' },
+    'header.search.vehicles': { FR: 'VÉHICULES', ENG: 'VEHICLES' },
+    'header.search.drivers': { FR: 'CONDUCTEURS', ENG: 'DRIVERS' },
+    'header.notifications.title.unread': { FR: 'Non lues', ENG: 'Unread' },
+    'header.notifications.title.all': { FR: 'Toutes les notifications', ENG: 'All notifications' },
+    'header.notifications.filter.unread': { FR: 'Non lues', ENG: 'Unread' },
+    'header.notifications.filter.all': { FR: 'Toutes', ENG: 'All' },
+    'header.notifications.markAll': { FR: 'Tout marquer comme lu', ENG: 'Mark all as read' },
+    'header.notifications.empty': { FR: 'Aucune notification', ENG: 'No notifications' },
+    'header.notifications.viewAll': { FR: 'Voir toutes les notifications', ENG: 'View all notifications' },
+    'time.justNow': { FR: "À l'instant", ENG: 'Just now' },
+    'time.minAgo': { FR: "Il y a {0} min", ENG: '{0} min ago' },
+    'time.hourAgo': { FR: "Il y a {0} h", ENG: '{0} h ago' },
+    'time.dayAgo': { FR: "Il y a {0} j", ENG: '{0} d ago' },
+    'date.unknown': { FR: 'Date inconnue', ENG: 'Unknown date' },
+    'date.invalid': { FR: 'Date invalide', ENG: 'Invalid date' },
+
+    // Dashboard Manager
+    'dashboard.mapComingSoon': { FR: 'Carte interactive des véhicules (À venir)', ENG: 'Interactive vehicle map (Coming soon)' },
+
+    // Vehicle Detail
+    'vehicle.tabs.position': { FR: 'Position du véhicule', ENG: 'Vehicle Position' },
+    'vehicle.tabs.details': { FR: 'Détails', ENG: 'Details' },
+    'vehicle.tabs.history': { FR: 'Historique des trajets', ENG: 'Trip History' },
+    'vehicle.tabs.reports': { FR: 'Bilans', ENG: 'Reports' },
+    'vehicle.tabs.assignments': { FR: 'Assignations', ENG: 'Assignments' },
+
+    'vehicle.position.unavailable': { FR: 'Position du véhicule non disponible', ENG: 'Vehicle position unavailable' },
+    'vehicle.position.loading': { FR: 'Chargement de la carte...', ENG: 'Loading map...' },
+
+    'vehicle.metrics.title': { FR: 'Métriques en temps réel', ENG: 'Real-time Metrics' },
+    'vehicle.metrics.subtitle': { FR: 'Informations actuelles du véhicule {0}', ENG: 'Current information for vehicle {0}' },
+
+    'vehicle.info.registration': { FR: 'Immatriculation', ENG: 'Registration' },
+    'vehicle.info.status': { FR: 'Status', ENG: 'Status' },
+    'vehicle.info.model': { FR: 'Modèle', ENG: 'Model' },
+    'vehicle.info.type': { FR: 'Type', ENG: 'Type' },
+
+    'vehicle.status.active': { FR: 'En service', ENG: 'Active' },
+    'vehicle.status.inactive': { FR: 'Hors service', ENG: 'Inactive' },
+    'vehicle.status.moving': { FR: 'En mouvement', ENG: 'Moving' },
+    'vehicle.status.parked': { FR: 'Garé', ENG: 'Parked' },
+    'vehicle.status.maintenance': { FR: 'En maintenance', ENG: 'Maintenance' },
+    'vehicle.status.unknown': { FR: 'Inconnu', ENG: 'Unknown' },
+
+    'vehicle.history.title': { FR: 'Historique des trajets', ENG: 'Trip History' },
+    'vehicle.history.noTrips': { FR: 'Aucun trajet enregistré pour ce véhicule', ENG: 'No trips recorded for this vehicle' },
+    'vehicle.history.tripPrefix': { FR: 'Trajet #', ENG: 'Trip #' },
+    'vehicle.history.departure': { FR: 'Départ', ENG: 'Departure' },
+    'vehicle.history.arrival': { FR: 'Arrivée', ENG: 'Arrival' },
+    'vehicle.history.inProgress': { FR: 'En cours', ENG: 'In progress' },
+    'vehicle.history.distance': { FR: 'Distance', ENG: 'Distance' },
+    'vehicle.history.deleteConfirm': { FR: 'Êtes-vous sûr de vouloir supprimer ce trajet ?', ENG: 'Are you sure you want to delete this trip?' },
+    'vehicle.history.deleteError': { FR: 'Erreur lors de la suppression du trajet', ENG: 'Error deleting trip' },
+
+    'vehicle.reports.title': { FR: 'Bilans du véhicule', ENG: 'Vehicle Reports' },
+    'vehicle.reports.fuel.title': { FR: 'Recharges de carburant', ENG: 'Fuel Recharges' },
+    'vehicle.reports.fuel.noData': { FR: 'Aucune recharge enregistrée', ENG: 'No recharges recorded' },
+    'vehicle.reports.fuel.rechargePrefix': { FR: 'Recharge #', ENG: 'Recharge #' },
+    'vehicle.reports.fuel.quantity': { FR: 'Quantité', ENG: 'Quantity' },
+    'vehicle.reports.fuel.price': { FR: 'Prix', ENG: 'Price' },
+    'vehicle.reports.fuel.station': { FR: 'Station', ENG: 'Station' },
+
+    'vehicle.reports.maintenance.title': { FR: 'Maintenances', ENG: 'Maintenances' },
+    'vehicle.reports.maintenance.noData': { FR: 'Aucune maintenance enregistrée', ENG: 'No maintenance recorded' },
+    'vehicle.reports.maintenance.report': { FR: 'Rapport', ENG: 'Report' },
+    'vehicle.reports.maintenance.cost': { FR: 'Coût', ENG: 'Cost' },
+
+    'vehicle.assignments.title': { FR: 'Conducteurs Assignés', ENG: 'Assigned Drivers' },
+    'vehicle.assignments.add': { FR: 'Assigner un conducteur', ENG: 'Assign Driver' },
+    'vehicle.assignments.noData': { FR: 'Aucune assignation enregistrée', ENG: 'No assignments recorded' },
+    'vehicle.assignments.status.active': { FR: 'Active', ENG: 'Active' },
+    'vehicle.assignments.status.finished': { FR: 'Terminée', ENG: 'Finished' },
+    'vehicle.assignments.start': { FR: 'Début', ENG: 'Start' },
+    'vehicle.assignments.end': { FR: 'Fin', ENG: 'End' },
+    'vehicle.assignments.notes': { FR: 'Notes', ENG: 'Notes' },
+    'vehicle.assignments.terminate': { FR: "Terminer l'assignation", ENG: 'Terminate Assignment' },
+    'vehicle.assignments.terminateConfirm': { FR: 'Êtes-vous sûr de vouloir terminer cette assignation ?', ENG: 'Are you sure you want to terminate this assignment?' },
+    'vehicle.assignments.terminateError': { FR: "Erreur lors de la terminaison de l'assignation", ENG: 'Error terminating assignment' },
+
+    'vehicle.assignModal.title': { FR: 'Assigner un conducteur', ENG: 'Assign a Driver' },
+    'vehicle.assignModal.driver': { FR: 'Conducteur', ENG: 'Driver' },
+    'vehicle.assignModal.selectDriver': { FR: 'Sélectionner un conducteur', ENG: 'Select a driver' },
+    'vehicle.assignModal.notes': { FR: 'Notes (optionnel)', ENG: 'Notes (optional)' },
+    'vehicle.assignModal.notesPlaceholder': { FR: "Notes sur l'assignation...", ENG: 'Assignment notes...' },
+    'vehicle.assignModal.cancel': { FR: 'Annuler', ENG: 'Cancel' },
+    'vehicle.assignModal.submit': { FR: 'Assigner', ENG: 'Assign' },
+    'vehicle.error.loading': { FR: 'Impossible de charger les données du véhicule', ENG: 'Unable to load vehicle data' },
+    'vehicle.error.notFound': { FR: 'Véhicule non trouvé', ENG: 'Vehicle not found' },
+    'vehicle.backToList': { FR: 'Retour à la liste', ENG: 'Back to list' },
+
+    // Fleets
+    'fleets.title': { FR: 'Gestion des Flottes', ENG: 'Fleet Management' },
+    'fleets.subtitle': { FR: 'Gérez vos flottes et leurs managers', ENG: 'Manage your fleets and their managers' },
+    'fleets.new': { FR: 'Nouvelle Flotte', ENG: 'New Fleet' },
+    'fleets.searchPlaceholder': { FR: 'Rechercher une flotte...', ENG: 'Search fleet...' },
+    'fleets.noFleets': { FR: 'Aucune flotte trouvée', ENG: 'No fleets found' },
+    'fleets.createFirst': { FR: 'Créez votre première flotte pour commencer', ENG: 'Create your first fleet to get started' },
+    'fleets.noDescription': { FR: 'Aucune description', ENG: 'No description' },
+    'fleets.notAssigned': { FR: 'Non assigné', ENG: 'Not assigned' },
+    'fleets.vehicles': { FR: 'Véhicules', ENG: 'Vehicles' },
+    'fleets.confirmDelete': { FR: 'Êtes-vous sûr de vouloir supprimer cette flotte ?', ENG: 'Are you sure you want to delete this fleet?' },
+    'fleets.deleteWarning': { FR: 'Cette action est irréversible.', ENG: 'This action cannot be undone.' },
+    'fleets.typeNameToConfirm': { FR: 'Tapez le nom de la flotte pour confirmer', ENG: 'Type the fleet name to confirm' },
+    'fleets.nameDoesNotMatch': { FR: 'Le nom ne correspond pas', ENG: 'Name does not match' },
+    'fleets.nameMatches': { FR: 'Nom confirmé', ENG: 'Name confirmed' },
+
+    'fleets.btn.new': { FR: 'Nouvelle Flotte', ENG: 'New Fleet' },
+    'fleets.table.fleet': { FR: 'Flotte', ENG: 'Fleet' },
+    'fleets.table.type': { FR: 'Type', ENG: 'Type' },
+    'fleets.table.vehicles': { FR: 'Véhicules', ENG: 'Vehicles' },
+    'fleets.table.manager': { FR: 'Gestionnaire', ENG: 'Manager' },
+    'fleets.table.actions': { FR: 'Actions', ENG: 'Actions' },
+    'fleets.wizard.optionalInfo': { FR: 'Informations optionnelles', ENG: 'Optional Information' },
+    'fleets.form.firstName': { FR: 'Prénom', ENG: 'First Name' },
+    'fleets.form.lastName': { FR: 'Nom', ENG: 'Last Name' },
+    'fleets.form.email': { FR: 'Email', ENG: 'Email' },
+    'fleets.form.password': { FR: 'Mot de passe', ENG: 'Password' },
+    'fleets.form.phone': { FR: 'Téléphone', ENG: 'Phone' },
+    'fleets.form.gender': { FR: 'Genre', ENG: 'Gender' },
+    'fleets.form.idCard': { FR: 'CNI', ENG: 'ID Card' },
+    'fleets.form.niu': { FR: 'NIU', ENG: 'NIU' },
+    'fleets.form.address': { FR: 'Adresse', ENG: 'Address' },
+    'fleets.form.city': { FR: 'Ville', ENG: 'City' },
+    'fleets.form.postalCode': { FR: 'Code Postal', ENG: 'Postal Code' },
+    'fleets.form.country': { FR: 'Pays', ENG: 'Country' },
+    'fleets.form.taxNumber': { FR: 'Numéro Fiscal', ENG: 'Tax Number' },
+    'fleets.form.language': { FR: 'Langue', ENG: 'Language' },
+
+    // Vehicles List
+    'vehicles.title': { FR: 'Véhicules', ENG: 'Vehicles' },
+    'vehicles.subtitle': { FR: 'Gérez votre flotte de véhicules', ENG: 'Manage your vehicle fleet' },
+    'vehicles.new': { FR: 'Nouveau Véhicule', ENG: 'New Vehicle' },
+    'vehicles.searchPlaceholder': { FR: 'Rechercher un véhicule...', ENG: 'Search vehicle...' },
+    'vehicles.inService': { FR: 'En service', ENG: 'In Service' },
+    'vehicles.parked': { FR: 'Garé', ENG: 'Parked' },
+    'vehicles.inAlarm': { FR: 'En alerte', ENG: 'In Alarm' },
+    'vehicles.maintenance': { FR: 'En maintenance', ENG: 'Maintenance' },
+    'vehicles.outOfService': { FR: 'Hors service', ENG: 'Out of Service' },
+    'vehicles.noVehicles': { FR: 'Aucun véhicule', ENG: 'No vehicles' },
+    'vehicles.addFirst': { FR: 'Ajoutez votre premier véhicule', ENG: 'Add your first vehicle' },
+    'vehicles.confirmDelete': { FR: 'Êtes-vous sûr de vouloir supprimer ce véhicule ?', ENG: 'Are you sure you want to delete this vehicle?' },
+    'vehicles.deleteWarning': { FR: 'Cette action est irréversible. Toutes les données associées seront supprimées.', ENG: 'This action cannot be undone. All associated data will be deleted.' },
+    'vehicles.typeRegistrationToConfirm': { FR: "Tapez l'immatriculation pour confirmer", ENG: 'Type registration number to confirm' },
+    'vehicles.registrationDoesNotMatch': { FR: "L'immatriculation ne correspond pas", ENG: 'Registration number does not match' },
+    'vehicles.registrationMatches': { FR: 'Immatriculation confirmée', ENG: 'Registration confirmed' },
+
+    'vehicles.table.registration': { FR: 'Immatriculation', ENG: 'Registration' },
+    'vehicles.table.type': { FR: 'Type', ENG: 'Type' },
+    'vehicles.table.state': { FR: 'État', ENG: 'State' },
+    'vehicles.table.fuel': { FR: 'Carburant', ENG: 'Fuel' },
+
+    'vehicles.form.make': { FR: 'Marque', ENG: 'Make' },
+    'vehicles.form.model': { FR: 'Modèle', ENG: 'Model' },
+    'vehicles.form.registration': { FR: 'Immatriculation', ENG: 'Registration' },
+    'vehicles.form.vin': { FR: 'N° VIN', ENG: 'VIN' },
+    'vehicles.form.type': { FR: 'Type', ENG: 'Type' },
+    'vehicles.form.state': { FR: 'État', ENG: 'State' },
+    'vehicles.form.fuel': { FR: 'Carburant', ENG: 'Fuel' },
+    'vehicles.form.photos': { FR: 'Photos du véhicule (optionnel)', ENG: 'Vehicle Photos (optional)' },
+    'vehicles.form.clickToAdd': { FR: 'Cliquez pour ajouter des photos', ENG: 'Click to add photos' },
+    'vehicles.form.imageFormat': { FR: 'PNG, JPG (max 5MB chacune, max 10 photos)', ENG: 'PNG, JPG (max 5MB each, max 10 photos)' },
+
+    'vehicles.type.car': { FR: 'Voiture', ENG: 'Car' },
+    'vehicles.type.truck': { FR: 'Camion', ENG: 'Truck' },
+    'vehicles.type.van': { FR: 'Van', ENG: 'Van' },
+    'vehicles.type.motorcycle': { FR: 'Moto', ENG: 'Motorcycle' },
+    'vehicles.type.bus': { FR: 'Bus', ENG: 'Bus' },
+
+    'vehicles.fuel.petrol': { FR: 'Essence', ENG: 'Petrol' },
+    'vehicles.fuel.diesel': { FR: 'Diesel', ENG: 'Diesel' },
+    'vehicles.fuel.electric': { FR: 'Électrique', ENG: 'Electric' },
+    'vehicles.fuel.hybrid': { FR: 'Hybride', ENG: 'Hybrid' },
 };
 
 interface LanguageContextType {
     language: Language;
     setLanguage: (lang: Language) => void;
     toggleLanguage: () => void;
-    t: (key: string) => string;
+    t: (key: string, params?: (string | number)[]) => string;
 }
 
 const LanguageContext = createContext<LanguageContextType | undefined>(undefined);
@@ -447,12 +592,20 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
     };
 
     // Translation function
-    const t = (key: string): string => {
+    const t = (key: string, params?: (string | number)[]): string => {
+        let translation = key;
         if (translations[key]) {
-            return translations[key][language as keyof typeof translations[typeof key]];
+            translation = translations[key][language as keyof typeof translations[typeof key]];
+        } else {
+            console.warn(`Translation missing for key: ${key}`);
         }
-        console.warn(`Translation missing for key: ${key}`);
-        return key;
+
+        if (params && params.length > 0) {
+            params.forEach((param, index) => {
+                translation = translation.replace(`{${index}}`, String(param));
+            });
+        }
+        return translation;
     };
 
     if (!mounted) {

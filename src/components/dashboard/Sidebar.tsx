@@ -143,8 +143,8 @@ export default function Sidebar({ isOpen, setIsOpen }: SidebarProps) {
                         </div>
 
                         <div className={`ml-3 overflow-hidden transition-all duration-200 ${isOpen ? 'opacity-100 w-auto' : 'opacity-0 w-0'}`}>
-                            <p className="text-sm font-medium text-text-main truncate">Admin</p>
-                            <p className="text-xs text-text-muted truncate">Manager</p>
+                            <p className="text-sm font-medium text-text-main truncate">{t('sidebar.profile.admin')}</p>
+                            <p className="text-xs text-text-muted truncate">{t('sidebar.profile.manager')}</p>
                         </div>
                     </div>
                 </div>

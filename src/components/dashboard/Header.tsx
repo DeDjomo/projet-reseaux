@@ -197,7 +197,7 @@ export default function Header() {
     };
 
     const formatTime = (dateVal: string | number[] | undefined) => {
-        if (!dateVal) return 'Date inconnue';
+        if (!dateVal) return t('date.unknown');
 
         let date: Date;
 
@@ -209,7 +209,7 @@ export default function Header() {
             date = new Date(dateVal);
         }
 
-        if (isNaN(date.getTime())) return 'Date invalide';
+        if (isNaN(date.getTime())) return t('date.invalid');
 
         const now = new Date();
         const diffMs = now.getTime() - date.getTime();
@@ -217,10 +217,10 @@ export default function Header() {
         const diffHours = Math.floor(diffMins / 60);
         const diffDays = Math.floor(diffHours / 24);
 
-        if (diffMins < 1) return 'À l\'instant';
-        if (diffMins < 60) return `Il y a ${diffMins}min`;
-        if (diffHours < 24) return `Il y a ${diffHours}h`;
-        return `Il y a ${diffDays}j`;
+        if (diffMins < 1) return t('time.justNow');
+        if (diffMins < 60) return t('time.minAgo', [diffMins]);
+        if (diffHours < 24) return t('time.hourAgo', [diffHours]);
+        return t('time.dayAgo', [diffDays]);
     };
 
     return (
@@ -234,7 +234,7 @@ export default function Header() {
                     </div>
                     <input
                         type="text"
-                        placeholder="Rechercher véhicule (plaque), conducteur..."
+                        placeholder={t('header.search.placeholder')}
                         value={searchQuery}
                         onChange={(e) => handleSearch(e.target.value)}
                         onFocus={() => { if (searchQuery.length >= 2) setShowSearchResults(true); }}
@@ -245,16 +245,16 @@ export default function Header() {
                     {showSearchResults && searchResults && (
                         <div className="absolute top-full mt-2 w-full bg-surface-card border border-glass rounded-lg shadow-lg overflow-hidden z-50 text-text-main">
                             {isSearching ? (
-                                <div className="p-4 text-center text-text-muted">Recherche en cours...</div>
+                                <div className="p-4 text-center text-text-muted">{t('header.search.loading')}</div>
                             ) : (
                                 <>
                                     {searchResults.vehicles.length === 0 && searchResults.drivers.length === 0 ? (
-                                        <div className="p-4 text-center text-text-muted">Aucun résultat trouvé</div>
+                                        <div className="p-4 text-center text-text-muted">{t('header.search.noResults')}</div>
                                     ) : (
                                         <>
                                             {searchResults.vehicles.length > 0 && (
                                                 <div className="border-b border-glass last:border-0">
-                                                    <div className="px-4 py-2 text-xs font-semibold text-text-muted uppercase bg-surface-glass">Véhicules</div>
+                                                    <div className="px-4 py-2 text-xs font-semibold text-text-muted uppercase bg-surface-glass">{t('header.search.vehicles')}</div>
                                                     {searchResults.vehicles.map(vehicle => (
                                                         <div
                                                             key={vehicle.vehicleId}
@@ -273,7 +273,7 @@ export default function Header() {
 
                                             {searchResults.drivers.length > 0 && (
                                                 <div className="border-b border-glass last:border-0">
-                                                    <div className="px-4 py-2 text-xs font-semibold text-text-muted uppercase bg-surface-glass">Conducteurs</div>
+                                                    <div className="px-4 py-2 text-xs font-semibold text-text-muted uppercase bg-surface-glass">{t('header.search.drivers')}</div>
                                                     {searchResults.drivers.map(driver => (
                                                         <div
                                                             key={driver.driverId}
@@ -339,7 +339,7 @@ export default function Header() {
                         <div className={styles.notificationDropdown}>
                             <div className={styles.notificationHeader}>
                                 <h3 className={styles.notificationTitle}>
-                                    {showAllNotifications ? 'Toutes les notifications' : 'Non lues'}
+                                    {showAllNotifications ? t('header.notifications.title.all') : t('header.notifications.title.unread')}
                                     {!showAllNotifications && unreadCount > 0 && ` (${unreadCount})`}
                                 </h3>
                                 <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
@@ -348,13 +348,13 @@ export default function Header() {
                                             onClick={() => { if (showAllNotifications) handleToggleShowAll(); }}
                                             className={`${styles.filterTab} ${!showAllNotifications ? styles.active : ''}`}
                                         >
-                                            Non lues
+                                            {t('header.notifications.filter.unread')}
                                         </button>
                                         <button
                                             onClick={() => { if (!showAllNotifications) handleToggleShowAll(); }}
                                             className={`${styles.filterTab} ${showAllNotifications ? styles.active : ''}`}
                                         >
-                                            Toutes
+                                            {t('header.notifications.filter.all')}
                                         </button>
                                     </div>
 
@@ -362,7 +362,7 @@ export default function Header() {
                                         <button
                                             onClick={handleMarkAllRead}
                                             className={styles.markAllButton}
-                                            title="Tout marquer comme lu"
+                                            title={t('header.notifications.markAll')}
                                         >
                                             <Check size={14} />
                                         </button>
@@ -373,12 +373,12 @@ export default function Header() {
                             <div className={styles.notificationList}>
                                 {loading ? (
                                     <div className={styles.loadingText}>
-                                        Chargement...
+                                        {t('header.search.loading')}
                                     </div>
                                 ) : notifications.length === 0 ? (
                                     <div className={styles.emptyText}>
                                         <Bell size={32} className={styles.emptyIcon} />
-                                        <p>Aucune notification</p>
+                                        <p>{t('header.notifications.empty')}</p>
                                     </div>
                                 ) : (
                                     notifications.map((notif) => (
@@ -411,7 +411,7 @@ export default function Header() {
                             {notifications.length > 0 && (
                                 <div className={styles.notificationFooter}>
                                     <button className={styles.viewAllButton}>
-                                        Voir toutes les notifications
+                                        {t('header.notifications.viewAll')}
                                     </button>
                                 </div>
                             )}

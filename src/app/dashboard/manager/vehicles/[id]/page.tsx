@@ -4,6 +4,7 @@ import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useParams } from 'next/navigation';
 import dynamic from 'next/dynamic';
+import { useLanguage } from '@/contexts/LanguageContext';
 import { FiTruck, FiMapPin, FiInfo, FiClock, FiBarChart2, FiTrash2, FiUserCheck, FiPlus, FiX } from 'react-icons/fi';
 import { vehicleApi, positionApi, tripApi, fuelRechargeApi, maintenanceApi, driverVehicleApi, driverApi } from '@/services';
 import { Vehicle, Trip, FuelRecharge, Maintenance, Position, DriverVehicle, Driver } from '@/types';
@@ -16,13 +17,14 @@ import 'leaflet/dist/leaflet.css';
 // Import dynamique pour éviter les erreurs SSR avec Leaflet
 const VehicleMap = dynamic(() => import('@/components/vehicle/VehicleMap'), {
     ssr: false,
-    loading: () => <div className="h-full w-full flex items-center justify-center bg-gray-100">Chargement de la carte...</div>
+    loading: () => <div className="h-full w-full flex items-center justify-center bg-gray-100">Loading map...</div>
 });
 
 type TabType = 'position' | 'details' | 'historique' | 'bilans' | 'assignations';
 
 export default function VehicleDetailPage() {
     const params = useParams();
+    const { t } = useLanguage();
     const vehicleId = parseInt(params.id as string);
 
     const [vehicle, setVehicle] = useState<Vehicle | null>(null);
@@ -126,7 +128,7 @@ export default function VehicleDetailPage() {
 
         } catch (err) {
             console.error('Erreur lors du chargement:', err);
-            setError('Impossible de charger les données du véhicule');
+            setError(t('vehicle.error.loading'));
         } finally {
             setLoading(false);
         }
@@ -153,26 +155,26 @@ export default function VehicleDetailPage() {
     };
 
     const handleTerminateAssignment = async (assignmentId: number) => {
-        if (!confirm('Êtes-vous sûr de vouloir terminer cette assignation ?')) return;
+        if (!confirm(t('vehicle.assignments.terminateConfirm'))) return;
 
         try {
             const updated = await driverVehicleApi.terminate(assignmentId);
             setAssignments(prev => prev.map(a => a.assignmentId === assignmentId ? updated : a));
         } catch (err) {
             console.error('Erreur terminaison:', err);
-            alert('Erreur lors de la terminaison de l\'assignation');
+            alert(t('vehicle.assignments.terminateError'));
         }
     };
 
     const getStatusLabel = (state?: string) => {
         const labels: { [key: string]: string } = {
-            'ACTIVE': 'En service',
-            'INACTIVE': 'Hors service',
-            'MOVING': 'En mouvement',
-            'PARKED': 'Garé',
-            'MAINTENANCE': 'En maintenance'
+            'ACTIVE': t('vehicle.status.active'),
+            'INACTIVE': t('vehicle.status.inactive'),
+            'MOVING': t('vehicle.status.moving'),
+            'PARKED': t('vehicle.status.parked'),
+            'MAINTENANCE': t('vehicle.status.maintenance')
         };
-        return labels[state || ''] || state || 'Inconnu';
+        return labels[state || ''] || state || t('vehicle.status.unknown');
     };
 
     const getStatusClass = (state?: string) => {
@@ -199,7 +201,7 @@ export default function VehicleDetailPage() {
             date = new Date(dateStr);
         }
 
-        if (isNaN(date.getTime())) return 'Date invalide';
+        if (isNaN(date.getTime())) return t('date.invalid');
 
         return date.toLocaleDateString('fr-FR', {
             year: 'numeric',
@@ -211,14 +213,14 @@ export default function VehicleDetailPage() {
     };
 
     const handleDeleteTrip = async (tripId: number) => {
-        if (!confirm('Êtes-vous sûr de vouloir supprimer ce trajet ?')) return;
+        if (!confirm(t('vehicle.history.deleteConfirm'))) return;
 
         try {
             await tripApi.delete(tripId);
             setTrips(prev => prev.filter(t => t.tripId !== tripId));
         } catch (err) {
             console.error('Erreur suppression:', err);
-            alert('Erreur lors de la suppression du trajet');
+            alert(t('vehicle.history.deleteError'));
         }
     };
 
@@ -227,7 +229,7 @@ export default function VehicleDetailPage() {
             <div className={styles.container}>
                 <div className={styles.loading}>
                     <div className={styles.spinner}></div>
-                    <span>Chargement...</span>
+                    <span>{t('header.search.loading')}</span>
                 </div>
             </div>
         );
@@ -237,9 +239,9 @@ export default function VehicleDetailPage() {
         return (
             <div className={styles.container}>
                 <div className={styles.error}>
-                    <p>{error || 'Véhicule non trouvé'}</p>
+                    <p>{error || t('vehicle.error.notFound')}</p>
                     <Link href="/dashboard/manager/vehicles" className={styles.backLink}>
-                        Retour à la liste
+                        {t('vehicle.backToList')}
                     </Link>
                 </div>
             </div>
@@ -250,7 +252,7 @@ export default function VehicleDetailPage() {
         <div className={styles.container}>
             <p className={styles.breadcrumb}>
                 <Link href="/dashboard/manager/vehicles" className={styles.breadcrumbLink}>
-                    Véhicules
+                    {t('header.search.vehicles')}
                 </Link>
                 {' '}/{' '}
                 <span className={styles.breadcrumbCurrent}>{vehicle.vehicleRegistrationNumber}</span>
@@ -263,21 +265,21 @@ export default function VehicleDetailPage() {
                 </div>
                 <div className={styles.vehicleInfo}>
                     <div className={styles.infoRow}>
-                        <span className={styles.infoLabel}>Immatriculation :</span>
+                        <span className={styles.infoLabel}>{t('vehicle.info.registration')} :</span>
                         <span className={styles.infoValue}>{vehicle.vehicleRegistrationNumber}</span>
                     </div>
                     <div className={styles.infoRow}>
-                        <span className={styles.infoLabel}>Status :</span>
+                        <span className={styles.infoLabel}>{t('vehicle.info.status')} :</span>
                         <span className={`${styles.infoValue} ${getStatusClass(vehicle.state)}`}>
                             {getStatusLabel(vehicle.state)}
                         </span>
                     </div>
                     <div className={styles.infoRow}>
-                        <span className={styles.infoLabel}>Modèle :</span>
+                        <span className={styles.infoLabel}>{t('vehicle.info.model')} :</span>
                         <span className={styles.infoValue}>{vehicle.vehicleMake} {vehicle.vehicleModel}</span>
                     </div>
                     <div className={styles.infoRow}>
-                        <span className={styles.infoLabel}>Type :</span>
+                        <span className={styles.infoLabel}>{t('vehicle.info.type')} :</span>
                         <span className={styles.infoValue}>{vehicle.type}</span>
                     </div>
                 </div>
@@ -290,35 +292,35 @@ export default function VehicleDetailPage() {
                     onClick={() => setActiveTab('position')}
                 >
                     <FiMapPin />
-                    Position du véhicule
+                    {t('vehicle.tabs.position')}
                 </button>
                 <button
                     className={`${styles.tab} ${activeTab === 'details' ? styles.tabActive : ''}`}
                     onClick={() => setActiveTab('details')}
                 >
                     <FiInfo />
-                    Détails
+                    {t('vehicle.tabs.details')}
                 </button>
                 <button
                     className={`${styles.tab} ${activeTab === 'historique' ? styles.tabActive : ''}`}
                     onClick={() => setActiveTab('historique')}
                 >
                     <FiClock />
-                    Historique des trajets
+                    {t('vehicle.tabs.history')}
                 </button>
                 <button
                     className={`${styles.tab} ${activeTab === 'bilans' ? styles.tabActive : ''}`}
                     onClick={() => setActiveTab('bilans')}
                 >
                     <FiBarChart2 />
-                    Bilans
+                    {t('vehicle.tabs.reports')}
                 </button>
                 <button
                     className={`${styles.tab} ${activeTab === 'assignations' ? styles.tabActive : ''}`}
                     onClick={() => setActiveTab('assignations')}
                 >
                     <FiUserCheck />
-                    Assignations
+                    {t('vehicle.tabs.assignments')}
                 </button>
             </div>
 
@@ -331,7 +333,7 @@ export default function VehicleDetailPage() {
                         ) : (
                             <div className={styles.noPosition}>
                                 <FiMapPin className={styles.noPositionIcon} />
-                                <p>{!position ? 'Position du véhicule non disponible' : 'Chargement de la carte...'}</p>
+                                <p>{!position ? t('vehicle.position.unavailable') : t('vehicle.position.loading')}</p>
                             </div>
                         )}
                     </div>
@@ -340,9 +342,9 @@ export default function VehicleDetailPage() {
                 {activeTab === 'details' && (
                     <div className={styles.detailsContent}>
                         <div className={styles.detailsHeader}>
-                            <h2 className={styles.detailsTitle}>Métriques en temps réel</h2>
+                            <h2 className={styles.detailsTitle}>{t('vehicle.metrics.title')}</h2>
                             <p className={styles.detailsSubtitle}>
-                                Informations actuelles du véhicule {vehicle.vehicleRegistrationNumber}
+                                {t('vehicle.metrics.subtitle', [vehicle.vehicleRegistrationNumber || ''])}
                             </p>
                         </div>
 
@@ -364,15 +366,15 @@ export default function VehicleDetailPage() {
 
                 {activeTab === 'historique' && (
                     <div className={styles.tripsContent}>
-                        <h2 className={styles.detailsTitle}>Historique des trajets</h2>
+                        <h2 className={styles.detailsTitle}>{t('vehicle.history.title')}</h2>
                         {trips.length === 0 ? (
-                            <p className={styles.noData}>Aucun trajet enregistré pour ce véhicule</p>
+                            <p className={styles.noData}>{t('vehicle.history.noTrips')}</p>
                         ) : (
                             <div className={styles.tripsList}>
                                 {trips.map((trip) => (
                                     <div key={trip.tripId} className={styles.tripCard}>
                                         <div className={styles.tripHeader}>
-                                            <h3 className={styles.tripId}>{trip.tripReference || `Trajet #${trip.tripId}`}</h3>
+                                            <h3 className={styles.tripId}>{trip.tripReference || `${t('vehicle.history.tripPrefix')}${trip.tripId}`}</h3>
                                             <div className={styles.tripActions}>
                                                 <span className={`${styles.tripStatus} ${styles[`status${trip.status}`]}`}>
                                                     {trip.status}
@@ -389,7 +391,7 @@ export default function VehicleDetailPage() {
 
                                         <div className={styles.tripDetails}>
                                             <div className={styles.tripInfo}>
-                                                <span className={styles.tripLabel}>Départ</span>
+                                                <span className={styles.tripLabel}>{t('vehicle.history.departure')}</span>
                                                 <span className={styles.tripValue}>
                                                     {formatDate(trip.departureDateTime)}
                                                 </span>
@@ -398,16 +400,16 @@ export default function VehicleDetailPage() {
                                             <div className={styles.tripArrow}>→</div>
 
                                             <div className={styles.tripInfo}>
-                                                <span className={styles.tripLabel}>Arrivée</span>
+                                                <span className={styles.tripLabel}>{t('vehicle.history.arrival')}</span>
                                                 <span className={styles.tripValue}>
-                                                    {trip.arrivalDateTime ? formatDate(trip.arrivalDateTime) : 'En cours'}
+                                                    {trip.arrivalDateTime ? formatDate(trip.arrivalDateTime) : t('vehicle.history.inProgress')}
                                                 </span>
                                             </div>
                                         </div>
 
                                         {(trip.actualDistance && trip.actualDistance > 0) && (
                                             <div className={styles.tripDistance}>
-                                                Distance: {Number(trip.actualDistance).toFixed(1)} km
+                                                {t('vehicle.history.distance')}: {Number(trip.actualDistance).toFixed(1)} km
                                             </div>
                                         )}
                                     </div>
@@ -419,20 +421,20 @@ export default function VehicleDetailPage() {
 
                 {activeTab === 'bilans' && (
                     <div className={styles.bilansContent}>
-                        <h2 className={styles.detailsTitle}>Bilans du véhicule</h2>
+                        <h2 className={styles.detailsTitle}>{t('vehicle.reports.title')}</h2>
 
                         {/* Section Recharges de carburant */}
                         <div className={styles.bilansSection}>
-                            <h3 className={styles.bilansSectionTitle}>Recharges de carburant</h3>
+                            <h3 className={styles.bilansSectionTitle}>{t('vehicle.reports.fuel.title')}</h3>
                             {fuelRecharges.length === 0 ? (
-                                <p className={styles.noData}>Aucune recharge enregistrée</p>
+                                <p className={styles.noData}>{t('vehicle.reports.fuel.noData')}</p>
                             ) : (
                                 <div className={styles.bilansList}>
                                     {fuelRecharges.map((recharge) => (
                                         <div key={recharge.rechargeId} className={styles.bilanCard}>
                                             <div className={styles.bilanCardHeader}>
                                                 <span className={styles.bilanCardTitle}>
-                                                    Recharge #{recharge.rechargeId}
+                                                    {t('vehicle.reports.fuel.rechargePrefix')}{recharge.rechargeId}
                                                 </span>
                                                 <span className={styles.bilanCardDate}>
                                                     {formatDate(recharge.rechargeDateTime)}
@@ -440,15 +442,15 @@ export default function VehicleDetailPage() {
                                             </div>
                                             <div className={styles.bilanCardBody}>
                                                 <div className={styles.bilanInfo}>
-                                                    <span className={styles.bilanLabel}>Quantité</span>
+                                                    <span className={styles.bilanLabel}>{t('vehicle.reports.fuel.quantity')}</span>
                                                     <span className={styles.bilanValue}>{recharge.rechargeQuantity} L</span>
                                                 </div>
                                                 <div className={styles.bilanInfo}>
-                                                    <span className={styles.bilanLabel}>Prix</span>
+                                                    <span className={styles.bilanLabel}>{t('vehicle.reports.fuel.price')}</span>
                                                     <span className={styles.bilanValue}>{Number(recharge.rechargePrice || 0).toFixed(2)} FCFA</span>
                                                 </div>
                                                 <div className={styles.bilanInfo}>
-                                                    <span className={styles.bilanLabel}>Station</span>
+                                                    <span className={styles.bilanLabel}>{t('vehicle.reports.fuel.station')}</span>
                                                     <span className={styles.bilanValue}>{recharge.stationName || 'N/A'}</span>
                                                 </div>
                                             </div>
@@ -460,9 +462,9 @@ export default function VehicleDetailPage() {
 
                         {/* Section Maintenances */}
                         <div className={styles.bilansSection}>
-                            <h3 className={styles.bilansSectionTitle}>Maintenances</h3>
+                            <h3 className={styles.bilansSectionTitle}>{t('vehicle.reports.maintenance.title')}</h3>
                             {maintenances.length === 0 ? (
-                                <p className={styles.noData}>Aucune maintenance enregistrée</p>
+                                <p className={styles.noData}>{t('vehicle.reports.maintenance.noData')}</p>
                             ) : (
                                 <div className={styles.bilansList}>
                                     {maintenances.map((maintenance) => (
@@ -478,13 +480,13 @@ export default function VehicleDetailPage() {
                                             <div className={styles.bilanCardBody}>
                                                 {maintenance.maintenanceReport && (
                                                     <div className={styles.bilanInfo}>
-                                                        <span className={styles.bilanLabel}>Rapport</span>
+                                                        <span className={styles.bilanLabel}>{t('vehicle.reports.maintenance.report')}</span>
                                                         <span className={styles.bilanValue}>{maintenance.maintenanceReport}</span>
                                                     </div>
                                                 )}
                                                 {maintenance.maintenanceCost && (
                                                     <div className={styles.bilanInfo}>
-                                                        <span className={styles.bilanLabel}>Coût</span>
+                                                        <span className={styles.bilanLabel}>{t('vehicle.reports.maintenance.cost')}</span>
                                                         <span className={styles.bilanValue}>{maintenance.maintenanceCost.toFixed(2)} FCFA</span>
                                                     </div>
                                                 )}
@@ -503,7 +505,7 @@ export default function VehicleDetailPage() {
                         <div className={styles.bilansSection}>
                             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
                                 <h3 className={styles.bilansSectionTitle} style={{ margin: 0, borderBottom: 'none' }}>
-                                    Conducteurs Assignés
+                                    {t('vehicle.assignments.title')}
                                 </h3>
                                 <button
                                     onClick={() => setShowAssignModal(true)}
@@ -521,12 +523,12 @@ export default function VehicleDetailPage() {
                                         transition: 'all 0.3s ease'
                                     }}
                                 >
-                                    <FiPlus /> Assigner un conducteur
+                                    <FiPlus /> {t('vehicle.assignments.add')}
                                 </button>
                             </div>
 
                             {assignments.length === 0 ? (
-                                <p className={styles.noData}>Aucune assignation enregistrée</p>
+                                <p className={styles.noData}>{t('vehicle.assignments.noData')}</p>
                             ) : (
                                 <div className={styles.bilansList}>
                                     {assignments.map((assignment) => (
@@ -547,23 +549,23 @@ export default function VehicleDetailPage() {
                                                         fontWeight: 600
                                                     }}
                                                 >
-                                                    {assignment.state === 'ACTIVE' ? 'Active' : 'Terminée'}
+                                                    {assignment.state === 'ACTIVE' ? t('vehicle.assignments.status.active') : t('vehicle.assignments.status.finished')}
                                                 </span>
                                             </div>
                                             <div className={styles.bilanCardBody}>
                                                 <div className={styles.bilanInfo}>
-                                                    <span className={styles.bilanLabel}>Début</span>
+                                                    <span className={styles.bilanLabel}>{t('vehicle.assignments.start')}</span>
                                                     <span className={styles.bilanValue}>{formatDate(assignment.startDate)}</span>
                                                 </div>
                                                 {assignment.endDate && (
                                                     <div className={styles.bilanInfo}>
-                                                        <span className={styles.bilanLabel}>Fin</span>
+                                                        <span className={styles.bilanLabel}>{t('vehicle.assignments.end')}</span>
                                                         <span className={styles.bilanValue}>{formatDate(assignment.endDate)}</span>
                                                     </div>
                                                 )}
                                                 {assignment.notes && (
                                                     <div className={styles.bilanInfo}>
-                                                        <span className={styles.bilanLabel}>Notes</span>
+                                                        <span className={styles.bilanLabel}>{t('vehicle.assignments.notes')}</span>
                                                         <span className={styles.bilanValue}>{assignment.notes}</span>
                                                     </div>
                                                 )}
@@ -581,7 +583,7 @@ export default function VehicleDetailPage() {
                                                             fontWeight: 500
                                                         }}
                                                     >
-                                                        Terminer l'assignation
+                                                        {t('vehicle.assignments.terminate')}
                                                     </button>
                                                 )}
                                             </div>
@@ -617,7 +619,7 @@ export default function VehicleDetailPage() {
                         border: '1px solid rgba(255, 255, 255, 0.1)'
                     }}>
                         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
-                            <h3 style={{ margin: 0, color: 'var(--text-main, #f1f5f9)' }}>Assigner un conducteur</h3>
+                            <h3 style={{ margin: 0, color: 'var(--text-main, #f1f5f9)' }}>{t('vehicle.assignModal.title')}</h3>
                             <button
                                 onClick={() => setShowAssignModal(false)}
                                 style={{ background: 'none', border: 'none', color: '#94a3b8', cursor: 'pointer' }}
@@ -628,7 +630,7 @@ export default function VehicleDetailPage() {
 
                         <div style={{ marginBottom: '1rem' }}>
                             <label style={{ display: 'block', marginBottom: '0.5rem', color: '#94a3b8', fontWeight: 500 }}>
-                                Conducteur
+                                {t('vehicle.assignModal.driver')}
                             </label>
                             <select
                                 value={selectedDriverId || ''}
@@ -642,7 +644,7 @@ export default function VehicleDetailPage() {
                                     color: 'var(--text-main, #f1f5f9)'
                                 }}
                             >
-                                <option value="">Sélectionner un conducteur</option>
+                                <option value="">{t('vehicle.assignModal.selectDriver')}</option>
                                 {availableDrivers.map(driver => (
                                     <option key={driver.driverId} value={driver.driverId}>
                                         {driver.driverFirstName} {driver.driverLastName}
@@ -653,12 +655,12 @@ export default function VehicleDetailPage() {
 
                         <div style={{ marginBottom: '1.5rem' }}>
                             <label style={{ display: 'block', marginBottom: '0.5rem', color: '#94a3b8', fontWeight: 500 }}>
-                                Notes (optionnel)
+                                {t('vehicle.assignModal.notes')}
                             </label>
                             <textarea
                                 value={assignNotes}
                                 onChange={(e) => setAssignNotes(e.target.value)}
-                                placeholder="Notes sur l'assignation..."
+                                placeholder={t('vehicle.assignModal.notesPlaceholder')}
                                 rows={3}
                                 style={{
                                     width: '100%',
@@ -686,7 +688,7 @@ export default function VehicleDetailPage() {
                                     fontWeight: 500
                                 }}
                             >
-                                Annuler
+                                {t('vehicle.assignModal.cancel')}
                             </button>
                             <button
                                 onClick={handleCreateAssignment}
@@ -704,7 +706,7 @@ export default function VehicleDetailPage() {
                                     fontWeight: 600
                                 }}
                             >
-                                Assigner
+                                {t('vehicle.assignModal.submit')}
                             </button>
                         </div>
                     </div>

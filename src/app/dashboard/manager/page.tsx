@@ -88,7 +88,7 @@ export default function DashboardManagerPage() {
                     {t('dashboard.welcome')}
                 </h1>
                 <p className="mt-1 text-sm text-text-muted">
-                    Voici un aperçu de l'activité de votre organisation aujourd'hui.
+                    {t('dashboard.overview')}
                 </p>
             </div>
 
@@ -124,7 +124,7 @@ export default function DashboardManagerPage() {
             {/* Recent Activity / Map Placeholder */}
             <div className="bg-surface shadow rounded-lg border border-glass p-6 min-h-[400px] flex items-center justify-center">
                 <div className="text-center">
-                    <p className="text-text-muted">Carte interactive des véhicules (À venir)</p>
+                    <p className="text-text-muted">{t('dashboard.mapComingSoon')}</p>
                 </div>
             </div>
         </div>

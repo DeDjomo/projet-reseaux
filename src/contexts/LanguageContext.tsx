@@ -552,6 +552,12 @@ export const translations: Translations = {
     'vehicles.fuel.diesel': { FR: 'Diesel', ENG: 'Diesel' },
     'vehicles.fuel.electric': { FR: 'Électrique', ENG: 'Electric' },
     'vehicles.fuel.hybrid': { FR: 'Hybride', ENG: 'Hybrid' },
+
+    // Driver Photo
+    'drivers.form.photo': { FR: 'Photo', ENG: 'Photo' },
+    'drivers.form.uploadVal': { FR: 'Télécharger une photo', ENG: 'Upload a photo' },
+    'drivers.form.removePhoto': { FR: 'Supprimer la photo', ENG: 'Remove photo' },
+    'drivers.form.photoHint': { FR: 'Format: JPG, PNG. Max: 5MB', ENG: 'Format: JPG, PNG. Max: 5MB' },
 };
 
 interface LanguageContextType {
@@ -578,9 +584,6 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
 
     // Save language when it changes
     useEffect(() => {
-        if (mounted) {
-            localStorage.setItem('fleetman-language', language);
-        }
     }, [language, mounted]);
 
     const setLanguage = (lang: Language) => {

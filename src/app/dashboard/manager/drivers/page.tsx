@@ -6,7 +6,7 @@ import { useLanguage } from '@/contexts/LanguageContext';
 import driverApi from '@/services/driverApi';
 import { organizationApi } from '@/services';
 import { Driver, DriverState } from '@/types';
-import { Plus, Users, Edit, Trash2, Search, Filter, Phone, Mail, X, AlertTriangle, AlertCircle, CheckCircle } from 'lucide-react';
+import { Plus, Users, Edit, Trash2, Search, Filter, Phone, Mail, X, AlertTriangle, AlertCircle, CheckCircle, Camera, Upload } from 'lucide-react';
 
 export default function DriversPage() {
     const { t } = useLanguage();
@@ -352,6 +352,18 @@ function EditDriverModal({ driver, onClose, onSuccess }: { driver: Driver; onClo
         driverEmergencyContactPhone: driver.driverEmergencyContactPhone || '',
         driverState: driver.driverState || DriverState.ACTIVE
     });
+    const [photo, setPhoto] = useState<File | null>(null);
+    const [photoPreview, setPhotoPreview] = useState<string | null>(null);
+
+    const handlePhotoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0];
+        if (file) {
+            setPhoto(file);
+            const objectUrl = URL.createObjectURL(file);
+            setPhotoPreview(objectUrl);
+        }
+    };
+
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -391,6 +403,32 @@ function EditDriverModal({ driver, onClose, onSuccess }: { driver: Driver; onClo
                             {error}
                         </div>
                     )}
+
+                    {/* Photo Upload */}
+                    <div className="flex flex-col items-center gap-4 mb-6">
+                        <div className="relative group">
+                            <div className="w-24 h-24 rounded-full bg-glass flex items-center justify-center overflow-hidden border-2 border-dashed border-glass group-hover:border-secondary transition-colors">
+                                {photoPreview ? (
+                                    <img src={photoPreview} alt="Preview" className="w-full h-full object-cover" />
+                                ) : (
+                                    <div className="flex flex-col items-center text-text-muted">
+                                        <Camera size={24} />
+                                    </div>
+                                )}
+                            </div>
+                            <label className="absolute bottom-0 right-0 p-2 bg-secondary text-white rounded-full cursor-pointer hover:bg-secondary/90 transition-colors shadow-lg">
+                                <Upload size={14} />
+                                <input
+                                    type="file"
+                                    className="hidden"
+                                    accept="image/*"
+                                    onChange={handlePhotoChange}
+                                />
+                            </label>
+                        </div>
+                        <p className="text-xs text-text-muted">{t('drivers.form.photoHint')}</p>
+                    </div>
+
 
                     <div className="grid grid-cols-2 gap-4">
                         <div>
@@ -622,6 +660,18 @@ function CreateDriverModal({ onClose, onSuccess }: { onClose: () => void; onSucc
         driverEmergencyContactPhone: '',
         driverPersonalInformation: ''
     });
+    const [photo, setPhoto] = useState<File | null>(null);
+    const [photoPreview, setPhotoPreview] = useState<string | null>(null);
+
+    const handlePhotoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0];
+        if (file) {
+            setPhoto(file);
+            const objectUrl = URL.createObjectURL(file);
+            setPhotoPreview(objectUrl);
+        }
+    };
+
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState('');
 
@@ -671,6 +721,32 @@ function CreateDriverModal({ onClose, onSuccess }: { onClose: () => void; onSucc
                             {error}
                         </div>
                     )}
+
+                    {/* Photo Upload */}
+                    <div className="flex flex-col items-center gap-4 mb-6">
+                        <div className="relative group">
+                            <div className="w-24 h-24 rounded-full bg-glass flex items-center justify-center overflow-hidden border-2 border-dashed border-glass group-hover:border-secondary transition-colors">
+                                {photoPreview ? (
+                                    <img src={photoPreview} alt="Preview" className="w-full h-full object-cover" />
+                                ) : (
+                                    <div className="flex flex-col items-center text-text-muted">
+                                        <Camera size={24} />
+                                    </div>
+                                )}
+                            </div>
+                            <label className="absolute bottom-0 right-0 p-2 bg-secondary text-white rounded-full cursor-pointer hover:bg-secondary/90 transition-colors shadow-lg">
+                                <Upload size={14} />
+                                <input
+                                    type="file"
+                                    className="hidden"
+                                    accept="image/*"
+                                    onChange={handlePhotoChange}
+                                />
+                            </label>
+                        </div>
+                        <p className="text-xs text-text-muted">{t('drivers.form.photoHint')}</p>
+                    </div>
+
 
                     <div className="grid grid-cols-2 gap-4">
                         <div>

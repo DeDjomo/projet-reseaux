@@ -41,12 +41,12 @@ export interface Incident {
     incidentType: IncidentType;
     incidentSeverity: IncidentSeverity;
     incidentStatus: IncidentStatus;
-    incidentDate: string;
+    incidentDate: string | number[];
     vehicleId: number;
     driverId: number | null;
     reportedById: number;
-    createdAt: string;
-    updatedAt: string;
+    createdAt: string | number[];
+    updatedAt: string | number[];
 }
 
 export interface IncidentCreate {
@@ -54,7 +54,7 @@ export interface IncidentCreate {
     incidentDescription: string;
     incidentType: IncidentType;
     incidentSeverity: IncidentSeverity;
-    incidentDate: string;
+    incidentDate: string | number[];
     vehicleId: number;
     driverId?: number;
     reportedById: number;
@@ -66,7 +66,7 @@ export interface IncidentUpdate {
     incidentType?: IncidentType;
     incidentSeverity?: IncidentSeverity;
     incidentStatus?: IncidentStatus;
-    incidentDate?: string;
+    incidentDate?: string | number[];
     driverId?: number;
 }
 
@@ -81,7 +81,7 @@ export interface Maintenance {
     maintenanceId: number;
     maintenanceSubject: string;
     maintenanceReport?: string;
-    maintenanceDateTime: string;
+    maintenanceDateTime: string | number[];
     maintenanceCost?: number;
     // No type or status fields in backend entity
     vehicleId: number;
@@ -91,7 +91,7 @@ export interface Maintenance {
 export interface MaintenanceCreate {
     maintenanceSubject: string;
     maintenanceReport?: string;
-    maintenanceDateTime: string;
+    maintenanceDateTime: string | number[];
     maintenanceCost?: number;
     vehicleId: number;
     driverId?: number;
@@ -100,7 +100,7 @@ export interface MaintenanceCreate {
 export interface MaintenanceUpdate {
     maintenanceSubject?: string;
     maintenanceReport?: string;
-    maintenanceDateTime?: string;
+    maintenanceDateTime?: string | number[];
     maintenanceCost?: number;
     vehicleId?: number;
     driverId?: number;
@@ -113,7 +113,7 @@ export interface FuelRecharge {
     rechargeQuantity: number;
     rechargePrice: number;
     stationName: string;
-    rechargeDateTime: string;
+    rechargeDateTime: string | number[];
     vehicleId: number;
     vehicleName?: string;
     vehicleRegistrationNumber?: string;
@@ -126,7 +126,7 @@ export interface FuelRechargeCreate {
     rechargeQuantity: number;
     rechargePrice: number;
     stationName: string;
-    rechargeDateTime: string;
+    rechargeDateTime: string | number[];
     vehicleId: number;
     driverId: number;
 }
@@ -135,7 +135,7 @@ export interface FuelRechargeUpdate {
     rechargeQuantity?: number;
     rechargePrice?: number;
     stationName?: string;
-    rechargeDateTime?: string;
+    rechargeDateTime?: string | number[];
     vehicleId?: number;
     driverId?: number;
 }

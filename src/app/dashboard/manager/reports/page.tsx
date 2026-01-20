@@ -54,8 +54,16 @@ export default function ReportsPage() {
         }
     };
 
-    const formatDate = (dateStr: string) => {
-        return new Date(dateStr).toLocaleDateString('fr-FR', {
+    const formatDate = (dateStr: string | number[]) => {
+        let date: Date;
+        if (Array.isArray(dateStr)) {
+            const [year, month, day, hour = 0, minute = 0, second = 0] = dateStr;
+            date = new Date(year, month - 1, day, hour, minute, second);
+        } else {
+            date = new Date(dateStr);
+        }
+
+        return date.toLocaleDateString('fr-FR', {
             year: 'numeric',
             month: 'short',
             day: 'numeric'

@@ -5,6 +5,7 @@ import { useLanguage } from '@/contexts/LanguageContext';
 import organizationApi from '@/services/organizationApi';
 import { Organization, SubscriptionPlan } from '@/types';
 import { CreditCard, Check, Star, Zap, Shield, ArrowRight } from 'lucide-react';
+import toast from 'react-hot-toast';
 
 export default function SubscriptionPage() {
     const { t } = useLanguage();
@@ -31,6 +32,28 @@ export default function SubscriptionPage() {
 
         fetchOrganization();
     }, []);
+
+    const handlePlanSelect = async (plan: SubscriptionPlan) => {
+        if (!organization) return;
+
+        // If trying to select Enterprise, just show a message or redirect to contact
+        if (plan === SubscriptionPlan.ENTERPRISE) {
+            toast.success(t('subscription.enterprise.contact'));
+            return;
+        }
+
+        try {
+            setLoading(true);
+            const updatedOrg = await organizationApi.updateSubscriptionPlan(organization.organizationId, plan);
+            setOrganization(updatedOrg);
+            toast.success(t('subscription.updateSuccess'));
+        } catch (error) {
+            console.error("Failed to update plan", error);
+            toast.error(t('subscription.updateError'));
+        } finally {
+            setLoading(false);
+        }
+    };
 
     const plans = [
         {
@@ -126,7 +149,8 @@ export default function SubscriptionPage() {
                                 ? 'bg-secondary/10 text-secondary cursor-default'
                                 : 'bg-secondary text-white hover:bg-secondary/90'
                                 }`}
-                            disabled={currentPlan === plan.id}
+                            disabled={currentPlan === plan.id || loading}
+                            onClick={() => handlePlanSelect(plan.id)}
                         >
                             {currentPlan === plan.id ? (
                                 <>

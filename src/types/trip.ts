@@ -5,11 +5,11 @@ import { TripStatus } from './enums';
 export interface Trip {
     tripId: number;
     tripReference: string;
-    departureDateTime: string;
-    arrivalDateTime: string | null;
+    departureDateTime: string | number[];
+    arrivalDateTime: string | number[] | null;
     plannedDistance: number;
     actualDistance: number;
-    status: TripStatus;
+    tripStatus: TripStatus;
     vehicleId: number;
     vehicleName?: string;
     vehicleRegistrationNumber?: string;
@@ -19,16 +19,16 @@ export interface Trip {
 
 export interface TripCreate {
     tripReference: string;
-    departureDateTime: string;
+    departureDateTime: string | number[];
     plannedDistance: number;
     vehicleId: number;
     driverId: number;
 }
 
 export interface TripUpdate {
-    arrivalDateTime?: string;
+    arrivalDateTime?: string | number[];
     actualDistance?: number;
-    status?: TripStatus;
+    tripStatus?: TripStatus;
 }
 
 // Position DTOs (matches backend PositionDTO)

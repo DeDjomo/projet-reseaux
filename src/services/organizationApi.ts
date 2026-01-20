@@ -37,7 +37,7 @@ export const organizationApi = {
     },
 
     updateSubscriptionPlan: async (organizationId: number, plan: SubscriptionPlan): Promise<Organization> => {
-        const response = await apiClient.put<Organization>(`/organizations/${organizationId}/subscription`, null, {
+        const response = await apiClient.patch<Organization>(`/organizations/${organizationId}/subscription`, null, {
             params: { plan }
         });
         return response.data;

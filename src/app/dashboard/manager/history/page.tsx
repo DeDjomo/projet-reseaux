@@ -38,9 +38,11 @@ export default function HistoryPage() {
             const driverMap = new Map<number, Driver>();
             driversData.forEach((d: Driver) => driverMap.set(d.driverId, d));
 
-            setTrips(tripsData.sort((a: Trip, b: Trip) =>
-                new Date(b.departureDateTime).getTime() - new Date(a.departureDateTime).getTime()
-            ));
+            setTrips(tripsData.sort((a: Trip, b: Trip) => {
+                const dateA = Array.isArray(a.departureDateTime) ? new Date(a.departureDateTime[0], a.departureDateTime[1] - 1, a.departureDateTime[2], a.departureDateTime[3], a.departureDateTime[4]) : new Date(a.departureDateTime);
+                const dateB = Array.isArray(b.departureDateTime) ? new Date(b.departureDateTime[0], b.departureDateTime[1] - 1, b.departureDateTime[2], b.departureDateTime[3], b.departureDateTime[4]) : new Date(b.departureDateTime);
+                return dateB.getTime() - dateA.getTime();
+            }));
             setVehicles(vehicleMap);
             setDrivers(driverMap);
         } catch (error) {
@@ -50,8 +52,17 @@ export default function HistoryPage() {
         }
     };
 
-    const formatDate = (dateStr: string) => {
-        return new Date(dateStr).toLocaleDateString('fr-FR', {
+    const getDateObject = (dateStr: string | number[]) => {
+        if (Array.isArray(dateStr)) {
+            const [year, month, day, hour = 0, minute = 0, second = 0] = dateStr;
+            return new Date(year, month - 1, day, hour, minute, second);
+        }
+        return new Date(dateStr);
+    };
+
+    const formatDate = (dateStr: string | number[]) => {
+        const date = getDateObject(dateStr);
+        return date.toLocaleDateString('fr-FR', {
             weekday: 'short',
             year: 'numeric',
             month: 'short',
@@ -59,17 +70,18 @@ export default function HistoryPage() {
         });
     };
 
-    const formatTime = (dateStr: string) => {
-        return new Date(dateStr).toLocaleTimeString('fr-FR', {
+    const formatTime = (dateStr: string | number[]) => {
+        const date = getDateObject(dateStr);
+        return date.toLocaleTimeString('fr-FR', {
             hour: '2-digit',
             minute: '2-digit'
         });
     };
 
-    const formatDuration = (startTime: string, endTime?: string) => {
+    const formatDuration = (startTime: string | number[], endTime?: string | number[] | null) => {
         if (!endTime) return t('history.stats.ongoing');
-        const start = new Date(startTime).getTime();
-        const end = new Date(endTime).getTime();
+        const start = getDateObject(startTime).getTime();
+        const end = getDateObject(endTime).getTime();
         const diffMs = end - start;
         const diffMins = Math.floor(diffMs / 60000);
         const hours = Math.floor(diffMins / 60);
@@ -97,7 +109,7 @@ export default function HistoryPage() {
 
     // Filter trips
     const filteredTrips = trips.filter(trip => {
-        const matchesStatus = statusFilter === 'all' || trip.status === statusFilter;
+        const matchesStatus = statusFilter === 'all' || trip.tripStatus === statusFilter;
         const vehicle = vehicles.get(trip.vehicleId || 0);
         const driver = drivers.get(trip.driverId || 0);
         const searchLower = searchTerm.toLowerCase();
@@ -111,8 +123,8 @@ export default function HistoryPage() {
 
     // Statistics
     const totalDistance = trips.reduce((sum, t) => sum + (t.actualDistance || 0), 0);
-    const completedTrips = trips.filter(t => t.status === TripStatus.COMPLETED).length;
-    const ongoingTrips = trips.filter(t => t.status === TripStatus.IN_PROGRESS).length;
+    const completedTrips = trips.filter(t => t.tripStatus === TripStatus.COMPLETED).length;
+    const ongoingTrips = trips.filter(t => t.tripStatus === TripStatus.IN_PROGRESS).length;
 
     if (loading) {
         return (
@@ -235,8 +247,8 @@ export default function HistoryPage() {
                                         </div>
                                         <div>
                                             <p className="font-semibold text-text-main">{trip.tripReference || `${t('history.tripPrefix')}#${trip.tripId}`}</p>
-                                            <span className={`inline-block px-2 py-0.5 rounded-full text-xs font-medium ${getStatusColor(trip.status)}`}>
-                                                {getStatusLabel(trip.status)}
+                                            <span className={`inline-block px-2 py-0.5 rounded-full text-xs font-medium ${getStatusColor(trip.tripStatus)}`}>
+                                                {getStatusLabel(trip.tripStatus)}
                                             </span>
                                         </div>
                                     </div>

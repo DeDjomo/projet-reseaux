@@ -8,7 +8,19 @@ import { organizationApi } from '@/services';
 import { Incident } from '@/types';
 import { IncidentStatus, IncidentSeverity } from '@/types/enums';
 import { AlertTriangle, CheckCircle, Clock, Filter, Search, XCircle } from 'lucide-react';
+
 import toast from 'react-hot-toast';
+
+const formatDate = (dateStr: string | number[]) => {
+    let date: Date;
+    if (Array.isArray(dateStr)) {
+        const [year, month, day, hour = 0, minute = 0, second = 0] = dateStr;
+        date = new Date(year, month - 1, day, hour, minute, second);
+    } else {
+        date = new Date(dateStr);
+    }
+    return date;
+};
 
 export default function IncidentsPage() {
     const { t } = useLanguage();
@@ -146,7 +158,7 @@ export default function IncidentsPage() {
                                             <div className="flex items-center gap-4 mt-2 text-xs text-text-muted">
                                                 <span className="flex items-center gap-1">
                                                     <Clock size={12} />
-                                                    {new Date(incident.createdAt).toLocaleDateString()} {new Date(incident.createdAt).toLocaleTimeString()}
+                                                    {formatDate(incident.createdAt).toLocaleDateString()} {formatDate(incident.createdAt).toLocaleTimeString()}
                                                 </span>
                                                 {/* Add Vehicle/Driver info if available in DTO */}
                                                 {(incident as any).vehicleId && <span>{t('incidents.vehicleId', [(incident as any).vehicleId])}</span>}

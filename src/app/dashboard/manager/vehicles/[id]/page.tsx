@@ -376,8 +376,8 @@ export default function VehicleDetailPage() {
                                         <div className={styles.tripHeader}>
                                             <h3 className={styles.tripId}>{trip.tripReference || `${t('vehicle.history.tripPrefix')}${trip.tripId}`}</h3>
                                             <div className={styles.tripActions}>
-                                                <span className={`${styles.tripStatus} ${styles[`status${trip.status}`]}`}>
-                                                    {trip.status}
+                                                <span className={`${styles.tripStatus} ${styles[`status${trip.tripStatus}`]}`}>
+                                                    {trip.tripStatus}
                                                 </span>
                                                 <button
                                                     className={styles.deleteButton}

@@ -78,7 +78,15 @@ export default function DriverDetailPage() {
         return classes[state || ''] || '';
     };
 
-    const formatDate = (dateStr: string) => {
+    const formatDate = (dateStr: string | number[]) => {
+        if (Array.isArray(dateStr)) {
+            const [year, month, day] = dateStr;
+            return new Date(year, month - 1, day).toLocaleDateString('fr-FR', {
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric'
+            });
+        }
         return new Date(dateStr).toLocaleDateString('fr-FR', {
             year: 'numeric',
             month: 'long',
@@ -86,7 +94,17 @@ export default function DriverDetailPage() {
         });
     };
 
-    const formatDateTime = (dateStr: string) => {
+    const formatDateTime = (dateStr: string | number[]) => {
+        if (Array.isArray(dateStr)) {
+            const [year, month, day, hour = 0, minute = 0, second = 0] = dateStr;
+            return new Date(year, month - 1, day, hour, minute, second).toLocaleDateString('fr-FR', {
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit'
+            });
+        }
         return new Date(dateStr).toLocaleDateString('fr-FR', {
             year: 'numeric',
             month: 'long',
@@ -303,9 +321,8 @@ export default function DriverDetailPage() {
                                             <div className={styles.tripInfo}>
                                                 <span className={styles.tripLabel}>Départ</span>
                                                 <span className={styles.tripValue}>
-                                                    {formatDateTime(trip.tripStartTime)}
+                                                    {formatDateTime(trip.departureDateTime)}
                                                 </span>
-                                                <span className={styles.tripLocation}>{trip.tripStartLocation}</span>
                                             </div>
 
                                             <div className={styles.tripArrow}>→</div>
@@ -313,17 +330,14 @@ export default function DriverDetailPage() {
                                             <div className={styles.tripInfo}>
                                                 <span className={styles.tripLabel}>Arrivée</span>
                                                 <span className={styles.tripValue}>
-                                                    {trip.tripEndTime ? formatDateTime(trip.tripEndTime) : 'En cours'}
+                                                    {trip.arrivalDateTime ? formatDateTime(trip.arrivalDateTime) : 'En cours'}
                                                 </span>
-                                                {trip.tripEndLocation && (
-                                                    <span className={styles.tripLocation}>{trip.tripEndLocation}</span>
-                                                )}
                                             </div>
                                         </div>
 
-                                        {trip.tripDistance > 0 && (
+                                        {trip.actualDistance > 0 && (
                                             <div className={styles.tripDistance}>
-                                                Distance: {trip.tripDistance.toFixed(1)} km
+                                                Distance: {trip.actualDistance.toFixed(1)} km
                                             </div>
                                         )}
                                     </div>

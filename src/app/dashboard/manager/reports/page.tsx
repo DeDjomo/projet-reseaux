@@ -16,6 +16,7 @@ import {
     Clock,
     Car
 } from 'lucide-react';
+import { IncidentSeverity, IncidentStatus, VehicleState } from '@/types/enums';
 
 export default function ReportsPage() {
     const { t } = useLanguage();
@@ -74,7 +75,7 @@ export default function ReportsPage() {
     const totalFuelAmount = fuelRecharges.reduce((sum, r) => sum + (Number(r.rechargeQuantity) || 0), 0);
     const totalMaintenanceCost = maintenances.reduce((sum, m) => sum + (Number(m.maintenanceCost) || 0), 0);
     const totalDistance = trips.reduce((sum, t) => sum + (Number(t.actualDistance) || 0), 0);
-    const activeVehicles = vehicles.filter(v => v.state === 'IN_SERVICE').length;
+    const activeVehicles = vehicles.filter(v => v.state === VehicleState.IN_SERVICE).length;
 
     if (loading) {
         return (
@@ -92,7 +93,7 @@ export default function ReportsPage() {
                     {t('reports.title')}
                 </h1>
                 <p className="mt-1 text-sm text-text-muted">
-                    Bilans et statistiques de votre organisation
+                    {t('reports.subtitle')}
                 </p>
             </div>
 
@@ -104,9 +105,9 @@ export default function ReportsPage() {
                             <Fuel size={24} className="text-green-600" />
                         </div>
                         <div>
-                            <p className="text-sm text-text-muted">Coût Total Carburant</p>
+                            <p className="text-sm text-text-muted">{t('reports.fuelCost.total')}</p>
                             <p className="text-xl font-bold text-text-main">{formatCurrency(totalFuelCost)}</p>
-                            <p className="text-xs text-text-sub">{totalFuelAmount.toFixed(1)} L consommés</p>
+                            <p className="text-xs text-text-sub">{totalFuelAmount.toFixed(1)} {t('reports.fuel.consumed')}</p>
                         </div>
                     </div>
                 </div>
@@ -117,9 +118,9 @@ export default function ReportsPage() {
                             <Wrench size={24} className="text-orange-600" />
                         </div>
                         <div>
-                            <p className="text-sm text-text-muted">Coût Maintenances</p>
+                            <p className="text-sm text-text-muted">{t('reports.maintenanceCost.total')}</p>
                             <p className="text-xl font-bold text-text-main">{formatCurrency(totalMaintenanceCost)}</p>
-                            <p className="text-xs text-text-sub">{maintenances.length} maintenances</p>
+                            <p className="text-xs text-text-sub">{maintenances.length} {t('reports.maintenances.count')}</p>
                         </div>
                     </div>
                 </div>
@@ -130,9 +131,9 @@ export default function ReportsPage() {
                             <MapPin size={24} className="text-blue-600" />
                         </div>
                         <div>
-                            <p className="text-sm text-text-muted">Distance Parcourue</p>
+                            <p className="text-sm text-text-muted">{t('reports.distance.total')}</p>
                             <p className="text-xl font-bold text-text-main">{totalDistance.toFixed(1)} km</p>
-                            <p className="text-xs text-text-sub">{trips.length} trajets</p>
+                            <p className="text-xs text-text-sub">{trips.length} {t('reports.trips.count')}</p>
                         </div>
                     </div>
                 </div>
@@ -143,9 +144,9 @@ export default function ReportsPage() {
                             <AlertTriangle size={24} className="text-red-600" />
                         </div>
                         <div>
-                            <p className="text-sm text-text-muted">Incidents</p>
+                            <p className="text-sm text-text-muted">{t('reports.incidents.count')}</p>
                             <p className="text-xl font-bold text-text-main">{incidents.length}</p>
-                            <p className="text-xs text-text-sub">{activeVehicles} véhicules actifs</p>
+                            <p className="text-xs text-text-sub">{activeVehicles} {t('reports.vehicles.active.count')}</p>
                         </div>
                     </div>
                 </div>
@@ -158,14 +159,14 @@ export default function ReportsPage() {
                     <div className="px-5 py-4 border-b border-glass flex items-center justify-between">
                         <div className="flex items-center gap-2">
                             <Fuel size={20} className="text-green-600" />
-                            <h3 className="font-semibold text-text-main">Recharges de Carburant</h3>
+                            <h3 className="font-semibold text-text-main">{t('reports.fuel.recent')}</h3>
                         </div>
-                        <span className="text-sm text-text-muted">{fuelRecharges.length} recharges</span>
+                        <span className="text-sm text-text-muted">{fuelRecharges.length} {t('reports.recharges.count')}</span>
                     </div>
                     <div className="divide-y divide-glass max-h-80 overflow-y-auto">
                         {fuelRecharges.length === 0 ? (
                             <div className="p-8 text-center text-text-muted">
-                                Aucune recharge enregistrée
+                                {t('reports.fuel.noData')}
                             </div>
                         ) : (
                             fuelRecharges.slice(0, 10).map((recharge, index) => (
@@ -176,7 +177,7 @@ export default function ReportsPage() {
                                                 {recharge.rechargeQuantity} L
                                             </p>
                                             <p className="text-sm text-text-muted">
-                                                {recharge.stationName || 'Station inconnue'}
+                                                {recharge.stationName || t('reports.fuel.unknownStation')}
                                             </p>
                                         </div>
                                         <div className="text-right">
@@ -199,14 +200,14 @@ export default function ReportsPage() {
                     <div className="px-5 py-4 border-b border-glass flex items-center justify-between">
                         <div className="flex items-center gap-2">
                             <Wrench size={20} className="text-orange-600" />
-                            <h3 className="font-semibold text-text-main">Maintenances</h3>
+                            <h3 className="font-semibold text-text-main">{t('reports.maintenances.title')}</h3>
                         </div>
-                        <span className="text-sm text-text-muted">{maintenances.length} maintenances</span>
+                        <span className="text-sm text-text-muted">{maintenances.length} {t('reports.maintenances.count')}</span>
                     </div>
                     <div className="divide-y divide-glass max-h-80 overflow-y-auto">
                         {maintenances.length === 0 ? (
                             <div className="p-8 text-center text-text-muted">
-                                Aucune maintenance enregistrée
+                                {t('reports.maintenance.noData')}
                             </div>
                         ) : (
                             maintenances.slice(0, 10).map((maintenance) => (
@@ -217,7 +218,7 @@ export default function ReportsPage() {
                                                 {maintenance.maintenanceSubject}
                                             </p>
                                             <p className="text-sm text-text-muted">
-                                                {maintenance.maintenanceReport || 'Pas de rapport'}
+                                                {maintenance.maintenanceReport || t('reports.maintenance.noReport')}
                                             </p>
                                         </div>
                                         <div className="text-right">
@@ -241,23 +242,23 @@ export default function ReportsPage() {
                 <div className="px-5 py-4 border-b border-glass flex items-center justify-between">
                     <div className="flex items-center gap-2">
                         <AlertTriangle size={20} className="text-red-600" />
-                        <h3 className="font-semibold text-text-main">Incidents Récents</h3>
+                        <h3 className="font-semibold text-text-main">{t('reports.incidents.recent')}</h3>
                     </div>
-                    <span className="text-sm text-text-muted">{incidents.length} incidents</span>
+                    <span className="text-sm text-text-muted">{incidents.length} {t('reports.incidents.countLabel')}</span>
                 </div>
                 <div className="divide-y divide-glass max-h-64 overflow-y-auto">
                     {incidents.length === 0 ? (
                         <div className="p-8 text-center text-text-muted">
-                            Aucun incident enregistré
+                            {t('reports.incidents.noData')}
                         </div>
                     ) : (
                         incidents.slice(0, 5).map((incident) => (
                             <div key={incident.incidentId} className="px-5 py-3 hover:bg-glass/30 transition-colors">
                                 <div className="flex items-center justify-between">
                                     <div className="flex items-center gap-3">
-                                        <span className={`px-2 py-1 rounded-full text-xs font-medium ${incident.incidentSeverity === 'CRITICAL' ? 'bg-red-100 text-red-700 dark:bg-red-900/20' :
-                                            incident.incidentSeverity === 'HIGH' ? 'bg-orange-100 text-orange-700 dark:bg-orange-900/20' :
-                                                incident.incidentSeverity === 'MEDIUM' ? 'bg-yellow-100 text-yellow-700 dark:bg-yellow-900/20' :
+                                        <span className={`px-2 py-1 rounded-full text-xs font-medium ${incident.incidentSeverity === IncidentSeverity.CRITICAL ? 'bg-red-100 text-red-700 dark:bg-red-900/20' :
+                                            incident.incidentSeverity === IncidentSeverity.MAJOR ? 'bg-orange-100 text-orange-700 dark:bg-orange-900/20' :
+                                                incident.incidentSeverity === IncidentSeverity.MODERATE ? 'bg-yellow-100 text-yellow-700 dark:bg-yellow-900/20' :
                                                     'bg-green-100 text-green-700 dark:bg-green-900/20'
                                             }`}>
                                             {incident.incidentSeverity}
@@ -268,8 +269,8 @@ export default function ReportsPage() {
                                         </div>
                                     </div>
                                     <div className="text-right">
-                                        <span className={`px-2 py-1 rounded text-xs font-medium ${incident.incidentStatus === 'RESOLVED' ? 'bg-green-100 text-green-700' :
-                                            incident.incidentStatus === 'IN_PROGRESS' ? 'bg-blue-100 text-blue-700' :
+                                        <span className={`px-2 py-1 rounded text-xs font-medium ${incident.incidentStatus === IncidentStatus.RESOLVED ? 'bg-green-100 text-green-700' :
+                                            incident.incidentStatus === IncidentStatus.UNDER_INVESTIGATION ? 'bg-blue-100 text-blue-700' :
                                                 'bg-gray-100 text-gray-700'
                                             }`}>
                                             {incident.incidentStatus}
@@ -290,27 +291,27 @@ export default function ReportsPage() {
                 <div className="px-5 py-4 border-b border-glass flex items-center justify-between">
                     <div className="flex items-center gap-2">
                         <Car size={20} className="text-secondary" />
-                        <h3 className="font-semibold text-text-main">Aperçu de la Flotte</h3>
+                        <h3 className="font-semibold text-text-main">{t('reports.fleet.overview')}</h3>
                     </div>
-                    <span className="text-sm text-text-muted">{vehicles.length} véhicules</span>
+                    <span className="text-sm text-text-muted">{vehicles.length} {t('reports.vehicles.countLabel')}</span>
                 </div>
                 <div className="p-5">
                     <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                         <div className="text-center p-4 rounded-lg bg-glass/30">
-                            <p className="text-3xl font-bold text-green-600">{vehicles.filter(v => v.state === 'ACTIVE').length}</p>
-                            <p className="text-sm text-text-muted">Actifs</p>
+                            <p className="text-3xl font-bold text-green-600">{vehicles.filter(v => v.state === VehicleState.IN_SERVICE).length}</p>
+                            <p className="text-sm text-text-muted">{t('reports.status.active')}</p>
                         </div>
                         <div className="text-center p-4 rounded-lg bg-glass/30">
-                            <p className="text-3xl font-bold text-yellow-600">{vehicles.filter(v => v.state === 'INACTIVE').length}</p>
-                            <p className="text-sm text-text-muted">Inactifs</p>
+                            <p className="text-3xl font-bold text-yellow-600">{vehicles.filter(v => v.state === VehicleState.OUT_OF_SERVICE).length}</p>
+                            <p className="text-sm text-text-muted">{t('reports.status.inactive')}</p>
                         </div>
                         <div className="text-center p-4 rounded-lg bg-glass/30">
-                            <p className="text-3xl font-bold text-orange-600">{vehicles.filter(v => v.state === 'MAINTENANCE').length}</p>
-                            <p className="text-sm text-text-muted">En maintenance</p>
+                            <p className="text-3xl font-bold text-orange-600">{vehicles.filter(v => v.state === VehicleState.UNDER_MAINTENANCE).length}</p>
+                            <p className="text-sm text-text-muted">{t('reports.status.maintenance')}</p>
                         </div>
                         <div className="text-center p-4 rounded-lg bg-glass/30">
-                            <p className="text-3xl font-bold text-blue-600">{vehicles.filter(v => v.state === 'MOVING' || v.state === 'PARKED').length}</p>
-                            <p className="text-sm text-text-muted">En service</p>
+                            <p className="text-3xl font-bold text-blue-600">{vehicles.filter(v => v.state === VehicleState.PARKED).length}</p>
+                            <p className="text-sm text-text-muted">{t('reports.status.service')}</p>
                         </div>
                     </div>
                 </div>

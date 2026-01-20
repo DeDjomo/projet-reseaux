@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { tripApi, vehicleApi, driverApi } from '@/services';
 import { Trip, Vehicle, Driver } from '@/types';
+import { TripStatus } from '@/types/enums';
 import { History, MapPin, Calendar, Clock, ArrowRight, Car, User, Route, Filter, Search } from 'lucide-react';
 
 export default function HistoryPage() {
@@ -14,7 +15,7 @@ export default function HistoryPage() {
     const [vehicles, setVehicles] = useState<Map<number, Vehicle>>(new Map());
     const [drivers, setDrivers] = useState<Map<number, Driver>>(new Map());
     const [loading, setLoading] = useState(true);
-    const [statusFilter, setStatusFilter] = useState<'all' | 'ONGOING' | 'COMPLETED' | 'CANCELLED'>('all');
+    const [statusFilter, setStatusFilter] = useState<'all' | TripStatus>('all');
     const [searchTerm, setSearchTerm] = useState('');
 
     useEffect(() => {
@@ -38,7 +39,7 @@ export default function HistoryPage() {
             driversData.forEach((d: Driver) => driverMap.set(d.driverId, d));
 
             setTrips(tripsData.sort((a: Trip, b: Trip) =>
-                new Date(b.tripStartTime || b.createdAt).getTime() - new Date(a.tripStartTime || a.createdAt).getTime()
+                new Date(b.departureDateTime).getTime() - new Date(a.departureDateTime).getTime()
             ));
             setVehicles(vehicleMap);
             setDrivers(driverMap);
@@ -66,7 +67,7 @@ export default function HistoryPage() {
     };
 
     const formatDuration = (startTime: string, endTime?: string) => {
-        if (!endTime) return 'En cours';
+        if (!endTime) return t('history.stats.ongoing');
         const start = new Date(startTime).getTime();
         const end = new Date(endTime).getTime();
         const diffMs = end - start;
@@ -78,31 +79,30 @@ export default function HistoryPage() {
 
     const getStatusColor = (status?: string) => {
         switch (status) {
-            case 'ONGOING': return 'bg-blue-100 text-blue-700 dark:bg-blue-900/20';
-            case 'COMPLETED': return 'bg-green-100 text-green-700 dark:bg-green-900/20';
-            case 'CANCELLED': return 'bg-red-100 text-red-700 dark:bg-red-900/20';
+            case TripStatus.IN_PROGRESS: return 'bg-blue-100 text-blue-700 dark:bg-blue-900/20';
+            case TripStatus.COMPLETED: return 'bg-green-100 text-green-700 dark:bg-green-900/20';
+            case TripStatus.CANCELLED: return 'bg-red-100 text-red-700 dark:bg-red-900/20';
             default: return 'bg-gray-100 text-gray-700 dark:bg-gray-900/20';
         }
     };
 
     const getStatusLabel = (status?: string) => {
         switch (status) {
-            case 'ONGOING': return 'En cours';
-            case 'COMPLETED': return 'Terminé';
-            case 'CANCELLED': return 'Annulé';
-            default: return status || 'Inconnu';
+            case TripStatus.IN_PROGRESS: return t('history.stats.ongoing');
+            case TripStatus.COMPLETED: return t('history.filter.completed');
+            case TripStatus.CANCELLED: return t('history.filter.cancelled');
+            default: return status || t('history.filter.unknown');
         }
     };
 
     // Filter trips
     const filteredTrips = trips.filter(trip => {
-        const matchesStatus = statusFilter === 'all' || trip.tripStatus === statusFilter;
+        const matchesStatus = statusFilter === 'all' || trip.status === statusFilter;
         const vehicle = vehicles.get(trip.vehicleId || 0);
         const driver = drivers.get(trip.driverId || 0);
         const searchLower = searchTerm.toLowerCase();
         const matchesSearch = searchTerm === '' ||
-            trip.tripStartLocation?.toLowerCase().includes(searchLower) ||
-            trip.tripEndLocation?.toLowerCase().includes(searchLower) ||
+            trip.tripReference?.toLowerCase().includes(searchLower) ||
             vehicle?.vehicleRegistrationNumber?.toLowerCase().includes(searchLower) ||
             driver?.driverFirstName?.toLowerCase().includes(searchLower) ||
             driver?.driverLastName?.toLowerCase().includes(searchLower);
@@ -110,9 +110,9 @@ export default function HistoryPage() {
     });
 
     // Statistics
-    const totalDistance = trips.reduce((sum, t) => sum + (t.tripDistance || 0), 0);
-    const completedTrips = trips.filter(t => t.tripStatus === 'COMPLETED').length;
-    const ongoingTrips = trips.filter(t => t.tripStatus === 'ONGOING').length;
+    const totalDistance = trips.reduce((sum, t) => sum + (t.actualDistance || 0), 0);
+    const completedTrips = trips.filter(t => t.status === TripStatus.COMPLETED).length;
+    const ongoingTrips = trips.filter(t => t.status === TripStatus.IN_PROGRESS).length;
 
     if (loading) {
         return (
@@ -130,7 +130,7 @@ export default function HistoryPage() {
                     {t('history.title')}
                 </h1>
                 <p className="mt-1 text-sm text-text-muted">
-                    Historique des trajets de votre organisation
+                    {t('history.subtitle')}
                 </p>
             </div>
 
@@ -142,7 +142,7 @@ export default function HistoryPage() {
                     </div>
                     <div>
                         <p className="text-2xl font-bold text-text-main">{trips.length}</p>
-                        <p className="text-sm text-text-muted">Total trajets</p>
+                        <p className="text-sm text-text-muted">{t('history.stats.totalTrips')}</p>
                     </div>
                 </div>
                 <div className="bg-surface rounded-xl border border-glass p-4 flex items-center gap-3">
@@ -151,7 +151,7 @@ export default function HistoryPage() {
                     </div>
                     <div>
                         <p className="text-2xl font-bold text-text-main">{totalDistance.toFixed(1)} km</p>
-                        <p className="text-sm text-text-muted">Distance totale</p>
+                        <p className="text-sm text-text-muted">{t('history.stats.totalDistance')}</p>
                     </div>
                 </div>
                 <div className="bg-surface rounded-xl border border-glass p-4 flex items-center gap-3">
@@ -160,7 +160,7 @@ export default function HistoryPage() {
                     </div>
                     <div>
                         <p className="text-2xl font-bold text-text-main">{completedTrips}</p>
-                        <p className="text-sm text-text-muted">Trajets terminés</p>
+                        <p className="text-sm text-text-muted">{t('history.stats.completedTrips')}</p>
                     </div>
                 </div>
                 <div className="bg-surface rounded-xl border border-glass p-4 flex items-center gap-3">
@@ -169,7 +169,7 @@ export default function HistoryPage() {
                     </div>
                     <div>
                         <p className="text-2xl font-bold text-text-main">{ongoingTrips}</p>
-                        <p className="text-sm text-text-muted">En cours</p>
+                        <p className="text-sm text-text-muted">{t('history.stats.ongoing')}</p>
                     </div>
                 </div>
             </div>
@@ -178,19 +178,19 @@ export default function HistoryPage() {
             <div className="bg-surface rounded-lg border border-glass p-4 flex flex-wrap items-center gap-4">
                 <div className="flex items-center gap-2">
                     <Filter size={18} className="text-text-muted" />
-                    <span className="text-sm text-text-sub">Filtrer:</span>
+                    <span className="text-sm text-text-sub">{t('history.filter.label')}</span>
                 </div>
                 <div className="flex gap-2">
-                    {(['all', 'ONGOING', 'COMPLETED', 'CANCELLED'] as const).map((status) => (
+                    {(['all', TripStatus.IN_PROGRESS, TripStatus.COMPLETED, TripStatus.CANCELLED] as const).map((status) => (
                         <button
                             key={status}
                             onClick={() => setStatusFilter(status)}
                             className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ${statusFilter === status
-                                    ? 'bg-secondary text-white'
-                                    : 'bg-glass text-text-sub hover:bg-glass/70'
+                                ? 'bg-secondary text-white'
+                                : 'bg-glass text-text-sub hover:bg-glass/70'
                                 }`}
                         >
-                            {status === 'all' ? 'Tous' : getStatusLabel(status)}
+                            {status === 'all' ? t('history.filter.all') : getStatusLabel(status)}
                         </button>
                     ))}
                 </div>
@@ -199,7 +199,7 @@ export default function HistoryPage() {
                         <Search size={18} className="absolute left-3 top-1/2 -translate-y-1/2 text-text-muted" />
                         <input
                             type="text"
-                            placeholder="Rechercher par lieu, véhicule, chauffeur..."
+                            placeholder={t('history.searchPlaceholder')}
                             value={searchTerm}
                             onChange={(e) => setSearchTerm(e.target.value)}
                             className="w-full pl-10 pr-4 py-2 border border-glass rounded-lg bg-surface text-text-main focus:outline-none focus:ring-2 focus:ring-secondary"
@@ -212,8 +212,8 @@ export default function HistoryPage() {
             {filteredTrips.length === 0 ? (
                 <div className="text-center py-12 bg-surface rounded-lg border border-glass">
                     <History size={48} className="mx-auto text-text-muted mb-4" />
-                    <h3 className="text-lg font-medium text-text-main">Aucun trajet trouvé</h3>
-                    <p className="text-text-muted mt-1">Les trajets apparaîtront ici une fois enregistrés</p>
+                    <h3 className="text-lg font-medium text-text-main">{t('history.noTrips')}</h3>
+                    <p className="text-text-muted mt-1">{t('history.noTripsDesc')}</p>
                 </div>
             ) : (
                 <div className="space-y-3">
@@ -234,29 +234,17 @@ export default function HistoryPage() {
                                             <Route size={20} className="text-blue-600" />
                                         </div>
                                         <div>
-                                            <p className="font-semibold text-text-main">Trajet #{trip.tripId}</p>
-                                            <span className={`inline-block px-2 py-0.5 rounded-full text-xs font-medium ${getStatusColor(trip.tripStatus)}`}>
-                                                {getStatusLabel(trip.tripStatus)}
+                                            <p className="font-semibold text-text-main">{trip.tripReference || `${t('history.tripPrefix')}#${trip.tripId}`}</p>
+                                            <span className={`inline-block px-2 py-0.5 rounded-full text-xs font-medium ${getStatusColor(trip.status)}`}>
+                                                {getStatusLabel(trip.status)}
                                             </span>
                                         </div>
                                     </div>
 
-                                    {/* Route */}
+                                    {/* Reference / Details - Replacing Location which is missing in DTO */}
                                     <div className="flex-1">
                                         <div className="flex items-center gap-3">
-                                            <div className="flex-1">
-                                                <div className="flex items-center gap-2 text-text-main">
-                                                    <MapPin size={16} className="text-green-500 flex-shrink-0" />
-                                                    <span className="font-medium truncate">{trip.tripStartLocation || 'Départ inconnu'}</span>
-                                                </div>
-                                            </div>
-                                            <ArrowRight size={20} className="text-text-muted flex-shrink-0" />
-                                            <div className="flex-1">
-                                                <div className="flex items-center gap-2 text-text-main">
-                                                    <MapPin size={16} className="text-red-500 flex-shrink-0" />
-                                                    <span className="font-medium truncate">{trip.tripEndLocation || 'Arrivée inconnue'}</span>
-                                                </div>
-                                            </div>
+                                            <p className="text-sm text-text-muted italic">{trip.tripReference}</p>
                                         </div>
                                     </div>
 
@@ -280,11 +268,11 @@ export default function HistoryPage() {
                                     <div className="flex items-center gap-4 lg:w-48 text-sm">
                                         <div className="flex items-center gap-1 text-text-muted">
                                             <Calendar size={14} />
-                                            <span>{formatDate(trip.tripStartTime || trip.createdAt)}</span>
+                                            <span>{formatDate(trip.departureDateTime)}</span>
                                         </div>
-                                        {trip.tripDistance > 0 && (
+                                        {trip.actualDistance > 0 && (
                                             <div className="font-semibold text-secondary">
-                                                {trip.tripDistance.toFixed(1)} km
+                                                {trip.actualDistance.toFixed(1)} km
                                             </div>
                                         )}
                                     </div>
@@ -294,16 +282,16 @@ export default function HistoryPage() {
                                 <div className="mt-3 pt-3 border-t border-glass flex flex-wrap items-center gap-4 text-sm text-text-muted">
                                     <div className="flex items-center gap-1">
                                         <Clock size={14} />
-                                        <span>Départ: {formatTime(trip.tripStartTime)}</span>
+                                        <span>{t('history.details.departure')} {formatTime(trip.departureDateTime)}</span>
                                     </div>
-                                    {trip.tripEndTime && (
+                                    {trip.arrivalDateTime && (
                                         <div className="flex items-center gap-1">
                                             <Clock size={14} />
-                                            <span>Arrivée: {formatTime(trip.tripEndTime)}</span>
+                                            <span>{t('history.details.arrival')} {formatTime(trip.arrivalDateTime)}</span>
                                         </div>
                                     )}
                                     <div className="flex items-center gap-1">
-                                        <span>Durée: {formatDuration(trip.tripStartTime, trip.tripEndTime)}</span>
+                                        <span>{t('history.details.duration')} {formatDuration(trip.departureDateTime, trip.arrivalDateTime || undefined)}</span>
                                     </div>
                                 </div>
                             </div>

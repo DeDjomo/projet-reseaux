@@ -1,4 +1,4 @@
-import { NotificationType, IncidentType, IncidentSeverity, IncidentStatus, GeofenceType } from './enums';
+import { NotificationType, IncidentType, IncidentSeverity, IncidentStatus } from './enums';
 
 // Notification DTOs
 

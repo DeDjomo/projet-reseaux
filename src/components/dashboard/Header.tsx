@@ -1,11 +1,16 @@
 "use client";
 
-import React, { useState, useEffect, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
+import { Bell, Search, Globe, Sun, Moon, LogOut, Settings, User, Check, AlertTriangle, AlertCircle, Info } from 'lucide-react';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useTheme } from '@/contexts/ThemeContext';
-import { Moon, Sun, Globe, Bell, Search, Check, AlertCircle, Info, AlertTriangle } from 'lucide-react';
+import { useRouter } from 'next/navigation';
+import { Notification, Vehicle, Driver } from '@/types';
 import { notificationApi } from '@/services/notificationApi';
-import { Notification } from '@/types';
+import { vehicleApi } from '@/services/vehicleApi';
+import { driverApi } from '@/services/driverApi';
+import Link from 'next/link';
+import styles from './Header.module.css';
 
 export default function Header() {
     const { language, toggleLanguage, t } = useLanguage();
@@ -13,8 +18,18 @@ export default function Header() {
     const [showNotifications, setShowNotifications] = useState(false);
     const [notifications, setNotifications] = useState<Notification[]>([]);
     const [unreadCount, setUnreadCount] = useState(0);
+
     const [loading, setLoading] = useState(false);
+    const [showAllNotifications, setShowAllNotifications] = useState(false);
     const dropdownRef = useRef<HTMLDivElement>(null);
+
+    // Search states
+    const [searchQuery, setSearchQuery] = useState('');
+    const [searchResults, setSearchResults] = useState<{ vehicles: Vehicle[], drivers: Driver[] } | null>(null);
+    const [isSearching, setIsSearching] = useState(false);
+    const [showSearchResults, setShowSearchResults] = useState(false);
+    const searchRef = useRef<HTMLDivElement>(null);
+    const router = useRouter();
 
     // Mock Organization Logo
     const orgLogoUrl = null;
@@ -50,21 +65,34 @@ export default function Header() {
     }, []);
 
     // Fetch notifications when dropdown opens
-    const handleBellClick = async () => {
-        setShowNotifications(!showNotifications);
-        if (!showNotifications) {
-            setLoading(true);
-            const adminId = getAdminId();
-            if (adminId) {
-                try {
-                    const data = await notificationApi.getByAdminId(adminId);
-                    setNotifications(data.slice(0, 10)); // Show last 10
-                } catch (error) {
-                    console.error('Failed to fetch notifications:', error);
-                }
+    const fetchNotifications = async (fetchAll: boolean = false) => {
+        setLoading(true);
+        const adminId = getAdminId();
+        if (adminId) {
+            try {
+                const data = fetchAll
+                    ? await notificationApi.getByAdminId(adminId)
+                    : await notificationApi.getUnreadByAdminId(adminId);
+                setNotifications(data.slice(0, 15)); // Show last 15
+            } catch (error) {
+                console.error('Failed to fetch notifications:', error);
             }
-            setLoading(false);
         }
+        setLoading(false);
+    };
+
+    const handleBellClick = async () => {
+        const newShow = !showNotifications;
+        setShowNotifications(newShow);
+        if (newShow) {
+            await fetchNotifications(showAllNotifications);
+        }
+    };
+
+    const handleToggleShowAll = async () => {
+        const newShowAll = !showAllNotifications;
+        setShowAllNotifications(newShowAll);
+        await fetchNotifications(newShowAll);
     };
 
     // Mark all as read
@@ -81,6 +109,24 @@ export default function Header() {
         }
     };
 
+    // Handle notification click - mark as read
+    const handleNotificationClick = async (notif: Notification) => {
+        if (notif.notificationState === 'UNREAD' || notif.notificationState === 'PENDING') {
+            try {
+                await notificationApi.markAsRead(notif.notificationId);
+                // Update local state
+                setNotifications(prev => prev.map(n =>
+                    n.notificationId === notif.notificationId
+                        ? { ...n, notificationState: 'READ' }
+                        : n
+                ));
+                setUnreadCount(prev => Math.max(0, prev - 1));
+            } catch (error) {
+                console.error('Failed to mark notification as read:', error);
+            }
+        }
+        // TODO: Navigate to related entity (vehicle, driver, etc.) based on notification type
+    };
     // Close dropdown when clicking outside
     useEffect(() => {
         const handleClickOutside = (e: MouseEvent) => {
@@ -88,9 +134,59 @@ export default function Header() {
                 setShowNotifications(false);
             }
         };
-        document.addEventListener('mousedown', handleClickOutside);
         return () => document.removeEventListener('mousedown', handleClickOutside);
     }, []);
+
+    // Search Logic
+    useEffect(() => {
+        const handleClickOutsideSearch = (e: MouseEvent) => {
+            if (searchRef.current && !searchRef.current.contains(e.target as Node)) {
+                setShowSearchResults(false);
+            }
+        };
+        document.addEventListener('mousedown', handleClickOutsideSearch);
+        return () => document.removeEventListener('mousedown', handleClickOutsideSearch);
+    }, []);
+
+    const handleSearch = async (query: string) => {
+        setSearchQuery(query);
+        if (query.length < 2) {
+            setSearchResults(null);
+            setShowSearchResults(false);
+            return;
+        }
+
+        setIsSearching(true);
+        setShowSearchResults(true);
+
+        const adminId = getAdminId();
+        if (adminId) {
+            try {
+                // Fetch basic data - optimize this later if needed
+                const [vehicles, drivers] = await Promise.all([
+                    vehicleApi.getByAdminId(adminId),
+                    driverApi.getByAdminId(adminId)
+                ]);
+
+                const filteredVehicles = vehicles.filter(v =>
+                    v.vehicleRegistrationNumber?.toLowerCase().includes(query.toLowerCase()) ||
+                    v.vehicleMake?.toLowerCase().includes(query.toLowerCase()) ||
+                    v.vehicleModel?.toLowerCase().includes(query.toLowerCase())
+                ).slice(0, 5);
+
+                const filteredDrivers = drivers.filter(d =>
+                    d.driverFirstName?.toLowerCase().includes(query.toLowerCase()) ||
+                    d.driverLastName?.toLowerCase().includes(query.toLowerCase()) ||
+                    d.driverLicenseNumber?.toLowerCase().includes(query.toLowerCase())
+                ).slice(0, 5);
+
+                setSearchResults({ vehicles: filteredVehicles, drivers: filteredDrivers });
+            } catch (error) {
+                console.error("Search failed", error);
+            }
+        }
+        setIsSearching(false);
+    };
 
     const getNotificationIcon = (type: string) => {
         switch (type) {
@@ -100,8 +196,21 @@ export default function Header() {
         }
     };
 
-    const formatTime = (dateStr: string) => {
-        const date = new Date(dateStr);
+    const formatTime = (dateVal: string | number[] | undefined) => {
+        if (!dateVal) return 'Date inconnue';
+
+        let date: Date;
+
+        // Handle array format from Java LocalDateTime [year, month, day, hour, minute, second, nano]
+        if (Array.isArray(dateVal)) {
+            const [year, month, day, hour = 0, minute = 0, second = 0] = dateVal;
+            date = new Date(year, month - 1, day, hour, minute, second);
+        } else {
+            date = new Date(dateVal);
+        }
+
+        if (isNaN(date.getTime())) return 'Date invalide';
+
         const now = new Date();
         const diffMs = now.getTime() - date.getTime();
         const diffMins = Math.floor(diffMs / 60000);
@@ -119,15 +228,73 @@ export default function Header() {
 
             {/* Left: Search Bar */}
             <div className="flex items-center flex-1">
-                <div className="relative w-full max-w-md hidden md:block">
+                <div className="relative w-full max-w-md hidden md:block" ref={searchRef}>
                     <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                         <Search size={18} className="text-text-muted" />
                     </div>
                     <input
                         type="text"
-                        placeholder="Rechercher..."
-                        className="block w-full pl-10 pr-3 py-2 border border-glass rounded-full leading-5 bg-glass-light text-text-main placeholder-text-muted focus:outline-none focus:ring-2 focus:ring-secondary focus:border-secondary sm:text-sm transition-all"
+                        placeholder="Rechercher véhicule (plaque), conducteur..."
+                        value={searchQuery}
+                        onChange={(e) => handleSearch(e.target.value)}
+                        onFocus={() => { if (searchQuery.length >= 2) setShowSearchResults(true); }}
+                        className="block w-full pl-10 pr-3 py-2 border border-glass rounded-full leading-5 bg-surface text-text-main placeholder-text-muted focus:outline-none focus:ring-2 focus:ring-secondary focus:border-secondary sm:text-sm transition-all"
                     />
+
+                    {/* Search Results Dropdown */}
+                    {showSearchResults && searchResults && (
+                        <div className="absolute top-full mt-2 w-full bg-surface-card border border-glass rounded-lg shadow-lg overflow-hidden z-50 text-text-main">
+                            {isSearching ? (
+                                <div className="p-4 text-center text-text-muted">Recherche en cours...</div>
+                            ) : (
+                                <>
+                                    {searchResults.vehicles.length === 0 && searchResults.drivers.length === 0 ? (
+                                        <div className="p-4 text-center text-text-muted">Aucun résultat trouvé</div>
+                                    ) : (
+                                        <>
+                                            {searchResults.vehicles.length > 0 && (
+                                                <div className="border-b border-glass last:border-0">
+                                                    <div className="px-4 py-2 text-xs font-semibold text-text-muted uppercase bg-surface-glass">Véhicules</div>
+                                                    {searchResults.vehicles.map(vehicle => (
+                                                        <div
+                                                            key={vehicle.vehicleId}
+                                                            onClick={() => {
+                                                                router.push(`/dashboard/manager/vehicles/${vehicle.vehicleId}`);
+                                                                setShowSearchResults(false);
+                                                            }}
+                                                            className="px-4 py-2 hover:bg-surface-glass-hover cursor-pointer flex justify-between items-center"
+                                                        >
+                                                            <span className="font-medium text-text-main">{vehicle.vehicleRegistrationNumber}</span>
+                                                            <span className="text-xs text-text-muted">{vehicle.vehicleMake} {vehicle.vehicleModel}</span>
+                                                        </div>
+                                                    ))}
+                                                </div>
+                                            )}
+
+                                            {searchResults.drivers.length > 0 && (
+                                                <div className="border-b border-glass last:border-0">
+                                                    <div className="px-4 py-2 text-xs font-semibold text-text-muted uppercase bg-surface-glass">Conducteurs</div>
+                                                    {searchResults.drivers.map(driver => (
+                                                        <div
+                                                            key={driver.driverId}
+                                                            onClick={() => {
+                                                                router.push(`/dashboard/manager/drivers/${driver.driverId}`);
+                                                                setShowSearchResults(false);
+                                                            }}
+                                                            className="px-4 py-2 hover:bg-surface-glass-hover cursor-pointer flex justify-between items-center"
+                                                        >
+                                                            <span className="font-medium text-text-main">{driver.driverFirstName} {driver.driverLastName}</span>
+                                                            <span className="text-xs text-text-muted">{driver.driverLicenseNumber}</span>
+                                                        </div>
+                                                    ))}
+                                                </div>
+                                            )}
+                                        </>
+                                    )}
+                                </>
+                            )}
+                        </div>
+                    )}
                 </div>
             </div>
 
@@ -169,51 +336,71 @@ export default function Header() {
 
                     {/* Notifications Dropdown */}
                     {showNotifications && (
-                        <div className="absolute right-0 mt-2 w-80 bg-surface border border-glass rounded-lg shadow-xl overflow-hidden z-50">
-                            <div className="p-3 border-b border-glass flex items-center justify-between bg-glass/30">
-                                <h3 className="font-semibold text-text-main">Notifications</h3>
-                                {unreadCount > 0 && (
-                                    <button
-                                        onClick={handleMarkAllRead}
-                                        className="text-xs text-secondary hover:underline flex items-center gap-1"
-                                    >
-                                        <Check size={12} />
-                                        Tout marquer comme lu
-                                    </button>
-                                )}
+                        <div className={styles.notificationDropdown}>
+                            <div className={styles.notificationHeader}>
+                                <h3 className={styles.notificationTitle}>
+                                    {showAllNotifications ? 'Toutes les notifications' : 'Non lues'}
+                                    {!showAllNotifications && unreadCount > 0 && ` (${unreadCount})`}
+                                </h3>
+                                <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
+                                    <div className={styles.filterTabs}>
+                                        <button
+                                            onClick={() => { if (showAllNotifications) handleToggleShowAll(); }}
+                                            className={`${styles.filterTab} ${!showAllNotifications ? styles.active : ''}`}
+                                        >
+                                            Non lues
+                                        </button>
+                                        <button
+                                            onClick={() => { if (!showAllNotifications) handleToggleShowAll(); }}
+                                            className={`${styles.filterTab} ${showAllNotifications ? styles.active : ''}`}
+                                        >
+                                            Toutes
+                                        </button>
+                                    </div>
+
+                                    {unreadCount > 0 && (
+                                        <button
+                                            onClick={handleMarkAllRead}
+                                            className={styles.markAllButton}
+                                            title="Tout marquer comme lu"
+                                        >
+                                            <Check size={14} />
+                                        </button>
+                                    )}
+                                </div>
                             </div>
 
-                            <div className="max-h-80 overflow-y-auto">
+                            <div className={styles.notificationList}>
                                 {loading ? (
-                                    <div className="p-4 text-center text-text-muted">
+                                    <div className={styles.loadingText}>
                                         Chargement...
                                     </div>
                                 ) : notifications.length === 0 ? (
-                                    <div className="p-6 text-center text-text-muted">
-                                        <Bell size={32} className="mx-auto mb-2 opacity-50" />
+                                    <div className={styles.emptyText}>
+                                        <Bell size={32} className={styles.emptyIcon} />
                                         <p>Aucune notification</p>
                                     </div>
                                 ) : (
                                     notifications.map((notif) => (
                                         <div
                                             key={notif.notificationId}
-                                            className={`p-3 border-b border-glass last:border-0 hover:bg-glass/30 transition cursor-pointer ${notif.notificationState === 'UNREAD' ? 'bg-secondary/5' : ''
-                                                }`}
+                                            onClick={() => handleNotificationClick(notif)}
+                                            className={`${styles.notificationItem} ${(notif.notificationState === 'UNREAD' || notif.notificationState === 'PENDING') ? styles.unread : ''}`}
                                         >
-                                            <div className="flex items-start gap-3">
-                                                <div className="mt-1">
+                                            <div className={styles.notificationContent}>
+                                                <div className={styles.notificationIcon}>
                                                     {getNotificationIcon(notif.notificationType)}
                                                 </div>
-                                                <div className="flex-1 min-w-0">
-                                                    <p className={`text-sm ${notif.notificationState === 'UNREAD' ? 'font-medium text-text-main' : 'text-text-sub'}`}>
+                                                <div className={styles.notificationBody}>
+                                                    <p className={styles.notificationSubject}>
                                                         {notif.notificationSubject}
                                                     </p>
-                                                    <p className="text-xs text-text-muted mt-1">
-                                                        {formatTime(notif.notificationDate)}
+                                                    <p className={styles.notificationTime}>
+                                                        {formatTime(notif.createdAt)}
                                                     </p>
                                                 </div>
-                                                {notif.notificationState === 'UNREAD' && (
-                                                    <div className="w-2 h-2 bg-secondary rounded-full mt-2"></div>
+                                                {(notif.notificationState === 'UNREAD' || notif.notificationState === 'PENDING') && (
+                                                    <div className={styles.unreadDot}></div>
                                                 )}
                                             </div>
                                         </div>
@@ -222,8 +409,8 @@ export default function Header() {
                             </div>
 
                             {notifications.length > 0 && (
-                                <div className="p-2 border-t border-glass text-center">
-                                    <button className="text-sm text-secondary hover:underline">
+                                <div className={styles.notificationFooter}>
+                                    <button className={styles.viewAllButton}>
                                         Voir toutes les notifications
                                     </button>
                                 </div>

@@ -94,7 +94,7 @@ export const driverApi = {
 
             if (organizationId) {
                 // Then fetch drivers by organization
-                const response = await apiClient.get<Driver[]>(`/drivers/organization/${organizationId}`);
+                const response = await apiClient.get<Driver[]>(`/organizations/${organizationId}/drivers`);
                 return response.data;
             }
 

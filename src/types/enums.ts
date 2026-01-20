@@ -52,17 +52,18 @@ export enum GeofenceType {
 }
 
 export enum IncidentSeverity {
-    LOW = 'LOW',
-    MEDIUM = 'MEDIUM',
-    HIGH = 'HIGH',
+    MINOR = 'MINOR',
+    MODERATE = 'MODERATE',
+    MAJOR = 'MAJOR',
     CRITICAL = 'CRITICAL',
 }
 
 export enum IncidentStatus {
     REPORTED = 'REPORTED',
-    INVESTIGATING = 'INVESTIGATING',
+    UNDER_INVESTIGATION = 'UNDER_INVESTIGATION',
     RESOLVED = 'RESOLVED',
     CLOSED = 'CLOSED',
+    PENDING_INSURANCE = 'PENDING_INSURANCE',
 }
 
 export enum IncidentType {
@@ -109,11 +110,11 @@ export enum TripStatus {
 }
 
 export enum VehicleState {
-    PARKED = 'PARKED',
-    MOVING = 'MOVING',
-    IDLE = 'IDLE',
-    MAINTENANCE = 'MAINTENANCE',
+    IN_SERVICE = 'IN_SERVICE',
     OUT_OF_SERVICE = 'OUT_OF_SERVICE',
+    PARKED = 'PARKED',
+    UNDER_MAINTENANCE = 'UNDER_MAINTENANCE',
+    IN_ALARM = 'IN_ALARM',
 }
 
 export enum VehicleType {
@@ -123,4 +124,9 @@ export enum VehicleType {
     BUS = 'BUS',
     MOTORCYCLE = 'MOTORCYCLE',
     TRAILER = 'TRAILER',
+}
+
+export enum AssignmentState {
+    ACTIVE = 'ACTIVE',
+    TERMINATED = 'TERMINATED',
 }

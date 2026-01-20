@@ -4,9 +4,9 @@ import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useParams } from 'next/navigation';
 import dynamic from 'next/dynamic';
-import { FiTruck, FiMapPin, FiInfo, FiClock, FiBarChart2, FiTrash2 } from 'react-icons/fi';
-import { vehicleApi, positionApi, tripApi, fuelRechargeApi, maintenanceApi } from '@/services';
-import { Vehicle, Trip, FuelRecharge, Maintenance, Position } from '@/types';
+import { FiTruck, FiMapPin, FiInfo, FiClock, FiBarChart2, FiTrash2, FiUserCheck, FiPlus, FiX } from 'react-icons/fi';
+import { vehicleApi, positionApi, tripApi, fuelRechargeApi, maintenanceApi, driverVehicleApi, driverApi } from '@/services';
+import { Vehicle, Trip, FuelRecharge, Maintenance, Position, DriverVehicle, Driver } from '@/types';
 import SpeedGauge from '@/components/vehicle/SpeedGauge';
 import FuelGauge from '@/components/vehicle/FuelGauge';
 import PassengerIndicator from '@/components/vehicle/PassengerIndicator';
@@ -14,12 +14,12 @@ import styles from './vehicleDetail.module.css';
 import 'leaflet/dist/leaflet.css';
 
 // Import dynamique pour éviter les erreurs SSR avec Leaflet
-const MapContainer = dynamic(() => import('react-leaflet').then(mod => mod.MapContainer), { ssr: false });
-const TileLayer = dynamic(() => import('react-leaflet').then(mod => mod.TileLayer), { ssr: false });
-const Marker = dynamic(() => import('react-leaflet').then(mod => mod.Marker), { ssr: false });
-const Popup = dynamic(() => import('react-leaflet').then(mod => mod.Popup), { ssr: false });
+const VehicleMap = dynamic(() => import('@/components/vehicle/VehicleMap'), {
+    ssr: false,
+    loading: () => <div className="h-full w-full flex items-center justify-center bg-gray-100">Chargement de la carte...</div>
+});
 
-type TabType = 'position' | 'details' | 'historique' | 'bilans';
+type TabType = 'position' | 'details' | 'historique' | 'bilans' | 'assignations';
 
 export default function VehicleDetailPage() {
     const params = useParams();
@@ -30,27 +30,14 @@ export default function VehicleDetailPage() {
     const [trips, setTrips] = useState<Trip[]>([]);
     const [fuelRecharges, setFuelRecharges] = useState<FuelRecharge[]>([]);
     const [maintenances, setMaintenances] = useState<Maintenance[]>([]);
+    const [assignments, setAssignments] = useState<DriverVehicle[]>([]);
+    const [availableDrivers, setAvailableDrivers] = useState<Driver[]>([]);
     const [activeTab, setActiveTab] = useState<TabType>('position');
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
-    const [leafletIcon, setLeafletIcon] = useState<any>(null);
-
-    // Charger l'icône Leaflet côté client
-    useEffect(() => {
-        if (typeof window !== 'undefined') {
-            import('leaflet').then((L) => {
-                const icon = new L.Icon({
-                    iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-blue.png',
-                    shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png',
-                    iconSize: [25, 41],
-                    iconAnchor: [12, 41],
-                    popupAnchor: [1, -34],
-                    shadowSize: [41, 41]
-                });
-                setLeafletIcon(icon);
-            });
-        }
-    }, []);
+    const [showAssignModal, setShowAssignModal] = useState(false);
+    const [selectedDriverId, setSelectedDriverId] = useState<number | null>(null);
+    const [assignNotes, setAssignNotes] = useState('');
 
     useEffect(() => {
         fetchVehicleData();
@@ -68,9 +55,10 @@ export default function VehicleDetailPage() {
             // Récupérer la dernière position connue
             try {
                 const latestPosition = await positionApi.getLatestByVehicleId(vehicleId);
+                console.log('RAW Position data:', JSON.stringify(latestPosition, null, 2));
                 setPosition(latestPosition);
             } catch (err: any) {
-                console.warn('Position non disponible');
+                console.warn('Position non disponible:', err);
             }
 
             // Récupérer l'historique des trajets
@@ -98,11 +86,81 @@ export default function VehicleDetailPage() {
                 console.warn('Maintenances non disponibles');
             }
 
+            // Récupérer les assignations conducteur-véhicule
+            try {
+                const vehicleAssignments = await driverVehicleApi.getByVehicle(vehicleId);
+                setAssignments(vehicleAssignments);
+            } catch (err: any) {
+                console.warn('Assignations non disponibles');
+            }
+
+            // Récupérer les conducteurs disponibles (filtrés par organisation)
+            try {
+                // Essayer d'abord avec l'organizationId stocké
+                const storedOrg = localStorage.getItem('fleetman-organization');
+                const storedUser = localStorage.getItem('fleetman-user');
+
+                let organizationId: number | null = null;
+
+                if (storedOrg) {
+                    const org = JSON.parse(storedOrg);
+                    organizationId = org.organizationId;
+                } else if (storedUser) {
+                    const user = JSON.parse(storedUser);
+                    organizationId = user.organizationId;
+                }
+
+                console.log('Using organizationId for drivers:', organizationId);
+
+                if (organizationId) {
+                    const response = await import('@/lib/axios').then(m => m.default);
+                    const driversResponse = await response.get(`/organizations/${organizationId}/drivers`);
+                    console.log('Fetched drivers:', driversResponse.data);
+                    setAvailableDrivers(driversResponse.data);
+                } else {
+                    console.warn('No organizationId found, cannot fetch drivers');
+                }
+            } catch (err: any) {
+                console.warn('Conducteurs non disponibles:', err);
+            }
+
         } catch (err) {
             console.error('Erreur lors du chargement:', err);
             setError('Impossible de charger les données du véhicule');
         } finally {
             setLoading(false);
+        }
+    };
+
+    const handleCreateAssignment = async () => {
+        if (!selectedDriverId) return;
+
+        try {
+            const newAssignment = await driverVehicleApi.create({
+                driverId: selectedDriverId,
+                vehicleId: vehicleId,
+                startDate: new Date().toISOString(),
+                notes: assignNotes || undefined
+            });
+            setAssignments(prev => [...prev, newAssignment]);
+            setShowAssignModal(false);
+            setSelectedDriverId(null);
+            setAssignNotes('');
+        } catch (err: any) {
+            console.error('Erreur création assignation:', err);
+            alert(err.response?.data?.message || 'Erreur lors de la création de l\'assignation');
+        }
+    };
+
+    const handleTerminateAssignment = async (assignmentId: number) => {
+        if (!confirm('Êtes-vous sûr de vouloir terminer cette assignation ?')) return;
+
+        try {
+            const updated = await driverVehicleApi.terminate(assignmentId);
+            setAssignments(prev => prev.map(a => a.assignmentId === assignmentId ? updated : a));
+        } catch (err) {
+            console.error('Erreur terminaison:', err);
+            alert('Erreur lors de la terminaison de l\'assignation');
         }
     };
 
@@ -128,8 +186,22 @@ export default function VehicleDetailPage() {
         return classes[state || ''] || '';
     };
 
-    const formatDate = (dateStr: string) => {
-        return new Date(dateStr).toLocaleDateString('fr-FR', {
+    const formatDate = (dateStr: string | null | undefined | number[]) => {
+        if (!dateStr) return 'N/A';
+
+        let date: Date;
+
+        // Handle array format from Java LocalDateTime [year, month, day, hour, minute, second, nano]
+        if (Array.isArray(dateStr)) {
+            const [year, month, day, hour = 0, minute = 0, second = 0] = dateStr;
+            date = new Date(year, month - 1, day, hour, minute, second);
+        } else {
+            date = new Date(dateStr);
+        }
+
+        if (isNaN(date.getTime())) return 'Date invalide';
+
+        return date.toLocaleDateString('fr-FR', {
             year: 'numeric',
             month: 'long',
             day: 'numeric',
@@ -241,34 +313,21 @@ export default function VehicleDetailPage() {
                     <FiBarChart2 />
                     Bilans
                 </button>
+                <button
+                    className={`${styles.tab} ${activeTab === 'assignations' ? styles.tabActive : ''}`}
+                    onClick={() => setActiveTab('assignations')}
+                >
+                    <FiUserCheck />
+                    Assignations
+                </button>
             </div>
 
             {/* Contenu des onglets */}
             <div className={styles.tabContent}>
                 {activeTab === 'position' && (
                     <div className={styles.mapContainer}>
-                        {position && leafletIcon ? (
-                            <MapContainer
-                                center={[position.latitude, position.longitude]}
-                                zoom={15}
-                                style={{ height: '100%', width: '100%' }}
-                                scrollWheelZoom={true}
-                            >
-                                <TileLayer
-                                    attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-                                    url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-                                />
-                                <Marker
-                                    position={[position.latitude, position.longitude]}
-                                    icon={leafletIcon}
-                                >
-                                    <Popup>
-                                        <strong>{vehicle.vehicleRegistrationNumber}</strong>
-                                        <br />
-                                        {vehicle.vehicleMake} {vehicle.vehicleModel}
-                                    </Popup>
-                                </Marker>
-                            </MapContainer>
+                        {position && position.latitude && position.longitude ? (
+                            <VehicleMap position={position} vehicle={vehicle} />
                         ) : (
                             <div className={styles.noPosition}>
                                 <FiMapPin className={styles.noPositionIcon} />
@@ -313,10 +372,10 @@ export default function VehicleDetailPage() {
                                 {trips.map((trip) => (
                                     <div key={trip.tripId} className={styles.tripCard}>
                                         <div className={styles.tripHeader}>
-                                            <h3 className={styles.tripId}>Trajet #{trip.tripId}</h3>
+                                            <h3 className={styles.tripId}>{trip.tripReference || `Trajet #${trip.tripId}`}</h3>
                                             <div className={styles.tripActions}>
-                                                <span className={`${styles.tripStatus} ${styles[`status${trip.tripStatus}`]}`}>
-                                                    {trip.tripStatus}
+                                                <span className={`${styles.tripStatus} ${styles[`status${trip.status}`]}`}>
+                                                    {trip.status}
                                                 </span>
                                                 <button
                                                     className={styles.deleteButton}
@@ -332,9 +391,8 @@ export default function VehicleDetailPage() {
                                             <div className={styles.tripInfo}>
                                                 <span className={styles.tripLabel}>Départ</span>
                                                 <span className={styles.tripValue}>
-                                                    {formatDate(trip.tripStartTime)}
+                                                    {formatDate(trip.departureDateTime)}
                                                 </span>
-                                                <span className={styles.tripLocation}>{trip.tripStartLocation}</span>
                                             </div>
 
                                             <div className={styles.tripArrow}>→</div>
@@ -342,17 +400,14 @@ export default function VehicleDetailPage() {
                                             <div className={styles.tripInfo}>
                                                 <span className={styles.tripLabel}>Arrivée</span>
                                                 <span className={styles.tripValue}>
-                                                    {trip.tripEndTime ? formatDate(trip.tripEndTime) : 'En cours'}
+                                                    {trip.arrivalDateTime ? formatDate(trip.arrivalDateTime) : 'En cours'}
                                                 </span>
-                                                {trip.tripEndLocation && (
-                                                    <span className={styles.tripLocation}>{trip.tripEndLocation}</span>
-                                                )}
                                             </div>
                                         </div>
 
-                                        {trip.tripDistance > 0 && (
+                                        {(trip.actualDistance && trip.actualDistance > 0) && (
                                             <div className={styles.tripDistance}>
-                                                Distance: {trip.tripDistance.toFixed(1)} km
+                                                Distance: {Number(trip.actualDistance).toFixed(1)} km
                                             </div>
                                         )}
                                     </div>
@@ -374,27 +429,27 @@ export default function VehicleDetailPage() {
                             ) : (
                                 <div className={styles.bilansList}>
                                     {fuelRecharges.map((recharge) => (
-                                        <div key={recharge.fuelRechargeId} className={styles.bilanCard}>
+                                        <div key={recharge.rechargeId} className={styles.bilanCard}>
                                             <div className={styles.bilanCardHeader}>
                                                 <span className={styles.bilanCardTitle}>
-                                                    Recharge #{recharge.fuelRechargeId}
+                                                    Recharge #{recharge.rechargeId}
                                                 </span>
                                                 <span className={styles.bilanCardDate}>
-                                                    {formatDate(recharge.rechargeDate)}
+                                                    {formatDate(recharge.rechargeDateTime)}
                                                 </span>
                                             </div>
                                             <div className={styles.bilanCardBody}>
                                                 <div className={styles.bilanInfo}>
                                                     <span className={styles.bilanLabel}>Quantité</span>
-                                                    <span className={styles.bilanValue}>{recharge.fuelAmount} L</span>
+                                                    <span className={styles.bilanValue}>{recharge.rechargeQuantity} L</span>
                                                 </div>
                                                 <div className={styles.bilanInfo}>
                                                     <span className={styles.bilanLabel}>Prix</span>
-                                                    <span className={styles.bilanValue}>{recharge.fuelCost.toFixed(2)} FCFA</span>
+                                                    <span className={styles.bilanValue}>{Number(recharge.rechargePrice || 0).toFixed(2)} FCFA</span>
                                                 </div>
                                                 <div className={styles.bilanInfo}>
                                                     <span className={styles.bilanLabel}>Station</span>
-                                                    <span className={styles.bilanValue}>{recharge.fuelStation}</span>
+                                                    <span className={styles.bilanValue}>{recharge.stationName || 'N/A'}</span>
                                                 </div>
                                             </div>
                                         </div>
@@ -441,7 +496,220 @@ export default function VehicleDetailPage() {
                         </div>
                     </div>
                 )}
+
+                {/* Onglet Assignations */}
+                {activeTab === 'assignations' && (
+                    <div className={styles.bilansContent}>
+                        <div className={styles.bilansSection}>
+                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
+                                <h3 className={styles.bilansSectionTitle} style={{ margin: 0, borderBottom: 'none' }}>
+                                    Conducteurs Assignés
+                                </h3>
+                                <button
+                                    onClick={() => setShowAssignModal(true)}
+                                    style={{
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                        gap: '0.5rem',
+                                        padding: '0.75rem 1.25rem',
+                                        background: 'linear-gradient(135deg, #22c55e 0%, #16a34a 100%)',
+                                        color: 'white',
+                                        border: 'none',
+                                        borderRadius: '10px',
+                                        fontWeight: 600,
+                                        cursor: 'pointer',
+                                        transition: 'all 0.3s ease'
+                                    }}
+                                >
+                                    <FiPlus /> Assigner un conducteur
+                                </button>
+                            </div>
+
+                            {assignments.length === 0 ? (
+                                <p className={styles.noData}>Aucune assignation enregistrée</p>
+                            ) : (
+                                <div className={styles.bilansList}>
+                                    {assignments.map((assignment) => (
+                                        <div key={assignment.assignmentId} className={styles.bilanCard}>
+                                            <div className={styles.bilanCardHeader}>
+                                                <span className={styles.bilanCardTitle}>
+                                                    {assignment.driverFullName}
+                                                </span>
+                                                <span
+                                                    className={styles.bilanCardDate}
+                                                    style={{
+                                                        padding: '0.25rem 0.75rem',
+                                                        borderRadius: '6px',
+                                                        background: assignment.state === 'ACTIVE'
+                                                            ? 'rgba(34, 197, 94, 0.2)'
+                                                            : 'rgba(100, 116, 139, 0.2)',
+                                                        color: assignment.state === 'ACTIVE' ? '#22c55e' : '#64748b',
+                                                        fontWeight: 600
+                                                    }}
+                                                >
+                                                    {assignment.state === 'ACTIVE' ? 'Active' : 'Terminée'}
+                                                </span>
+                                            </div>
+                                            <div className={styles.bilanCardBody}>
+                                                <div className={styles.bilanInfo}>
+                                                    <span className={styles.bilanLabel}>Début</span>
+                                                    <span className={styles.bilanValue}>{formatDate(assignment.startDate)}</span>
+                                                </div>
+                                                {assignment.endDate && (
+                                                    <div className={styles.bilanInfo}>
+                                                        <span className={styles.bilanLabel}>Fin</span>
+                                                        <span className={styles.bilanValue}>{formatDate(assignment.endDate)}</span>
+                                                    </div>
+                                                )}
+                                                {assignment.notes && (
+                                                    <div className={styles.bilanInfo}>
+                                                        <span className={styles.bilanLabel}>Notes</span>
+                                                        <span className={styles.bilanValue}>{assignment.notes}</span>
+                                                    </div>
+                                                )}
+                                                {assignment.state === 'ACTIVE' && (
+                                                    <button
+                                                        onClick={() => handleTerminateAssignment(assignment.assignmentId)}
+                                                        style={{
+                                                            marginTop: '0.75rem',
+                                                            padding: '0.5rem 1rem',
+                                                            background: 'rgba(239, 68, 68, 0.1)',
+                                                            color: '#ef4444',
+                                                            border: '1px solid rgba(239, 68, 68, 0.2)',
+                                                            borderRadius: '8px',
+                                                            cursor: 'pointer',
+                                                            fontWeight: 500
+                                                        }}
+                                                    >
+                                                        Terminer l'assignation
+                                                    </button>
+                                                )}
+                                            </div>
+                                        </div>
+                                    ))}
+                                </div>
+                            )}
+                        </div>
+                    </div>
+                )}
             </div>
+
+            {/* Modal d'assignation */}
+            {showAssignModal && (
+                <div style={{
+                    position: 'fixed',
+                    top: 0,
+                    left: 0,
+                    right: 0,
+                    bottom: 0,
+                    background: 'rgba(0, 0, 0, 0.6)',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    zIndex: 1000
+                }}>
+                    <div style={{
+                        background: 'var(--bg-surface, #1e293b)',
+                        borderRadius: '16px',
+                        padding: '2rem',
+                        width: '100%',
+                        maxWidth: '500px',
+                        border: '1px solid rgba(255, 255, 255, 0.1)'
+                    }}>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
+                            <h3 style={{ margin: 0, color: 'var(--text-main, #f1f5f9)' }}>Assigner un conducteur</h3>
+                            <button
+                                onClick={() => setShowAssignModal(false)}
+                                style={{ background: 'none', border: 'none', color: '#94a3b8', cursor: 'pointer' }}
+                            >
+                                <FiX size={24} />
+                            </button>
+                        </div>
+
+                        <div style={{ marginBottom: '1rem' }}>
+                            <label style={{ display: 'block', marginBottom: '0.5rem', color: '#94a3b8', fontWeight: 500 }}>
+                                Conducteur
+                            </label>
+                            <select
+                                value={selectedDriverId || ''}
+                                onChange={(e) => setSelectedDriverId(Number(e.target.value) || null)}
+                                style={{
+                                    width: '100%',
+                                    padding: '0.75rem',
+                                    borderRadius: '8px',
+                                    border: '1px solid rgba(255, 255, 255, 0.1)',
+                                    background: 'rgba(0, 0, 0, 0.2)',
+                                    color: 'var(--text-main, #f1f5f9)'
+                                }}
+                            >
+                                <option value="">Sélectionner un conducteur</option>
+                                {availableDrivers.map(driver => (
+                                    <option key={driver.driverId} value={driver.driverId}>
+                                        {driver.driverFirstName} {driver.driverLastName}
+                                    </option>
+                                ))}
+                            </select>
+                        </div>
+
+                        <div style={{ marginBottom: '1.5rem' }}>
+                            <label style={{ display: 'block', marginBottom: '0.5rem', color: '#94a3b8', fontWeight: 500 }}>
+                                Notes (optionnel)
+                            </label>
+                            <textarea
+                                value={assignNotes}
+                                onChange={(e) => setAssignNotes(e.target.value)}
+                                placeholder="Notes sur l'assignation..."
+                                rows={3}
+                                style={{
+                                    width: '100%',
+                                    padding: '0.75rem',
+                                    borderRadius: '8px',
+                                    border: '1px solid rgba(255, 255, 255, 0.1)',
+                                    background: 'rgba(0, 0, 0, 0.2)',
+                                    color: 'var(--text-main, #f1f5f9)',
+                                    resize: 'vertical'
+                                }}
+                            />
+                        </div>
+
+                        <div style={{ display: 'flex', gap: '1rem' }}>
+                            <button
+                                onClick={() => setShowAssignModal(false)}
+                                style={{
+                                    flex: 1,
+                                    padding: '0.75rem',
+                                    borderRadius: '8px',
+                                    border: '1px solid rgba(255, 255, 255, 0.1)',
+                                    background: 'transparent',
+                                    color: '#94a3b8',
+                                    cursor: 'pointer',
+                                    fontWeight: 500
+                                }}
+                            >
+                                Annuler
+                            </button>
+                            <button
+                                onClick={handleCreateAssignment}
+                                disabled={!selectedDriverId}
+                                style={{
+                                    flex: 1,
+                                    padding: '0.75rem',
+                                    borderRadius: '8px',
+                                    border: 'none',
+                                    background: selectedDriverId
+                                        ? 'linear-gradient(135deg, #22c55e 0%, #16a34a 100%)'
+                                        : 'rgba(100, 116, 139, 0.3)',
+                                    color: 'white',
+                                    cursor: selectedDriverId ? 'pointer' : 'not-allowed',
+                                    fontWeight: 600
+                                }}
+                            >
+                                Assigner
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
         </div>
     );
 }

@@ -36,6 +36,9 @@ export { default as driverStatisticsApi } from './driverStatisticsApi';
 // Images
 export { default as vehicleImageApi } from './vehicleImageApi';
 
+// Assignments
+export { default as driverVehicleApi } from './driverVehicleApi';
+
 // Aggregated API object for convenience
 export const api = {
     auth: () => import('./authApi').then(m => m.default),
@@ -54,6 +57,7 @@ export const api = {
     notification: () => import('./notificationApi').then(m => m.default),
     driverStatistics: () => import('./driverStatisticsApi').then(m => m.default),
     vehicleImage: () => import('./vehicleImageApi').then(m => m.default),
+    driverVehicle: () => import('./driverVehicleApi').then(m => m.default),
 };
 
 export default api;

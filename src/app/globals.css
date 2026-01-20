@@ -73,7 +73,7 @@
   --accent-purple: #8B5CF6;
 
   /* Gradients - Subtle warm gradient */
-  --gradient-primary: linear-gradient(135deg, #fafbfc 0%, #f4f6f8 50%, #ffffff 100%);
+  --gradient-primary: linear-gradient(135deg, #f8fafc 0%, #ffffff 50%, #f1f5f9 100%);
   --gradient-accent: linear-gradient(135deg, #0066FF 0%, #0052CC 100%);
   --gradient-glow: linear-gradient(135deg, rgba(0, 102, 255, 0.03) 0%, rgba(255, 107, 0, 0.02) 100%);
 
@@ -82,7 +82,20 @@
   --surface-glass-hover: rgba(0, 0, 0, 0.04);
   --surface-card: #ffffff;
   --border-glass: #e1e5eb;
-  --nav-bg: #f6f8fa;
+
+  /* Navigation - Sidebar gets dark blue */
+  --nav-bg: #1e3a5f;
+  --nav-text: #ffffff;
+  --nav-text-muted: rgba(255, 255, 255, 0.7);
+  --nav-border: rgba(255, 255, 255, 0.1);
+  --nav-hover: rgba(255, 255, 255, 0.1);
+  --nav-active: rgba(255, 255, 255, 0.15);
+
+  /* Header - White with blue accent */
+  --header-bg: #ffffff;
+  --header-border: #e2e8f0;
+  --header-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+
   --footer-bg: #f6f8fa;
 
   /* Text - High contrast, easy to read */
@@ -303,6 +316,78 @@ button {
 /* Cards in light mode get subtle shadow */
 [data-theme="light"] .bg-surface.rounded-lg {
   box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.06), 0 1px 2px -1px rgba(0, 0, 0, 0.06);
+}
+
+/* ============================================================================
+   LIGHT THEME - Sidebar Styling (Dark Blue)
+   ============================================================================ */
+[data-theme="light"] aside.bg-nav {
+  background: linear-gradient(180deg, #1e3a5f 0%, #0f2847 100%) !important;
+  border-right-color: rgba(255, 255, 255, 0.1) !important;
+}
+
+[data-theme="light"] aside.bg-nav .text-text-main,
+[data-theme="light"] aside.bg-nav h1 {
+  color: #ffffff !important;
+}
+
+[data-theme="light"] aside.bg-nav .text-text-muted,
+[data-theme="light"] aside.bg-nav .text-text-sub {
+  color: rgba(255, 255, 255, 0.7) !important;
+}
+
+[data-theme="light"] aside.bg-nav a:hover,
+[data-theme="light"] aside.bg-nav button:hover {
+  background-color: rgba(255, 255, 255, 0.1) !important;
+}
+
+[data-theme="light"] aside.bg-nav a.bg-secondary\/10,
+[data-theme="light"] aside.bg-nav .bg-secondary\/10 {
+  background-color: rgba(255, 255, 255, 0.15) !important;
+}
+
+[data-theme="light"] aside.bg-nav .border-glass {
+  border-color: rgba(255, 255, 255, 0.1) !important;
+}
+
+[data-theme="light"] aside.bg-nav .bg-glass {
+  background-color: rgba(255, 255, 255, 0.05) !important;
+}
+
+/* ============================================================================
+   LIGHT THEME - Header Styling (Same Blue as Sidebar)
+   ============================================================================ */
+[data-theme="light"] header.bg-nav {
+  background: linear-gradient(90deg, #1e3a5f 0%, #0f2847 100%) !important;
+  border-bottom-color: rgba(255, 255, 255, 0.1) !important;
+}
+
+[data-theme="light"] header.bg-nav .text-text-main,
+[data-theme="light"] header.bg-nav h1 {
+  color: #ffffff !important;
+}
+
+[data-theme="light"] header.bg-nav .text-text-muted,
+[data-theme="light"] header.bg-nav .text-text-sub {
+  color: rgba(255, 255, 255, 0.7) !important;
+}
+
+[data-theme="light"] header.bg-nav input {
+  background-color: rgba(255, 255, 255, 0.1) !important;
+  border-color: rgba(255, 255, 255, 0.2) !important;
+  color: #ffffff !important;
+}
+
+[data-theme="light"] header.bg-nav input::placeholder {
+  color: rgba(255, 255, 255, 0.5) !important;
+}
+
+[data-theme="light"] header.bg-nav button:hover {
+  background-color: rgba(255, 255, 255, 0.1) !important;
+}
+
+[data-theme="light"] header.bg-nav .bg-glass {
+  background-color: rgba(255, 255, 255, 0.1) !important;
 }
 
 /* ============================================================================

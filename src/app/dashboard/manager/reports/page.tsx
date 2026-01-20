@@ -70,11 +70,11 @@ export default function ReportsPage() {
     };
 
     // Calcul des statistiques
-    const totalFuelCost = fuelRecharges.reduce((sum, r) => sum + (r.fuelCost || 0), 0);
-    const totalFuelAmount = fuelRecharges.reduce((sum, r) => sum + (r.fuelAmount || 0), 0);
-    const totalMaintenanceCost = maintenances.reduce((sum, m) => sum + (m.maintenanceCost || 0), 0);
-    const totalDistance = trips.reduce((sum, t) => sum + (t.tripDistance || 0), 0);
-    const activeVehicles = vehicles.filter(v => v.state === 'ACTIVE').length;
+    const totalFuelCost = fuelRecharges.reduce((sum, r) => sum + (Number(r.rechargePrice) || 0), 0);
+    const totalFuelAmount = fuelRecharges.reduce((sum, r) => sum + (Number(r.rechargeQuantity) || 0), 0);
+    const totalMaintenanceCost = maintenances.reduce((sum, m) => sum + (Number(m.maintenanceCost) || 0), 0);
+    const totalDistance = trips.reduce((sum, t) => sum + (Number(t.actualDistance) || 0), 0);
+    const activeVehicles = vehicles.filter(v => v.state === 'IN_SERVICE').length;
 
     if (loading) {
         return (
@@ -168,23 +168,23 @@ export default function ReportsPage() {
                                 Aucune recharge enregistrée
                             </div>
                         ) : (
-                            fuelRecharges.slice(0, 10).map((recharge) => (
-                                <div key={recharge.fuelRechargeId} className="px-5 py-3 hover:bg-glass/30 transition-colors">
+                            fuelRecharges.slice(0, 10).map((recharge, index) => (
+                                <div key={recharge.rechargeId ?? `recharge-${index}`} className="px-5 py-3 hover:bg-glass/30 transition-colors">
                                     <div className="flex items-center justify-between">
                                         <div>
                                             <p className="font-medium text-text-main">
-                                                {recharge.fuelAmount} L
+                                                {recharge.rechargeQuantity} L
                                             </p>
                                             <p className="text-sm text-text-muted">
-                                                {recharge.fuelStation || 'Station inconnue'}
+                                                {recharge.stationName || 'Station inconnue'}
                                             </p>
                                         </div>
                                         <div className="text-right">
                                             <p className="font-semibold text-green-600">
-                                                {formatCurrency(recharge.fuelCost)}
+                                                {formatCurrency(recharge.rechargePrice)}
                                             </p>
                                             <p className="text-xs text-text-muted">
-                                                {formatDate(recharge.rechargeDate)}
+                                                {formatDate(recharge.rechargeDateTime)}
                                             </p>
                                         </div>
                                     </div>
@@ -256,9 +256,9 @@ export default function ReportsPage() {
                                 <div className="flex items-center justify-between">
                                     <div className="flex items-center gap-3">
                                         <span className={`px-2 py-1 rounded-full text-xs font-medium ${incident.incidentSeverity === 'CRITICAL' ? 'bg-red-100 text-red-700 dark:bg-red-900/20' :
-                                                incident.incidentSeverity === 'HIGH' ? 'bg-orange-100 text-orange-700 dark:bg-orange-900/20' :
-                                                    incident.incidentSeverity === 'MEDIUM' ? 'bg-yellow-100 text-yellow-700 dark:bg-yellow-900/20' :
-                                                        'bg-green-100 text-green-700 dark:bg-green-900/20'
+                                            incident.incidentSeverity === 'HIGH' ? 'bg-orange-100 text-orange-700 dark:bg-orange-900/20' :
+                                                incident.incidentSeverity === 'MEDIUM' ? 'bg-yellow-100 text-yellow-700 dark:bg-yellow-900/20' :
+                                                    'bg-green-100 text-green-700 dark:bg-green-900/20'
                                             }`}>
                                             {incident.incidentSeverity}
                                         </span>
@@ -269,8 +269,8 @@ export default function ReportsPage() {
                                     </div>
                                     <div className="text-right">
                                         <span className={`px-2 py-1 rounded text-xs font-medium ${incident.incidentStatus === 'RESOLVED' ? 'bg-green-100 text-green-700' :
-                                                incident.incidentStatus === 'IN_PROGRESS' ? 'bg-blue-100 text-blue-700' :
-                                                    'bg-gray-100 text-gray-700'
+                                            incident.incidentStatus === 'IN_PROGRESS' ? 'bg-blue-100 text-blue-700' :
+                                                'bg-gray-100 text-gray-700'
                                             }`}>
                                             {incident.incidentStatus}
                                         </span>

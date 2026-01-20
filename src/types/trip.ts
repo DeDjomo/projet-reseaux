@@ -4,40 +4,47 @@ import { TripStatus } from './enums';
 
 export interface Trip {
     tripId: number;
-    tripStartTime: string;
-    tripEndTime: string | null;
-    tripStartLocation: string;
-    tripEndLocation: string | null;
-    tripDistance: number;
-    tripStatus: TripStatus;
+    tripReference: string;
+    departureDateTime: string;
+    arrivalDateTime: string | null;
+    plannedDistance: number;
+    actualDistance: number;
+    status: TripStatus;
     vehicleId: number;
+    vehicleName?: string;
+    vehicleRegistrationNumber?: string;
     driverId: number;
-    createdAt: string;
-    updatedAt: string;
+    driverName?: string;
 }
 
 export interface TripCreate {
-    tripStartLocation: string;
+    tripReference: string;
+    departureDateTime: string;
+    plannedDistance: number;
     vehicleId: number;
     driverId: number;
 }
 
 export interface TripUpdate {
-    tripEndLocation?: string;
-    tripStatus?: TripStatus;
+    arrivalDateTime?: string;
+    actualDistance?: number;
+    status?: TripStatus;
 }
 
-// Position DTOs
+// Position DTOs (matches backend PositionDTO)
 
 export interface Position {
     positionId: number;
     latitude: number;
     longitude: number;
-    altitude: number | null;
-    speed: number;
+    positionDateTime: string;
+    speed: number | null;
     heading: number | null;
-    timestamp: string;
+    accuracy: number | null;
+    isTripStart?: boolean;
+    isTripEnd?: boolean;
     vehicleId: number;
+    vehicleName: string | null;
 }
 
 export interface PositionCreate {

@@ -9,6 +9,7 @@ export * from './organization';
 export * from './user';
 export * from './trip';
 export * from './misc';
+export * from './driverVehicle';
 
 // Enums
 export * from './enums';

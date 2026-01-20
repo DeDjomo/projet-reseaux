@@ -7,10 +7,22 @@ export interface Notification {
     notificationSubject: string;
     notificationContent: string;
     notificationType: NotificationType;
-    notificationState?: string; // e.g. "READ", "UNREAD" - handled as string in backend entity
-    notificationDate: string;
-    notificationTime: string;
+    notificationState?: string; // PENDING, READ, ACKNOWLEDGED, RESOLVED, DISMISSED
+    createdAt: string | number[]; // Java LocalDateTime can be array or string
+    readAt?: string | number[];
+    priority?: string;
+    isRead?: boolean;
     fleetManagerId: number;
+    fleetManagerName?: string;
+    vehicleId?: number;
+    vehicleRegistration?: string;
+    driverId?: number;
+    driverName?: string;
+    geofenceId?: number;
+    geofenceName?: string;
+    incidentId?: number;
+    maintenanceId?: number;
+    tripId?: number;
 }
 
 export interface NotificationCreate {
@@ -97,30 +109,33 @@ export interface MaintenanceUpdate {
 // Fuel Recharge DTOs
 
 export interface FuelRecharge {
-    fuelRechargeId: number;
-    fuelAmount: number;
-    fuelCost: number;
-    fuelStation: string;
-    rechargeDate: string;
+    rechargeId: number;
+    rechargeQuantity: number;
+    rechargePrice: number;
+    stationName: string;
+    rechargeDateTime: string;
     vehicleId: number;
+    vehicleName?: string;
+    vehicleRegistrationNumber?: string;
     driverId: number;
-    createdAt: string;
+    driverName?: string;
+    driverEmail?: string;
 }
 
 export interface FuelRechargeCreate {
-    fuelAmount: number;
-    fuelCost: number;
-    fuelStation: string;
-    rechargeDate: string;
+    rechargeQuantity: number;
+    rechargePrice: number;
+    stationName: string;
+    rechargeDateTime: string;
     vehicleId: number;
     driverId: number;
 }
 
 export interface FuelRechargeUpdate {
-    fuelAmount?: number;
-    fuelCost?: number;
-    fuelStation?: string;
-    rechargeDate?: string;
+    rechargeQuantity?: number;
+    rechargePrice?: number;
+    stationName?: string;
+    rechargeDateTime?: string;
     vehicleId?: number;
     driverId?: number;
 }

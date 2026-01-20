@@ -574,3 +574,178 @@
         grid-template-columns: 1fr;
     }
 }
+
+/* ==========================================
+   LIGHT MODE STYLES
+   ========================================== */
+
+:global([data-theme="light"]) .breadcrumb {
+    color: #64748b;
+}
+
+:global([data-theme="light"]) .breadcrumbLink {
+    color: #0891b2;
+}
+
+:global([data-theme="light"]) .breadcrumbLink:hover {
+    color: #0e7490;
+}
+
+:global([data-theme="light"]) .breadcrumbCurrent {
+    color: #1e293b;
+}
+
+:global([data-theme="light"]) .vehicleCard {
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(12px);
+    border: 1px solid rgba(0, 0, 0, 0.08);
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+}
+
+:global([data-theme="light"]) .vehicleIcon {
+    background: linear-gradient(135deg, rgba(59, 130, 246, 0.15) 0%, rgba(6, 182, 212, 0.15) 100%);
+    color: #0891b2;
+}
+
+:global([data-theme="light"]) .infoLabel {
+    color: #64748b;
+}
+
+:global([data-theme="light"]) .infoValue {
+    color: #1e293b;
+}
+
+:global([data-theme="light"]) .tabs {
+    background: rgba(255, 255, 255, 0.95);
+    border: 1px solid rgba(0, 0, 0, 0.08);
+}
+
+:global([data-theme="light"]) .tab {
+    border-right: 1px solid rgba(0, 0, 0, 0.08);
+    color: #64748b;
+}
+
+:global([data-theme="light"]) .tab:hover {
+    background: rgba(0, 0, 0, 0.03);
+    color: #1e293b;
+}
+
+:global([data-theme="light"]) .tabContent {
+    background: rgba(255, 255, 255, 0.95);
+    border: 1px solid rgba(0, 0, 0, 0.08);
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+}
+
+:global([data-theme="light"]) .noPosition {
+    color: #64748b;
+}
+
+:global([data-theme="light"]) .detailsHeader {
+    border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+}
+
+:global([data-theme="light"]) .detailsTitle {
+    color: #1e293b;
+}
+
+:global([data-theme="light"]) .detailsSubtitle {
+    color: #64748b;
+}
+
+:global([data-theme="light"]) .tripCard {
+    background: rgba(0, 0, 0, 0.02);
+    border: 1px solid rgba(0, 0, 0, 0.08);
+}
+
+:global([data-theme="light"]) .tripCard:hover {
+    background: rgba(0, 0, 0, 0.04);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+:global([data-theme="light"]) .tripHeader {
+    border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+}
+
+:global([data-theme="light"]) .tripId {
+    color: #1e293b;
+}
+
+:global([data-theme="light"]) .tripStatus {
+    background: rgba(0, 0, 0, 0.05);
+}
+
+:global([data-theme="light"]) .tripLabel {
+    color: #64748b;
+}
+
+:global([data-theme="light"]) .tripValue {
+    color: #1e293b;
+}
+
+:global([data-theme="light"]) .tripLocation {
+    color: #475569;
+    background: rgba(0, 0, 0, 0.04);
+}
+
+:global([data-theme="light"]) .tripArrow {
+    color: #0891b2;
+}
+
+:global([data-theme="light"]) .tripDistance {
+    color: #0891b2;
+    background: linear-gradient(135deg, rgba(59, 130, 246, 0.1) 0%, rgba(6, 182, 212, 0.1) 100%);
+}
+
+:global([data-theme="light"]) .noData {
+    color: #64748b;
+}
+
+:global([data-theme="light"]) .bilansSectionTitle {
+    color: #1e293b;
+    border-bottom-color: #0891b2;
+}
+
+:global([data-theme="light"]) .bilanCard {
+    background: rgba(0, 0, 0, 0.02);
+    border: 1px solid rgba(0, 0, 0, 0.08);
+}
+
+:global([data-theme="light"]) .bilanCard:hover {
+    background: rgba(0, 0, 0, 0.04);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+:global([data-theme="light"]) .bilanCardHeader {
+    border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+}
+
+:global([data-theme="light"]) .bilanCardTitle {
+    color: #1e293b;
+}
+
+:global([data-theme="light"]) .bilanCardDate {
+    color: #64748b;
+}
+
+:global([data-theme="light"]) .bilanLabel {
+    color: #64748b;
+}
+
+:global([data-theme="light"]) .bilanValue {
+    color: #1e293b;
+}
+
+:global([data-theme="light"]) .loading {
+    color: #64748b;
+}
+
+:global([data-theme="light"]) .spinner {
+    border: 3px solid rgba(6, 182, 212, 0.2);
+    border-top-color: #0891b2;
+}
+
+:global([data-theme="light"]) .error {
+    background: rgba(239, 68, 68, 0.08);
+    border: 1px solid rgba(239, 68, 68, 0.2);
+    color: #dc2626;
+}

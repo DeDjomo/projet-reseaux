@@ -52,3 +52,22 @@
     color: #94a3b8;
     font-weight: 500;
 }
+
+/* Light Mode */
+:global([data-theme="light"]) .container {
+    background: rgba(255, 255, 255, 0.9);
+    border-color: rgba(0, 0, 0, 0.1);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+}
+
+:global([data-theme="light"]) .graduation {
+    fill: #475569;
+}
+
+:global([data-theme="light"]) .level {
+    color: #1e293b;
+}
+
+:global([data-theme="light"]) .label {
+    color: #475569;
+}

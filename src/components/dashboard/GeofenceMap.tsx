@@ -86,6 +86,11 @@ export default function GeofenceMap({
             });
 
             setIsReady(true);
+
+            // Invalidate size after a short delay to ensure container has dimensions
+            setTimeout(() => {
+                map.invalidateSize();
+            }, 100);
         };
 
         initMap();
@@ -98,6 +103,24 @@ export default function GeofenceMap({
             }
         };
     }, [mapContainerId]); // ONLY depend on container ID
+
+    // Handle Resize
+    useEffect(() => {
+        if (!mapRef.current) return;
+
+        const resizeObserver = new ResizeObserver(() => {
+            mapRef.current?.invalidateSize();
+        });
+
+        const container = document.getElementById(mapContainerId);
+        if (container) {
+            resizeObserver.observe(container);
+        }
+
+        return () => {
+            resizeObserver.disconnect();
+        };
+    }, [isReady, mapContainerId]);
 
     // Update markers when props change
     useEffect(() => {
@@ -182,7 +205,7 @@ export default function GeofenceMap({
         <div
             id={mapContainerId}
             className="h-full w-full"
-            style={{ minHeight: '400px' }}
+            style={{ width: '100%', height: '100%', minHeight: '500px' }}
         >
             {!isReady && (
                 <div className="h-full w-full bg-gray-100 dark:bg-gray-800 animate-pulse flex items-center justify-center">

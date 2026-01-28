@@ -7,7 +7,7 @@ import { useLanguage } from '@/contexts/LanguageContext';
 import { Geofence, GeofenceType } from '@/types';
 import geofenceApi from '@/services/geofenceApi';
 import { organizationApi } from '@/services';
-import { Plus, Trash, Circle as CircleIcon, Hexagon, Save, X } from 'lucide-react';
+import { Plus, Trash, Circle as CircleIcon, Hexagon, Save, X, AlertTriangle, AlertCircle, CheckCircle } from 'lucide-react';
 import toast from 'react-hot-toast';
 
 // Dynamically import Map to avoid SSR issues
@@ -26,6 +26,7 @@ export default function GeofencesPage() {
     const [loading, setLoading] = useState(true);
     const [creationMode, setCreationMode] = useState<'CIRCLE' | 'POLYGON' | null>(null);
     const [selectedGeofence, setSelectedGeofence] = useState<Geofence | null>(null);
+    const [geofenceToDelete, setGeofenceToDelete] = useState<Geofence | null>(null);
 
     // Creation State
     const [name, setName] = useState('');
@@ -73,6 +74,41 @@ export default function GeofencesPage() {
         }
     };
 
+    const calculateConvexHull = (points: { lat: number; lng: number }[]) => {
+        if (points.length < 3) return points;
+
+        // Sort points by lat (y) then lng (x) or vice versa. 
+        // Monotone chain usually sorts by x then y. Let's use lng as x, lat as y.
+        const sorted = [...points].sort((a, b) => a.lng === b.lng ? a.lat - b.lat : a.lng - b.lng);
+
+        const crossProduct = (o: { lat: number; lng: number }, a: { lat: number; lng: number }, b: { lat: number; lng: number }) => {
+            return (a.lng - o.lng) * (b.lat - o.lat) - (a.lat - o.lat) * (b.lng - o.lng);
+        };
+
+        const lower: { lat: number; lng: number }[] = [];
+        for (const p of sorted) {
+            while (lower.length >= 2 && crossProduct(lower[lower.length - 2], lower[lower.length - 1], p) <= 0) {
+                lower.pop();
+            }
+            lower.push(p);
+        }
+
+        const upper: { lat: number; lng: number }[] = [];
+        for (let i = sorted.length - 1; i >= 0; i--) {
+            const p = sorted[i];
+            while (upper.length >= 2 && crossProduct(upper[upper.length - 2], upper[upper.length - 1], p) <= 0) {
+                upper.pop();
+            }
+            upper.push(p);
+        }
+
+        // Concatenate lower and upper to get the hull
+        // Last point of lower is first of upper (because of the loop logic), so pop it.
+        lower.pop();
+        upper.pop();
+        return [...lower, ...upper];
+    };
+
     const handleMapClick = (lat: number, lng: number) => {
         console.log('Map clicked!', { lat, lng, creationMode });
         if (!creationMode) return;
@@ -81,8 +117,14 @@ export default function GeofencesPage() {
             console.log('Setting temp center:', { lat, lng });
             setTempCenter({ lat, lng });
         } else if (creationMode === 'POLYGON') {
-            console.log('Adding polygon point:', { lat, lng, currentPoints: tempPoints.length });
-            setTempPoints([...tempPoints, { lat, lng }]);
+            const newPoints = [...tempPoints, { lat, lng }];
+            // Apply Convex Hull if we have enough points to form a shape (though even for lines it sorts them nicely)
+            // But usually hull makes sense for >= 3. For < 3 just adding is fine.
+            // Actually, sorting 2 points is fine too.
+            const hullPoints = newPoints.length >= 3 ? calculateConvexHull(newPoints) : newPoints;
+
+            console.log('Adding polygon point, hull calculated:', { newPoints, hullPoints });
+            setTempPoints(hullPoints);
         }
     };
 
@@ -143,16 +185,8 @@ export default function GeofencesPage() {
         }
     };
 
-    const handleDelete = async (id: number) => {
-        if (confirm(t('geofences.deleteConfirm'))) {
-            try {
-                await geofenceApi.delete(id);
-                toast.success(t('geofences.deleteSuccess'));
-                fetchGeofences();
-            } catch (error) {
-                toast.error(t('geofences.deleteError'));
-            }
-        }
+    const handleDeleteClick = (geofence: Geofence) => {
+        setGeofenceToDelete(geofence);
     };
 
     const resetForm = () => {
@@ -281,7 +315,7 @@ export default function GeofencesPage() {
                                             </div>
                                         </div>
                                         <button
-                                            onClick={(e) => { e.stopPropagation(); handleDelete(geo.geofenceId); }}
+                                            onClick={(e) => { e.stopPropagation(); handleDeleteClick(geo); }}
                                             className="p-2 text-red-500 hover:bg-red-50 rounded-full opacity-0 group-hover:opacity-100 transition"
                                         >
                                             <Trash size={16} />
@@ -306,6 +340,134 @@ export default function GeofencesPage() {
                     />
                 </div>
             </div>
+            {/* Delete Modal */}
+            {geofenceToDelete && (
+                <DeleteGeofenceModal
+                    geofence={geofenceToDelete}
+                    onClose={() => setGeofenceToDelete(null)}
+                    onSuccess={() => {
+                        setGeofenceToDelete(null);
+                        fetchGeofences();
+                    }}
+                />
+            )}
         </div>
     );
 }
+
+// Delete Geofence Modal - Mirrored from DeleteFleetModal
+function DeleteGeofenceModal({ geofence, onClose, onSuccess }: { geofence: Geofence; onClose: () => void; onSuccess: () => void }) {
+    const { t } = useLanguage();
+    const [loading, setLoading] = useState(false);
+    const [error, setError] = useState('');
+    const [confirmationName, setConfirmationName] = useState('');
+
+    const isNameMatching = confirmationName === geofence.geofenceName;
+
+    const handleDelete = async () => {
+        if (!isNameMatching) return;
+
+        setLoading(true);
+        setError('');
+
+        try {
+            await geofenceApi.delete(geofence.geofenceId);
+            toast.success(t('geofences.deleteSuccess'));
+            onSuccess();
+        } catch (err) {
+            setError(t('common.error'));
+            console.error(err);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    return (
+        <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
+            <div className="bg-surface rounded-lg border border-glass shadow-xl w-full max-w-md">
+                <div className="p-6 border-b border-glass">
+                    <div className="flex items-center justify-between">
+                        <h2 className="text-xl font-semibold text-red-600 flex items-center gap-2">
+                            <AlertTriangle size={20} />
+                            {t('common.delete')}
+                        </h2>
+                        <button onClick={onClose} className="p-1 hover:bg-glass rounded-full text-text-muted">
+                            <X size={20} />
+                        </button>
+                    </div>
+                </div>
+
+                <div className="p-6 space-y-4">
+                    {error && (
+                        <div className="p-3 bg-red-100 dark:bg-red-900/20 text-red-700 dark:text-red-400 rounded-lg text-sm flex items-center gap-2">
+                            <AlertCircle size={18} />
+                            {error}
+                        </div>
+                    )}
+
+                    <div className="text-center">
+                        <div className="w-16 h-16 rounded-full bg-red-100 dark:bg-red-900/20 flex items-center justify-center mx-auto mb-4">
+                            <Trash size={32} className="text-red-500" />
+                        </div>
+                        <p className="text-text-main">
+                            {t('geofences.deleteConfirm')}
+                        </p>
+                        <p className="text-text-sub font-semibold mt-2">
+                            "{geofence.geofenceName}"
+                        </p>
+                        <p className="text-sm text-text-muted mt-2">
+                            {t('geofences.deleteWarning')}
+                        </p>
+                    </div>
+
+                    {/* Confirmation input */}
+                    <div className="mt-4 p-4 bg-red-50 dark:bg-red-900/10 rounded-lg border border-red-200 dark:border-red-800">
+                        <label className="block text-sm font-medium text-text-main mb-2">
+                            {t('geofences.typeNameToConfirm')}
+                        </label>
+                        <input
+                            type="text"
+                            value={confirmationName}
+                            onChange={(e) => setConfirmationName(e.target.value)}
+                            placeholder={geofence.geofenceName}
+                            className={`w-full px-4 py-2 border rounded-lg bg-surface text-text-main focus:outline-none focus:ring-2 ${confirmationName && !isNameMatching
+                                ? 'border-red-400 focus:ring-red-500'
+                                : isNameMatching
+                                    ? 'border-green-400 focus:ring-green-500'
+                                    : 'border-glass focus:ring-red-500'
+                                }`}
+                        />
+                        {confirmationName && !isNameMatching && (
+                            <p className="text-xs text-red-500 mt-1">{t('geofences.nameDoesNotMatch')}</p>
+                        )}
+                        {isNameMatching && (
+                            <p className="text-xs text-green-500 mt-1 flex items-center gap-1">
+                                <CheckCircle size={12} />
+                                {t('geofences.nameMatches')}
+                            </p>
+                        )}
+                    </div>
+
+                    <div className="flex gap-3 pt-4">
+                        <button
+                            type="button"
+                            onClick={onClose}
+                            className="flex-1 px-4 py-2 border border-glass rounded-lg text-text-main hover:bg-glass transition-colors"
+                        >
+                            {t('common.cancel')}
+                        </button>
+                        <button
+                            type="button"
+                            onClick={handleDelete}
+                            disabled={loading || !isNameMatching}
+                            className="flex-1 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                        >
+                            {loading ? t('common.loading') : t('common.delete')}
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    );
+}
+

@@ -184,8 +184,12 @@ export default function DriversPage() {
                                     >
                                         <td className="px-6 py-4">
                                             <div className="flex items-center gap-3">
-                                                <div className="w-10 h-10 rounded-full bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center text-white font-bold text-sm">
-                                                    {driver.driverFirstName?.[0]}{driver.driverLastName?.[0]}
+                                                <div className="w-10 h-10 rounded-full bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center text-white font-bold text-sm overflow-hidden">
+                                                    {driver.photoUrl ? (
+                                                        <img src={`http://localhost:8080${driver.photoUrl}`} alt="" className="w-full h-full object-cover" />
+                                                    ) : (
+                                                        <span>{driver.driverFirstName?.[0]}{driver.driverLastName?.[0]}</span>
+                                                    )}
                                                 </div>
                                                 <div>
                                                     <p className="font-medium text-text-main">
@@ -251,8 +255,12 @@ export default function DriversPage() {
                             >
                                 <div className="flex items-start justify-between">
                                     <div className="flex items-center gap-3">
-                                        <div className="w-12 h-12 rounded-full bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center text-white font-bold">
-                                            {driver.driverFirstName?.[0]}{driver.driverLastName?.[0]}
+                                        <div className="w-12 h-12 rounded-full bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center text-white font-bold overflow-hidden">
+                                            {driver.photoUrl ? (
+                                                <img src={`http://localhost:8080${driver.photoUrl}`} alt="" className="w-full h-full object-cover" />
+                                            ) : (
+                                                <span>{driver.driverFirstName?.[0]}{driver.driverLastName?.[0]}</span>
+                                            )}
                                         </div>
                                         <div>
                                             <p className="font-semibold text-text-main">
@@ -372,6 +380,11 @@ function EditDriverModal({ driver, onClose, onSuccess }: { driver: Driver; onClo
 
         try {
             await driverApi.update(driver.driverId, formData);
+
+            if (photo) {
+                await driverApi.uploadPhoto(driver.driverId, photo);
+            }
+
             onSuccess();
         } catch (err) {
             setError(t('common.error'));
@@ -689,7 +702,12 @@ function CreateDriverModal({ onClose, onSuccess }: { onClose: () => void; onSucc
                 return;
             }
 
-            await driverApi.createAsAdmin(adminId, formData);
+            const newDriver = await driverApi.createAsAdmin(adminId, formData);
+
+            if (photo && newDriver.driverId) {
+                await driverApi.uploadPhoto(newDriver.driverId, photo);
+            }
+
             onSuccess();
         } catch (err: any) {
             if (err?.response?.status === 409) {

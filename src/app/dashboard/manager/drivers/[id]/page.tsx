@@ -3,15 +3,18 @@
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useParams } from 'next/navigation';
-import { FiUser, FiPhone, FiMail, FiClock, FiAlertTriangle, FiFileText, FiCalendar, FiShield } from 'react-icons/fi';
+import { useLanguage } from '@/contexts/LanguageContext';
+import { FiUser, FiPhone, FiMail, FiClock, FiAlertTriangle, FiFileText, FiCalendar, FiShield, FiMoreVertical, FiCheckCircle, FiSlash, FiPauseCircle } from 'react-icons/fi';
 import { driverApi, tripApi, incidentApi } from '@/services';
-import { Driver, Trip, Incident } from '@/types';
+import { Driver, Trip, Incident, DriverState } from '@/types';
+import toast from 'react-hot-toast';
 import styles from './driverDetail.module.css';
 
 type TabType = 'profile' | 'trips' | 'incidents';
 
 export default function DriverDetailPage() {
     const params = useParams();
+    const { t } = useLanguage();
     const driverId = parseInt(params.id as string);
 
     const [driver, setDriver] = useState<Driver | null>(null);
@@ -58,12 +61,23 @@ export default function DriverDetailPage() {
         }
     };
 
+    const handleStatusUpdate = async (newState: DriverState) => {
+        try {
+            await driverApi.updateState(driverId, newState);
+            setDriver(prev => prev ? { ...prev, driverState: newState } : null);
+            toast.success(t('drivers.actions.updateSuccess'));
+        } catch (error) {
+            console.error('Error updating status:', error);
+            toast.error(t('drivers.actions.updateError'));
+        }
+    };
+
     const getStateLabel = (state?: string) => {
         const labels: { [key: string]: string } = {
-            'ACTIVE': 'Actif',
-            'INACTIVE': 'Inactif',
-            'ON_LEAVE': 'En congé',
-            'SUSPENDED': 'Suspendu'
+            'ACTIVE': t('drivers.active'),
+            'INACTIVE': t('drivers.inactive'),
+            'ON_LEAVE': t('drivers.onLeave'),
+            'SUSPENDED': t('drivers.suspended')
         };
         return labels[state || ''] || state || 'Inconnu';
     };
@@ -176,6 +190,42 @@ export default function DriverDetailPage() {
                     <div className={styles.infoRow}>
                         <span className={styles.infoLabel}>Téléphone :</span>
                         <span className={styles.infoValue}>{driver.driverPhoneNumber || '-'}</span>
+                    </div>
+
+                    {/* Status Actions */}
+                    <div className="mt-4 flex flex-wrap gap-2">
+                        {driver.driverState !== DriverState.ACTIVE && (
+                            <button
+                                onClick={() => handleStatusUpdate(DriverState.ACTIVE)}
+                                className="px-3 py-1.5 bg-green-100 text-green-700 rounded-lg text-sm font-medium hover:bg-green-200 transition flex items-center gap-1"
+                            >
+                                <FiCheckCircle /> {t('drivers.actions.activate')}
+                            </button>
+                        )}
+                        {driver.driverState !== DriverState.ON_LEAVE && (
+                            <button
+                                onClick={() => handleStatusUpdate(DriverState.ON_LEAVE)}
+                                className="px-3 py-1.5 bg-yellow-100 text-yellow-700 rounded-lg text-sm font-medium hover:bg-yellow-200 transition flex items-center gap-1"
+                            >
+                                <FiClock /> {t('drivers.actions.leave')}
+                            </button>
+                        )}
+                        {driver.driverState !== DriverState.SUSPENDED && (
+                            <button
+                                onClick={() => handleStatusUpdate(DriverState.SUSPENDED)}
+                                className="px-3 py-1.5 bg-red-100 text-red-700 rounded-lg text-sm font-medium hover:bg-red-200 transition flex items-center gap-1"
+                            >
+                                <FiPauseCircle /> {t('drivers.actions.suspend')}
+                            </button>
+                        )}
+                        {driver.driverState !== DriverState.INACTIVE && (
+                            <button
+                                onClick={() => handleStatusUpdate(DriverState.INACTIVE)}
+                                className="px-3 py-1.5 bg-gray-100 text-gray-700 rounded-lg text-sm font-medium hover:bg-gray-200 transition flex items-center gap-1"
+                            >
+                                <FiSlash /> {t('drivers.actions.deactivate')}
+                            </button>
+                        )}
                     </div>
                 </div>
             </div>
@@ -313,7 +363,7 @@ export default function DriverDetailPage() {
                                         <div className={styles.tripHeader}>
                                             <h3 className={styles.tripId}>Trajet #{trip.tripId}</h3>
                                             <span className={`${styles.tripStatus} ${styles[`status${trip.tripStatus}`]}`}>
-                                                {trip.tripStatus}
+                                                {t(`trip.status.${trip.tripStatus}`)}
                                             </span>
                                         </div>
 
@@ -365,13 +415,13 @@ export default function DriverDetailPage() {
                                         <div className={styles.incidentBody}>
                                             <div className={styles.incidentBadges}>
                                                 <span className={`${styles.incidentBadge} ${styles[`severity${incident.incidentSeverity}`]}`}>
-                                                    {incident.incidentSeverity}
+                                                    {t(`incidents.severity.${incident.incidentSeverity}`)}
                                                 </span>
                                                 <span className={styles.incidentBadge}>
-                                                    {incident.incidentType}
+                                                    {t(`incidents.type.${incident.incidentType}`)}
                                                 </span>
                                                 <span className={styles.incidentBadge}>
-                                                    {incident.incidentStatus}
+                                                    {t(`incidents.status.${incident.incidentStatus}`)}
                                                 </span>
                                             </div>
                                             {incident.incidentDescription && (

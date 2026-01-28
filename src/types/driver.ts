@@ -16,6 +16,11 @@ export interface Driver {
     driverState: DriverState;
     createdAt: string;
     updatedAt: string;
+    photoUrl?: string;
+    photoFileName?: string;
+    photoOriginalFileName?: string;
+    photoMimeType?: string;
+    photoFileSize?: number;
 }
 
 export interface DriverCreate {

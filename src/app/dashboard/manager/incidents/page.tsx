@@ -118,7 +118,6 @@ export default function IncidentsPage() {
                         className="bg-glass border border-glass rounded-lg px-3 py-2 text-sm text-text-main focus:outline-none focus:ring-2 focus:ring-secondary"
                     >
                         <option value="ALL">{t('incidents.filter.all')}</option>
-                        <option value="ALL">{t('incidents.filter.all')}</option>
                         <option value={IncidentStatus.REPORTED}>{t('incidents.status.REPORTED')}</option>
                         <option value={IncidentStatus.UNDER_INVESTIGATION}>{t('incidents.status.UNDER_INVESTIGATION')}</option>
                         <option value={IncidentStatus.RESOLVED}>{t('incidents.status.RESOLVED')}</option>
@@ -149,9 +148,11 @@ export default function IncidentsPage() {
                                         </div>
                                         <div>
                                             <div className="flex items-center gap-2">
-                                                <h3 className="font-semibold text-text-main">{incident.incidentType}</h3>
+                                                <h3 className="font-semibold text-text-main">
+                                                    {t(`incidents.type.${incident.incidentType}`)}
+                                                </h3>
                                                 <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${getStatusColor(incident.incidentStatus)}`}>
-                                                    {incident.incidentStatus}
+                                                    {t(`incidents.status.${incident.incidentStatus}`)}
                                                 </span>
                                             </div>
                                             <p className="text-text-sub mt-1">{incident.incidentDescription}</p>

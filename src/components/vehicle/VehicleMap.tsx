@@ -46,7 +46,6 @@ const VehicleMap: React.FC<VehicleMapProps> = ({ position, vehicle }) => {
             />
             <Marker
                 position={[position.latitude, position.longitude]}
-                icon={vehicleIcon}
             >
                 <Popup>
                     <strong>{vehicle.vehicleRegistrationNumber}</strong>

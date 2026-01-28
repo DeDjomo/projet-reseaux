@@ -59,6 +59,24 @@ export const driverApi = {
         return response.data;
     },
 
+    // Photo Operations
+    uploadPhoto: async (driverId: number, file: File): Promise<Driver> => {
+        const formData = new FormData();
+        formData.append('file', file);
+
+        const response = await apiClient.post<Driver>(`/drivers/${driverId}/photo`, formData, {
+            headers: {
+                'Content-Type': 'multipart/form-data',
+            },
+        });
+        return response.data;
+    },
+
+    deletePhoto: async (driverId: number): Promise<Driver> => {
+        const response = await apiClient.delete<Driver>(`/drivers/${driverId}/photo`);
+        return response.data;
+    },
+
     // Password Operations
     changePassword: async (driverId: number, passwordData: PasswordChangeRequest): Promise<{ success: boolean; message: string }> => {
         const response = await apiClient.put<{ success: boolean; message: string }>(`/drivers/${driverId}/password/change`, passwordData);

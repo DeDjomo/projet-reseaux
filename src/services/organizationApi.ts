@@ -47,6 +47,24 @@ export const organizationApi = {
         await apiClient.delete(`/organizations/${organizationId}`);
     },
 
+    // Logo Operations
+    uploadLogo: async (organizationId: number, file: File): Promise<Organization> => {
+        const formData = new FormData();
+        formData.append('file', file);
+
+        const response = await apiClient.post<Organization>(`/organizations/${organizationId}/logo`, formData, {
+            headers: {
+                'Content-Type': 'multipart/form-data',
+            },
+        });
+        return response.data;
+    },
+
+    deleteLogo: async (organizationId: number): Promise<Organization> => {
+        const response = await apiClient.delete<Organization>(`/organizations/${organizationId}/logo`);
+        return response.data;
+    },
+
     // Count Operations
     count: async (): Promise<number> => {
         const response = await apiClient.get<number>('/organizations/count');

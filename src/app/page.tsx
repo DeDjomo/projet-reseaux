@@ -16,9 +16,7 @@ export default function Home() {
       {/* Navigation */}
       <nav className={styles.nav}>
         <div className={styles.logoContainer}>
-          <div className={styles.logoIcon}>
-            <FiTruck />
-          </div>
+          <img src="/logo.png" alt="FleetMan Logo" className="w-8 h-8 rounded-full object-cover mr-2" />
           <span className={styles.logoText}>FleetMan</span>
         </div>
         <div className={styles.navLinks}>
@@ -240,9 +238,7 @@ export default function Home() {
       <footer className={styles.footer}>
         <div className={styles.footerContent}>
           <div className={styles.footerLogo}>
-            <div className={styles.logoIcon}>
-              <FiTruck />
-            </div>
+            <img src="/logo.png" alt="FleetMan Logo" className="w-6 h-6 rounded-full object-cover mr-2" />
             <span className={styles.logoText}>FleetMan</span>
           </div>
           <p className={styles.footerText}>

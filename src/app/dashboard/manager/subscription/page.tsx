@@ -114,7 +114,7 @@ export default function SubscriptionPage() {
             )}
 
             {/* Plans Grid */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                 {plans.map((plan) => (
                     <div key={plan.id} className={`relative bg-surface rounded-lg border ${plan.popular ? 'border-secondary shadow-lg' : 'border-glass'} p-6 flex flex-col`}>
                         {plan.popular && (

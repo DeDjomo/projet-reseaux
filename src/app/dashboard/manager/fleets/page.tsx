@@ -6,7 +6,8 @@ import fleetApi from '@/services/fleetApi';
 import fleetManagerApi from '@/services/fleetManagerApi';
 import { organizationApi } from '@/services';
 import { Fleet, FleetCreate, FleetType, FleetManagerCreate, Gender, Language } from '@/types';
-import { Plus, Truck, Edit, Trash2, Search, X, UserPlus, CheckCircle, AlertCircle, AlertTriangle } from 'lucide-react';
+import { Plus, Truck, Edit, Trash2, Search, X, UserPlus, CheckCircle, AlertCircle, AlertTriangle, Filter } from 'lucide-react';
+import { FleetManager } from '@/types';
 
 export default function FleetsPage() {
     const { t } = useLanguage();
@@ -16,6 +17,11 @@ export default function FleetsPage() {
     const [showCreateWizard, setShowCreateWizard] = useState(false);
     const [editingFleet, setEditingFleet] = useState<Fleet | null>(null);
     const [deletingFleet, setDeletingFleet] = useState<Fleet | null>(null);
+
+    // Filters
+    const [typeFilter, setTypeFilter] = useState<string>('ALL');
+    const [managerFilter, setManagerFilter] = useState<string>('ALL');
+    const [managers, setManagers] = useState<FleetManager[]>([]);
 
     useEffect(() => {
         fetchFleets();
@@ -42,6 +48,14 @@ export default function FleetsPage() {
             if (organizationId) {
                 // Use organization-based endpoint
                 data = await organizationApi.getFleets(organizationId);
+
+                // Fetch managers for filter
+                try {
+                    const managersData = await organizationApi.getFleetManagers(organizationId);
+                    setManagers(managersData);
+                } catch (err) {
+                    console.warn('Failed to fetch managers for filter');
+                }
             } else {
                 console.warn('No organization found, fetching all fleets');
                 data = await fleetApi.getAll();
@@ -55,10 +69,22 @@ export default function FleetsPage() {
         }
     };
 
-    const filteredFleets = fleets.filter(fleet =>
-        fleet.fleetName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        fleet.fleetDescription?.toLowerCase().includes(searchTerm.toLowerCase())
-    );
+    const filteredFleets = fleets.filter(fleet => {
+        const matchesSearch = fleet.fleetName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            fleet.fleetDescription?.toLowerCase().includes(searchTerm.toLowerCase());
+
+        const matchesType = typeFilter === 'ALL' || fleet.fleetType === typeFilter;
+
+        // Match manager ID or Name (since we only have name in Fleet object usually, or need to check how backend returns it)
+        // Fleet object has fleetManagerName. We filter by name if using the select populated by manager names.
+        // But better to check how we want to filter. 
+        // Let's assume managerFilter is the manager's Name for now as fleet object has `fleetManagerName`.
+        // Or if we can, use ID. But Fleet object typically has ID? Let's check Fleet type definition if needed.
+        // The display uses fleetManagerName.
+        const matchesManager = managerFilter === 'ALL' || fleet.fleetManagerName === managerFilter;
+
+        return matchesSearch && matchesType && matchesManager;
+    });
 
     return (
         <div className="space-y-6">
@@ -81,18 +107,60 @@ export default function FleetsPage() {
                 </button>
             </div>
 
-            {/* Search */}
-            <div className="relative max-w-md">
-                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                    <Search size={18} className="text-text-muted" />
+            {/* Search and Filters */}
+            <div className="flex flex-col md:flex-row gap-4">
+                <div className="relative flex-1">
+                    <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                        <Search size={18} className="text-text-muted" />
+                    </div>
+                    <input
+                        type="text"
+                        placeholder={t('fleets.searchPlaceholder')}
+                        value={searchTerm}
+                        onChange={(e) => setSearchTerm(e.target.value)}
+                        className="block w-full pl-10 pr-3 py-2 border border-glass rounded-lg bg-surface text-text-main placeholder-text-muted focus:outline-none focus:ring-2 focus:ring-secondary focus:border-secondary transition-all"
+                    />
                 </div>
-                <input
-                    type="text"
-                    placeholder={t('fleets.searchPlaceholder')}
-                    value={searchTerm}
-                    onChange={(e) => setSearchTerm(e.target.value)}
-                    className="block w-full pl-10 pr-3 py-2 border border-glass rounded-lg bg-surface text-text-main placeholder-text-muted focus:outline-none focus:ring-2 focus:ring-secondary focus:border-secondary transition-all"
-                />
+
+                <div className="flex gap-2">
+                    <div className="relative min-w-[180px]">
+                        <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                            <Filter size={16} className="text-text-muted" />
+                        </div>
+                        <select
+                            value={typeFilter}
+                            onChange={(e) => setTypeFilter(e.target.value)}
+                            className="block w-full pl-9 pr-8 py-2 border border-glass rounded-lg bg-surface text-text-main focus:outline-none focus:ring-2 focus:ring-secondary appearance-none"
+                        >
+                            <option value="ALL">{t('fleets.filter.allTypes')}</option>
+                            <option value="PERSONAL">{t('fleetType.personal')}</option>
+                            <option value="PASSENGER_TRANSPORT">{t('fleetType.passengerTransport')}</option>
+                            <option value="CARGO_TRANSPORT">{t('fleetType.cargoTransport')}</option>
+                            <option value="DELIVERY">{t('fleetType.delivery')}</option>
+                            <option value="RENTAL">{t('fleetType.rental')}</option>
+                            <option value="MIXED">{t('fleetType.mixed')}</option>
+                            <option value="OTHER">{t('fleetType.other')}</option>
+                        </select>
+                    </div>
+
+                    <div className="relative min-w-[200px]">
+                        <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                            <Filter size={16} className="text-text-muted" />
+                        </div>
+                        <select
+                            value={managerFilter}
+                            onChange={(e) => setManagerFilter(e.target.value)}
+                            className="block w-full pl-9 pr-8 py-2 border border-glass rounded-lg bg-surface text-text-main focus:outline-none focus:ring-2 focus:ring-secondary appearance-none"
+                        >
+                            <option value="ALL">{t('fleets.filter.allManagers')}</option>
+                            {managers.map(manager => (
+                                <option key={manager.managerId} value={`${manager.managerFirstName} ${manager.managerLastName}`}>
+                                    {manager.managerFirstName} {manager.managerLastName}
+                                </option>
+                            ))}
+                        </select>
+                    </div>
+                </div>
             </div>
 
             {/* Fleets Grid */}

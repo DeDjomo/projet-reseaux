@@ -77,11 +77,14 @@ export default function Sidebar({ isOpen, setIsOpen }: SidebarProps) {
                 {/* Header / Logo Area */}
                 <div className="h-16 flex items-center justify-between px-4 border-b border-glass bg-glass">
                     {isOpen ? (
-                        <h1 className="text-xl font-bold bg-gradient-to-r from-secondary to-accent bg-clip-text text-transparent">
-                            FleetMan
-                        </h1>
+                        <div className="flex items-center gap-2">
+                            <img src="/logo.png" alt="FleetMan Logo" className="w-8 h-8 rounded-full object-cover" />
+                            <h1 className="text-xl font-bold bg-gradient-to-r from-secondary to-accent bg-clip-text text-transparent">
+                                FleetMan
+                            </h1>
+                        </div>
                     ) : (
-                        <div className="w-8 h-8 rounded-full bg-gradient-to-br from-secondary to-accent mx-auto" />
+                        <img src="/logo.png" alt="FleetMan Logo" className="w-8 h-8 rounded-full object-cover mx-auto" />
                     )}
 
                     <button

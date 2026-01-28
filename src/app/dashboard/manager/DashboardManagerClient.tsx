@@ -36,7 +36,7 @@ export default function DashboardManagerPage() {
                 }
 
                 if (!organizationId) {
-                    console.warn('No organization found for this user');
+                    // No organization found for this user
                     setLoading(false);
                     return;
                 }
@@ -63,7 +63,7 @@ export default function DashboardManagerPage() {
                     fleets: fleetCount
                 });
             } catch (error) {
-                console.error("Failed to fetch dashboard stats", error);
+                // Failed to fetch dashboard stats
             } finally {
                 setLoading(false);
             }

@@ -45,13 +45,13 @@ export default function DriversPage() {
                 // Use organization-based endpoint
                 data = await organizationApi.getDrivers(organizationId);
             } else {
-                console.warn('No organization found, fetching all drivers');
+                // No organization found, fetching all drivers
                 data = await driverApi.getAll();
             }
 
             setDrivers(data);
         } catch (error) {
-            console.error("Failed to fetch drivers", error);
+            // Failed to fetch drivers
         } finally {
             setLoading(false);
         }
@@ -388,7 +388,6 @@ function EditDriverModal({ driver, onClose, onSuccess }: { driver: Driver; onClo
             onSuccess();
         } catch (err) {
             setError(t('common.error'));
-            console.error(err);
         } finally {
             setLoading(false);
         }
@@ -563,7 +562,6 @@ function DeleteDriverModal({ driver, onClose, onSuccess }: { driver: Driver; onC
             onSuccess();
         } catch (err) {
             setError(t('common.error'));
-            console.error(err);
         } finally {
             setLoading(false);
         }
@@ -717,7 +715,6 @@ function CreateDriverModal({ onClose, onSuccess }: { onClose: () => void; onSucc
             } else {
                 setError(t('common.error'));
             }
-            console.error(err);
         } finally {
             setLoading(false);
         }

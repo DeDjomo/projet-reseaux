@@ -24,7 +24,7 @@ export default function SubscriptionPage() {
                     }
                 }
             } catch (error) {
-                console.error("Failed to fetch organization", error);
+                // Failed to fetch organization
             } finally {
                 setLoading(false);
             }
@@ -48,7 +48,7 @@ export default function SubscriptionPage() {
             setOrganization(updatedOrg);
             toast.success(t('subscription.updateSuccess'));
         } catch (error) {
-            console.error("Failed to update plan", error);
+            // Failed to update plan
             toast.error(t('subscription.updateError'));
         } finally {
             setLoading(false);

@@ -54,16 +54,16 @@ export default function FleetsPage() {
                     const managersData = await organizationApi.getFleetManagers(organizationId);
                     setManagers(managersData);
                 } catch (err) {
-                    console.warn('Failed to fetch managers for filter');
+                    // Failed to fetch managers for filter
                 }
             } else {
-                console.warn('No organization found, fetching all fleets');
+                // No organization found, fetching all fleets
                 data = await fleetApi.getAll();
             }
 
             setFleets(data);
         } catch (error) {
-            console.error("Failed to fetch fleets", error);
+            // Failed to fetch fleets
         } finally {
             setLoading(false);
         }
@@ -363,7 +363,6 @@ function EditFleetModal({ fleet, onClose, onSuccess }: { fleet: Fleet; onClose: 
             onSuccess();
         } catch (err) {
             setError(t('common.error'));
-            console.error(err);
         } finally {
             setLoading(false);
         }
@@ -472,7 +471,6 @@ function DeleteFleetModal({ fleet, onClose, onSuccess }: { fleet: Fleet; onClose
             onSuccess();
         } catch (err) {
             setError(t('common.error'));
-            console.error(err);
         } finally {
             setLoading(false);
         }
@@ -635,7 +633,6 @@ function CreateFleetWizard({ onClose, onSuccess }: { onClose: () => void; onSucc
             }, 1000);
         } catch (err) {
             setError(t('wizard.errorFleet'));
-            console.error(err);
             setLoading(false);
         }
     };

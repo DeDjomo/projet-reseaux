@@ -55,16 +55,13 @@ export default function VehicleGeofenceModal({ geofence, onClose }: VehicleGeofe
 
             // Filter out vehicles already associated with THIS geofence
             const associatedVehicleIds = new Set(assocs.map(a => a.vehicleId));
-            console.log('DEBUG: Associations:', assocs);
-            console.log('DEBUG: Associated IDs:', Array.from(associatedVehicleIds));
 
             const available = vehicles.filter(v => !associatedVehicleIds.has(v.vehicleId));
-            console.log('DEBUG: Available:', available.map(v => v.vehicleId));
 
             setAvailableVehicles(available);
 
         } catch (error) {
-            console.error("Error fetching vehicle geofence data", error);
+            // Error fetching vehicle geofence data
             toast.error(t('common.errorLoad'));
         } finally {
             setLoading(false);
@@ -124,7 +121,7 @@ export default function VehicleGeofenceModal({ geofence, onClose }: VehicleGeofe
             }
             fetchData(); // Refresh to show new state
         } catch (error) {
-            console.error("Error updating geofence assignment status", error);
+            // Error updating geofence assignment status
             toast.error(t('common.errorUpdate'));
         }
     }
@@ -151,7 +148,7 @@ export default function VehicleGeofenceModal({ geofence, onClose }: VehicleGeofe
             }
             return new Date(dateInput as string).toLocaleDateString() + ' ' + new Date(dateInput as string).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
         } catch (e) {
-            console.error("Date parse error", dateInput);
+            // Date parse error
             return 'Invalid Date';
         }
     };

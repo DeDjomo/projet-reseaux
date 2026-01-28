@@ -67,13 +67,13 @@ export default function GeofencesPage() {
                 // Use organization-based endpoint
                 data = await organizationApi.getGeofences(organizationId);
             } else {
-                console.warn('No organization found, fetching all geofences');
+                // No organization found, fetching all geofences
                 data = await geofenceApi.getAll();
             }
 
             setGeofences(data);
         } catch (error) {
-            console.error('Error fetching geofences:', error);
+            // Error fetching geofences
             toast.error(t('geofences.loadError'));
         } finally {
             setLoading(false);
@@ -116,11 +116,9 @@ export default function GeofencesPage() {
     };
 
     const handleMapClick = (lat: number, lng: number) => {
-        console.log('Map clicked!', { lat, lng, creationMode });
         if (!creationMode) return;
 
         if (creationMode === 'CIRCLE') {
-            console.log('Setting temp center:', { lat, lng });
             setTempCenter({ lat, lng });
         } else if (creationMode === 'POLYGON') {
             const newPoints = [...tempPoints, { lat, lng }];
@@ -129,7 +127,6 @@ export default function GeofencesPage() {
             // Actually, sorting 2 points is fine too.
             const hullPoints = newPoints.length >= 3 ? calculateConvexHull(newPoints) : newPoints;
 
-            console.log('Adding polygon point, hull calculated:', { newPoints, hullPoints });
             setTempPoints(hullPoints);
         }
     };
@@ -188,7 +185,7 @@ export default function GeofencesPage() {
             resetForm();
             fetchGeofences();
         } catch (error) {
-            console.error("Error creating geofence", error);
+            // Error creating geofence
             toast.error(t('geofences.createError'));
         }
     };
@@ -426,7 +423,6 @@ function DeleteGeofenceModal({ geofence, onClose, onSuccess }: { geofence: Geofe
             onSuccess();
         } catch (err) {
             setError(t('common.error'));
-            console.error(err);
         } finally {
             setLoading(false);
         }

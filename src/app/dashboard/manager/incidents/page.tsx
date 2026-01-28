@@ -55,13 +55,13 @@ export default function IncidentsPage() {
                 // Use organization-based endpoint
                 data = await organizationApi.getIncidents(organizationId);
             } else {
-                console.warn('No organization found, fetching all incidents');
+                // No organization found, fetching all incidents
                 data = await incidentApi.getAll();
             }
 
             setIncidents(data);
         } catch (error) {
-            console.error('Error fetching incidents:', error);
+            // Error fetching incidents
             toast.error(t('incidents.loadError'));
         } finally {
             setLoading(false);

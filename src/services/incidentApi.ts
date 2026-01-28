@@ -101,7 +101,7 @@ export const incidentApi = {
     // Organization Operations
     // Organization Operations
     getByOrganization: async (organizationId: number): Promise<Incident[]> => {
-        console.warn("getByOrganization is deprecated on frontend without organization context, use getByAdminId");
+        // getByOrganization is deprecated on frontend without organization context, use getByAdminId
         return [];
     },
 

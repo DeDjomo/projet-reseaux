@@ -81,7 +81,7 @@ export default function Header() {
                     const count = await notificationApi.countUnreadByAdminId(adminId);
                     setUnreadCount(count);
                 } catch (error) {
-                    console.error('Failed to fetch unread count:', error);
+                    // Failed to fetch unread count
                 }
             }
         };
@@ -102,7 +102,7 @@ export default function Header() {
                     : await notificationApi.getUnreadByAdminId(adminId);
                 setNotifications(data.slice(0, 15)); // Show last 15
             } catch (error) {
-                console.error('Failed to fetch notifications:', error);
+                // Failed to fetch notifications
             }
         }
         setLoading(false);
@@ -131,7 +131,7 @@ export default function Header() {
                 setUnreadCount(0);
                 setNotifications(prev => prev.map(n => ({ ...n, notificationState: 'READ' })));
             } catch (error) {
-                console.error('Failed to mark all as read:', error);
+                // Failed to mark all as read
             }
         }
     };
@@ -149,7 +149,7 @@ export default function Header() {
                 ));
                 setUnreadCount(prev => Math.max(0, prev - 1));
             } catch (error) {
-                console.error('Failed to mark notification as read:', error);
+                // Failed to mark notification as read
             }
         }
         // TODO: Navigate to related entity (vehicle, driver, etc.) based on notification type
@@ -209,7 +209,7 @@ export default function Header() {
 
                 setSearchResults({ vehicles: filteredVehicles, drivers: filteredDrivers });
             } catch (error) {
-                console.error("Search failed", error);
+                // Search failed
             }
         }
         setIsSearching(false);

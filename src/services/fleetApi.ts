@@ -50,7 +50,7 @@ export const fleetApi = {
         // Fallback or error if adminId is unknown. Ideally we need adminId.
         // But dashboard might be calling this with orgId.
         // We will add getByAdminId and expect callers to migrate or use that.
-        console.warn("getByOrganization is deprecated on frontend without organization context, use getByAdminId");
+        // getByOrganization is deprecated on frontend without organization context, use getByAdminId
         return [];
     },
 

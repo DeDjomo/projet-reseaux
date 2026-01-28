@@ -161,7 +161,7 @@ export const vehicleApi = {
         // Fallback to fetching all by Organization logic if possible, 
         // but since we lack that endpoint, warn or return 0.
         // Ideally we should use adminId context. 
-        console.warn("countByOrganization not fully supported, use countByAdminId");
+        // countByOrganization not fully supported, use countByAdminId
         return 0;
     },
 

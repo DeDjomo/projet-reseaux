@@ -46,7 +46,7 @@ export default function HistoryPage() {
             setVehicles(vehicleMap);
             setDrivers(driverMap);
         } catch (error) {
-            console.error("Erreur lors du chargement:", error);
+            // Failed to load data
         } finally {
             setLoading(false);
         }

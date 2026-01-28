@@ -45,13 +45,13 @@ export default function ManagersPage() {
                 // Use organization-based endpoint
                 data = await organizationApi.getFleetManagers(organizationId);
             } else {
-                console.warn('No organization found, fetching all managers');
+                // No organization found, fetching all managers
                 data = await fleetManagerApi.getAll();
             }
 
             setManagers(data);
         } catch (error) {
-            console.error("Failed to fetch managers", error);
+            // Failed to fetch managers
         } finally {
             setLoading(false);
         }
@@ -380,7 +380,6 @@ function EditManagerModal({ manager, onClose, onSuccess }: { manager: FleetManag
             onSuccess();
         } catch (err) {
             setError(t('common.error'));
-            console.error(err);
         } finally {
             setLoading(false);
         }
@@ -527,7 +526,6 @@ function DeleteManagerModal({ manager, onClose, onSuccess }: { manager: FleetMan
             onSuccess();
         } catch (err) {
             setError(t('common.error'));
-            console.error(err);
         } finally {
             setLoading(false);
         }
@@ -656,7 +654,6 @@ function CreateManagerModal({ onClose, onSuccess }: { onClose: () => void; onSuc
             onSuccess();
         } catch (err) {
             setError(t('common.error'));
-            console.error(err);
         } finally {
             setLoading(false);
         }
@@ -803,7 +800,6 @@ function ChangeStatusModal({ manager, onClose, onSuccess }: { manager: FleetMana
             toast.success(t('common.success'));
             onSuccess();
         } catch (error) {
-            console.error('Error updating status', error);
             toast.error(t('common.error'));
         } finally {
             setLoading(false);

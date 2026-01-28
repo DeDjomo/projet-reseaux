@@ -65,7 +65,7 @@ export default function ReportsPage() {
             setIncidents(incidentData);
             setTrips(tripData);
         } catch (error) {
-            console.error('Erreur lors du chargement des données:', error);
+            // Failed to load report data
         } finally {
             setLoading(false);
         }

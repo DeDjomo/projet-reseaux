@@ -47,7 +47,7 @@ export default function VehiclesPage() {
             }
             setVehicles(data);
         } catch (error) {
-            console.error("Failed to fetch vehicles", error);
+            // Failed to fetch vehicles
         } finally {
             setLoading(false);
         }
@@ -298,7 +298,6 @@ function EditVehicleModal({ vehicle, onClose, onSuccess }: { vehicle: Vehicle; o
             onSuccess();
         } catch (err) {
             setError(t('common.error'));
-            console.error(err);
         } finally {
             setLoading(false);
         }
@@ -457,7 +456,6 @@ function DeleteVehicleModal({ vehicle, onClose, onSuccess }: { vehicle: Vehicle;
             onSuccess();
         } catch (err) {
             setError(t('common.error'));
-            console.error(err);
         } finally {
             setLoading(false);
         }
@@ -619,7 +617,7 @@ function CreateVehicleModal({ onClose, onSuccess }: { onClose: () => void; onSuc
                     setFormData(prev => ({ ...prev, fleetId: String(data[0].fleetId) }));
                 }
             } catch (err) {
-                console.error(err);
+                // Failed to load fleets
             }
         };
         loadFleets();
@@ -646,7 +644,6 @@ function CreateVehicleModal({ onClose, onSuccess }: { onClose: () => void; onSuc
             onSuccess();
         } catch (err) {
             setError(t('common.error'));
-            console.error(err);
         } finally {
             setLoading(false);
         }

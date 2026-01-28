@@ -159,7 +159,7 @@ export default function RegisterPage() {
                 language: language,
             };
 
-            console.log("Creating Admin...", adminData);
+            // Creating Admin...
             // Use createSuperAdmin to create user without Org OrganizationId
             const createdAdmin = await adminApi.createSuperAdmin(adminData);
 
@@ -167,7 +167,7 @@ export default function RegisterPage() {
                 throw new Error("Erreur lors de la création de l'administrateur");
             }
 
-            console.log("Admin created with ID:", createdAdmin.adminId);
+            // Admin created with ID
 
             // 2. Create Organization linked to Admin
             const orgData: OrganizationCreate = {
@@ -186,14 +186,13 @@ export default function RegisterPage() {
                 createdByAdminId: createdAdmin.adminId, // Link!
             };
 
-            console.log("Creating Organization...", orgData);
+            // Creating Organization...
             await organizationApi.create(orgData);
 
             // 3. Redirect
             router.push('/login?registered=true');
 
         } catch (err: any) {
-            console.error(err);
             setError(err.response?.data?.message || err.message || "Une erreur est survenue lors de l'inscription.");
         } finally {
             setIsLoading(false);

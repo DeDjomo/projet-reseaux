@@ -735,7 +735,7 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
         if (translations[key]) {
             translation = translations[key][language as keyof typeof translations[typeof key]];
         } else {
-            console.warn(`Translation missing for key: ${key}`);
+            // Translation missing for key: ${key}
         }
 
         if (params && params.length > 0) {

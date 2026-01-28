@@ -25,7 +25,7 @@ export default function OrganizationPage() {
                 }
             }
         } catch (error) {
-            console.error("Failed to fetch organization", error);
+            // Failed to fetch organization
             toast.error(t('common.error'));
         } finally {
             setLoading(false);
@@ -223,7 +223,7 @@ function EditOrganizationModal({ organization, onClose, onSuccess }: { organizat
             await organizationApi.update(organization.organizationId, formData);
             onSuccess();
         } catch (err) {
-            console.error("Failed to update organization", err);
+            // Failed to update organization
             setError(t('common.error'));
         } finally {
             setLoading(false);

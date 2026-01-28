@@ -60,10 +60,10 @@ export default function VehicleDetailPage() {
             // Récupérer la dernière position connue
             try {
                 const latestPosition = await positionApi.getLatestByVehicleId(vehicleId);
-                console.log('RAW Position data:', JSON.stringify(latestPosition, null, 2));
                 setPosition(latestPosition);
+                // Position data fetched
             } catch (err: any) {
-                console.warn('Position non disponible:', err);
+                // Position non disponible
             }
 
             // Récupérer l'historique des trajets
@@ -71,7 +71,7 @@ export default function VehicleDetailPage() {
                 const vehicleTrips = await tripApi.getByVehicleId(vehicleId);
                 setTrips(vehicleTrips);
             } catch (err: any) {
-                console.warn('Trajets non disponibles');
+                // Trajets non disponibles
             }
 
             // Récupérer les recharges de carburant
@@ -79,7 +79,7 @@ export default function VehicleDetailPage() {
                 const vehicleFuelRecharges = await fuelRechargeApi.getByVehicleId(vehicleId);
                 setFuelRecharges(Array.isArray(vehicleFuelRecharges) ? vehicleFuelRecharges : []);
             } catch (err: any) {
-                console.warn('Recharges non disponibles');
+                // Recharges non disponibles
                 setFuelRecharges([]);
             }
 
@@ -88,7 +88,7 @@ export default function VehicleDetailPage() {
                 const vehicleMaintenances = await maintenanceApi.getByVehicleId(vehicleId);
                 setMaintenances(vehicleMaintenances);
             } catch (err: any) {
-                console.warn('Maintenances non disponibles');
+                // Maintenances non disponibles
             }
 
             // Récupérer les assignations conducteur-véhicule
@@ -96,7 +96,7 @@ export default function VehicleDetailPage() {
                 const vehicleAssignments = await driverVehicleApi.getByVehicle(vehicleId);
                 setAssignments(vehicleAssignments);
             } catch (err: any) {
-                console.warn('Assignations non disponibles');
+                // Assignations non disponibles
             }
 
             // Fetch images
@@ -104,7 +104,7 @@ export default function VehicleDetailPage() {
                 const vehicleImages = await vehicleImageApi.getImagesByVehicle(vehicleId);
                 setImages(vehicleImages);
             } catch (err) {
-                console.warn('Images unavailable');
+                // Images unavailable
             }
 
             // Récupérer les conducteurs disponibles (filtrés par organisation)
@@ -123,22 +123,19 @@ export default function VehicleDetailPage() {
                     organizationId = user.organizationId;
                 }
 
-                console.log('Using organizationId for drivers:', organizationId);
-
                 if (organizationId) {
                     const response = await import('@/lib/axios').then(m => m.default);
                     const driversResponse = await response.get(`/organizations/${organizationId}/drivers`);
-                    console.log('Fetched drivers:', driversResponse.data);
                     setAvailableDrivers(driversResponse.data);
                 } else {
-                    console.warn('No organizationId found, cannot fetch drivers');
+                    // No organizationId found, cannot fetch drivers
                 }
             } catch (err: any) {
-                console.warn('Conducteurs non disponibles:', err);
+                // Conducteurs non disponibles
             }
 
         } catch (err) {
-            console.error('Erreur lors du chargement:', err);
+            // Erreur lors du chargement
             setError(t('vehicle.error.loading'));
         } finally {
             setLoading(false);
@@ -160,7 +157,7 @@ export default function VehicleDetailPage() {
             setSelectedDriverId(null);
             setAssignNotes('');
         } catch (err: any) {
-            console.error('Erreur création assignation:', err);
+            // Erreur création assignation
             alert(err.response?.data?.message || 'Erreur lors de la création de l\'assignation');
         }
     };
@@ -172,7 +169,7 @@ export default function VehicleDetailPage() {
             const updated = await driverVehicleApi.terminate(assignmentId);
             setAssignments(prev => prev.map(a => a.assignmentId === assignmentId ? updated : a));
         } catch (err) {
-            console.error('Erreur terminaison:', err);
+            // Erreur terminaison
             alert(t('vehicle.assignments.terminateError'));
         }
     };
@@ -257,7 +254,7 @@ export default function VehicleDetailPage() {
             await tripApi.delete(tripId);
             setTrips(prev => prev.filter(t => t.tripId !== tripId));
         } catch (err) {
-            console.error('Erreur suppression:', err);
+            // Erreur suppression
             alert(t('vehicle.history.deleteError'));
         }
     };
@@ -272,7 +269,7 @@ export default function VehicleDetailPage() {
             setImages(prev => [newImage, ...prev]);
             setLoading(false);
         } catch (err) {
-            console.error('Upload failed:', err);
+            // Upload failed
             setLoading(false);
             alert(t('common.error'));
         }
@@ -284,7 +281,7 @@ export default function VehicleDetailPage() {
             await vehicleImageApi.deleteImage(imageId);
             setImages(prev => prev.filter(img => img.imageId !== imageId));
         } catch (err) {
-            console.error('Delete failed:', err);
+            // Delete failed
             alert(t('common.error'));
         }
     };

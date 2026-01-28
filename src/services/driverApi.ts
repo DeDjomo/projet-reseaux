@@ -95,7 +95,7 @@ export const driverApi = {
     // Organization Operations
     // Organization Operations (Simulated via Admin's Fleets)
     getByOrganization: async (organizationId: number): Promise<Driver[]> => {
-        console.warn("getByOrganization is deprecated on frontend without organization context, use getByAdminId");
+        // deprecated: getByOrganization is deprecated on frontend without organization context, use getByAdminId
         return [];
     },
 
@@ -103,7 +103,6 @@ export const driverApi = {
         try {
             // First, get the admin's organizationId by fetching admin details
             const adminResponse = await apiClient.get(`/admins/${adminId}`);
-            console.log('Full admin response:', JSON.stringify(adminResponse.data, null, 2));
 
             // Try different possible field names
             const organizationId = adminResponse.data.organizationId
@@ -116,10 +115,10 @@ export const driverApi = {
                 return response.data;
             }
 
-            console.warn('Admin has no organizationId, cannot fetch drivers');
+            // Admin has no organizationId, cannot fetch drivers
             return [];
         } catch (error) {
-            console.error('Error fetching drivers by admin:', error);
+            // Error fetching drivers by admin
             return [];
         }
     },

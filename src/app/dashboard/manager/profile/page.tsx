@@ -23,7 +23,7 @@ export default function ProfilePage() {
                 setAdmin(data);
             }
         } catch (error) {
-            console.error("Failed to fetch profile", error);
+            // Failed to fetch profile
             toast.error(t('common.error'));
         } finally {
             setLoading(false);
@@ -182,7 +182,7 @@ function EditProfileModal({ admin, onClose, onSuccess }: { admin: Admin; onClose
             await adminApi.update(admin.adminId, formData);
             onSuccess();
         } catch (err) {
-            console.error("Failed to update profile", err);
+            // Failed to update profile
             setError(t('common.error'));
         } finally {
             setLoading(false);

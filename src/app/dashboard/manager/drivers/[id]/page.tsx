@@ -42,7 +42,7 @@ export default function DriverDetailPage() {
                 const driverTrips = await tripApi.getByDriverId(driverId);
                 setTrips(driverTrips);
             } catch (err: any) {
-                console.warn('Trajets non disponibles:', err);
+                // Trajets non disponibles
             }
 
             // Récupérer les incidents
@@ -50,11 +50,11 @@ export default function DriverDetailPage() {
                 const driverIncidents = await incidentApi.getByDriverId(driverId);
                 setIncidents(driverIncidents);
             } catch (err: any) {
-                console.warn('Incidents non disponibles:', err);
+                // Incidents non disponibles
             }
 
         } catch (err) {
-            console.error('Erreur lors du chargement:', err);
+            // Erreur lors du chargement
             setError('Impossible de charger les données du conducteur');
         } finally {
             setLoading(false);
@@ -67,7 +67,7 @@ export default function DriverDetailPage() {
             setDriver(prev => prev ? { ...prev, driverState: newState } : null);
             toast.success(t('drivers.actions.updateSuccess'));
         } catch (error) {
-            console.error('Error updating status:', error);
+            // Error updating status
             toast.error(t('drivers.actions.updateError'));
         }
     };

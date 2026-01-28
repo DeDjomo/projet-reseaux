@@ -48,19 +48,17 @@ apiClient.interceptors.response.use(
 
             if (status === 403) {
                 // Forbidden - user doesn't have permission
-                console.error('Access denied');
+                // Access denied
             }
 
             if (status >= 500) {
                 // Server error
-                console.error('Server error:', error.response.data);
             }
         } else if (error.request) {
             // Request made but no response received
-            console.error('Network error - no response received');
+            // Network error
         } else {
             // Something else went wrong
-            console.error('Error:', error.message);
         }
 
         return Promise.reject(error);

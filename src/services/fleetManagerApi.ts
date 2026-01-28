@@ -81,7 +81,7 @@ export const fleetManagerApi = {
     // Organization Operations
     getByOrganization: async (organizationId: number): Promise<FleetManager[]> => {
         // Fallback or error if adminId is unknown.
-        console.warn("getByOrganization is deprecated on frontend without organization context, use getByAdminId");
+        // getByOrganization is deprecated on frontend without organization context, use getByAdminId
         return [];
     },
 

@@ -72,12 +72,11 @@ export default function LoginPage() {
                         localStorage.setItem('fleetman-user', JSON.stringify(updatedUser));
                     }
                 } catch (orgError) {
-                    console.warn('Could not fetch organization:', orgError);
+                    // Could not fetch organization
                 }
 
                 // Redirect based on role
                 const role = response.role?.toUpperCase();
-                console.log('Login successful, role:', role);
 
                 if (role === 'SUPER_ADMIN') {
                     router.push('/dashboard/superadmin');
@@ -93,7 +92,6 @@ export default function LoginPage() {
         } catch (err: any) {
             // Fallback: Try FleetManager login? 
             // Or just show error. User just registered as Admin so Admin login should work.
-            console.error(err);
             setError("Échec de la connexion. Vérifiez vos identifiants.");
         } finally {
             setIsLoading(false);

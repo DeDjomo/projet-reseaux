@@ -472,6 +472,13 @@ export const translations: Translations = {
     'geofences.nameDoesNotMatch': { FR: 'Le nom ne correspond pas', ENG: 'The name does not match' },
     'geofences.nameMatches': { FR: 'Nom confirmé', ENG: 'Name confirmed' },
     'geofences.loadingMap': { FR: 'Chargement de la carte...', ENG: 'Loading map...' },
+    'geofences.status': { FR: 'Statut', ENG: 'Status' },
+    'geofences.status.operational': { FR: 'Zone Opérationnelle', ENG: 'Operational Zone' },
+    'geofences.status.parking': { FR: 'Parking', ENG: 'Parking' },
+    'geofences.status.restricted': { FR: 'Zone Interdite', ENG: 'Restricted Zone' },
+    // Keys for list display (lowercase enum)
+    'geofences.status.operational_zone': { FR: 'Zone Opérationnelle', ENG: 'Operational Zone' },
+    'geofences.status.restricted_zone': { FR: 'Zone Interdite', ENG: 'Restricted Zone' },
 
     // Header & Global
     'header.search.placeholder': { FR: 'Rechercher véhicule (plaque), conducteur...', ENG: 'Search vehicle (plate), driver...' },

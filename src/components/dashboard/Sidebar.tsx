@@ -140,16 +140,16 @@ export default function Sidebar({ isOpen, setIsOpen }: SidebarProps) {
 
                 {/* Footer / User Profile Summary (Mini) */}
                 <div className="border-t border-glass p-4">
-                    <div className={`flex items-center ${!isOpen && 'justify-center'}`}>
-                        <div className="w-8 h-8 rounded-full bg-gray-200 dark:bg-gray-700 flex-shrink-0 flex items-center justify-center text-xs font-bold text-text-sub">
+                    <Link href="/dashboard/manager/profile" className={`flex items-center ${!isOpen && 'justify-center'} group cursor-pointer`}>
+                        <div className="w-8 h-8 rounded-full bg-gray-200 dark:bg-gray-700 flex-shrink-0 flex items-center justify-center text-xs font-bold text-text-sub group-hover:bg-secondary/20 group-hover:text-secondary transition-colors">
                             OM
                         </div>
 
                         <div className={`ml-3 overflow-hidden transition-all duration-200 ${isOpen ? 'opacity-100 w-auto' : 'opacity-0 w-0'}`}>
-                            <p className="text-sm font-medium text-text-main truncate">{t('sidebar.profile.admin')}</p>
+                            <p className="text-sm font-medium text-text-main truncate group-hover:text-secondary transition-colors">{t('sidebar.profile.admin')}</p>
                             <p className="text-xs text-text-muted truncate">{t('sidebar.profile.manager')}</p>
                         </div>
-                    </div>
+                    </Link>
                 </div>
             </aside>
         </>

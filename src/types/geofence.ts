@@ -1,11 +1,15 @@
 
 import { GeofenceType } from './enums';
 
+// Matches backend GeofenceStatus enum
+export type GeofenceStatus = 'PARKING' | 'OPERATIONAL_ZONE' | 'RESTRICTED_ZONE';
+
 // Matches backend GeofenceDTO
 export interface Geofence {
     geofenceId: number;
     geofenceName: string;
     geofenceType: GeofenceType;
+    geofenceStatus?: GeofenceStatus; // Added field
     perimeter?: number;
     area?: number;
     center?: any; // JTS Point serialized
@@ -33,12 +37,14 @@ export interface CircleGeofenceCreate {
     geofenceName: string;
     center: GeoJSONPoint;
     radius: number;
+    geofenceStatus?: GeofenceStatus;
     fleetManagerId?: number;
 }
 
 export interface PolygonGeofenceCreate {
     geofenceName: string;
     vertices: GeoJSONLineString;
+    geofenceStatus?: GeofenceStatus;
     fleetManagerId?: number;
 }
 

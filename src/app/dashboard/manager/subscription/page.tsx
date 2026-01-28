@@ -101,7 +101,7 @@ export default function SubscriptionPage() {
 
             {/* Current Plan */}
             {!loading && organization && (
-                <div className="bg-gradient-to-r from-secondary to-accent rounded-lg p-6 text-white">
+                <div className="bg-gradient-to-br from-blue-500 to-indigo-600 rounded-lg p-6 text-white">
                     <div className="flex items-center gap-3 mb-2">
                         <CreditCard size={24} />
                         <span className="text-sm font-medium opacity-90">{t('subscription.currentPlan')}</span>

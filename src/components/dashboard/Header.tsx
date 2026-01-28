@@ -447,7 +447,7 @@ export default function Header() {
                 </div>
 
                 {/* Organization Logo / Avatar */}
-                <div className="h-8 w-8 rounded-full bg-secondary/20 border border-secondary flex items-center justify-center overflow-hidden">
+                <Link href="/dashboard/manager/organization" className="h-8 w-8 rounded-full bg-secondary/20 border border-secondary flex items-center justify-center overflow-hidden cursor-pointer hover:ring-2 hover:ring-secondary/50 transition-all">
                     {orgLogoUrl ? (
                         <img src={orgLogoUrl} alt={orgName} className="h-full w-full object-cover" />
                     ) : (
@@ -455,7 +455,7 @@ export default function Header() {
                             {orgName.substring(0, 2).toUpperCase()}
                         </span>
                     )}
-                </div>
+                </Link>
             </div>
         </header>
     );

@@ -43,7 +43,7 @@ export const driverApi = {
     },
 
     updateState: async (driverId: number, newState: DriverState): Promise<Driver> => {
-        const response = await apiClient.put<Driver>(`/drivers/${driverId}/state`, null, {
+        const response = await apiClient.patch<Driver>(`/drivers/${driverId}/state`, null, {
             params: { newState }
         });
         return response.data;

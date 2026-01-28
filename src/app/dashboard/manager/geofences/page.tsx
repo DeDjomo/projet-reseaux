@@ -4,7 +4,7 @@
 import React, { useState, useEffect } from 'react';
 import dynamic from 'next/dynamic';
 import { useLanguage } from '@/contexts/LanguageContext';
-import { Geofence, GeofenceType } from '@/types';
+import { Geofence, GeofenceType, GeofenceStatus } from '@/types';
 import geofenceApi from '@/services/geofenceApi';
 import { organizationApi } from '@/services';
 import { Plus, Trash, Circle as CircleIcon, Hexagon, Save, X, AlertTriangle, AlertCircle, CheckCircle } from 'lucide-react';
@@ -35,6 +35,7 @@ export default function GeofencesPage() {
 
     // Creation State
     const [name, setName] = useState('');
+    const [status, setStatus] = useState<GeofenceStatus>('OPERATIONAL_ZONE');
     const [description, setDescription] = useState('');
     const [tempCenter, setTempCenter] = useState<{ lat: number; lng: number } | null>(null);
     const [tempPoints, setTempPoints] = useState<{ lat: number; lng: number }[]>([]);
@@ -156,6 +157,7 @@ export default function GeofencesPage() {
                 }
                 await geofenceApi.createCircleAsAdmin(adminId, {
                     geofenceName: name,
+                    geofenceStatus: status,
                     center: {
                         type: 'Point',
                         coordinates: [tempCenter.lng, tempCenter.lat] // GeoJSON is [lon, lat]
@@ -174,6 +176,7 @@ export default function GeofencesPage() {
 
                 await geofenceApi.createPolygonAsAdmin(adminId, {
                     geofenceName: name,
+                    geofenceStatus: status,
                     vertices: {
                         type: 'LineString',
                         coordinates: coords
@@ -197,6 +200,7 @@ export default function GeofencesPage() {
     const resetForm = () => {
         setCreationMode(null);
         setName('');
+        setStatus('OPERATIONAL_ZONE');
         setDescription('');
         setTempCenter(null);
         setTempPoints([]);
@@ -260,6 +264,18 @@ export default function GeofencesPage() {
                                 />
                             </div>
                             <div>
+                                <label className="block text-sm font-medium text-text-sub">{t('geofences.status')}</label>
+                                <select
+                                    value={status}
+                                    onChange={(e) => setStatus(e.target.value as GeofenceStatus)}
+                                    className="mt-1 block w-full rounded-md border border-gray-300 dark:border-gray-600 bg-glass p-2 text-text-main"
+                                >
+                                    <option value="OPERATIONAL_ZONE">{t('geofences.status.operational')}</option>
+                                    <option value="PARKING">{t('geofences.status.parking')}</option>
+                                    <option value="RESTRICTED_ZONE">{t('geofences.status.restricted')}</option>
+                                </select>
+                            </div>
+                            <div>
                                 <label className="block text-sm font-medium text-text-sub">{t('geofences.description')}</label>
                                 <textarea
                                     value={description}
@@ -316,6 +332,14 @@ export default function GeofencesPage() {
                                                     {geo.radius && (
                                                         <span className="text-xs text-text-muted">
                                                             {t('geofences.radius')}: {geo.radius}m
+                                                        </span>
+                                                    )}
+                                                    {geo.geofenceStatus && (
+                                                        <span className={`text-[10px] px-2 py-0.5 rounded-full border ${geo.geofenceStatus === 'RESTRICTED_ZONE' ? 'bg-red-100 text-red-700 border-red-200' :
+                                                            geo.geofenceStatus === 'PARKING' ? 'bg-blue-100 text-blue-700 border-blue-200' :
+                                                                'bg-green-100 text-green-700 border-green-200'
+                                                            }`}>
+                                                            {t(`geofences.status.${geo.geofenceStatus.toLowerCase()}`) || geo.geofenceStatus}
                                                         </span>
                                                     )}
                                                 </div>

@@ -100,31 +100,6 @@ export const geofenceApi = {
     },
 };
 
-// VehicleGeofence endpoints from VehicleGeofenceController - Base path: /vehicle-geofences
 
-export const vehicleGeofenceApi = {
-    assignVehicleToGeofence: async (vehicleId: number, geofenceId: number): Promise<void> => {
-        await apiClient.post(`/vehicle-geofences/vehicle/${vehicleId}/geofence/${geofenceId}`);
-    },
-
-    removeVehicleFromGeofence: async (vehicleId: number, geofenceId: number): Promise<void> => {
-        await apiClient.delete(`/vehicle-geofences/vehicle/${vehicleId}/geofence/${geofenceId}`);
-    },
-
-    getGeofencesByVehicleId: async (vehicleId: number): Promise<Geofence[]> => {
-        const response = await apiClient.get<Geofence[]>(`/vehicle-geofences/vehicle/${vehicleId}/geofences`);
-        return response.data;
-    },
-
-    getVehiclesByGeofenceId: async (geofenceId: number): Promise<number[]> => {
-        const response = await apiClient.get<number[]>(`/vehicle-geofences/geofence/${geofenceId}/vehicles`);
-        return response.data;
-    },
-
-    checkVehicleInGeofence: async (vehicleId: number, geofenceId: number): Promise<boolean> => {
-        const response = await apiClient.get<boolean>(`/vehicle-geofences/check/vehicle/${vehicleId}/geofence/${geofenceId}`);
-        return response.data;
-    },
-};
 
 export default geofenceApi;

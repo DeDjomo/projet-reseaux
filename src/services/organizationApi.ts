@@ -1,5 +1,5 @@
 import apiClient from '@/lib/axios';
-import { Organization, OrganizationCreate, OrganizationUpdate, OrganizationType, SubscriptionPlan, Fleet, Driver, Trip, Incident, Maintenance, FleetManager, Admin } from '@/types';
+import { Organization, OrganizationCreate, OrganizationUpdate, OrganizationType, SubscriptionPlan, Fleet, Driver, Trip, Incident, Maintenance, FleetManager, Admin, Vehicle } from '@/types';
 import { Geofence } from '@/types/geofence';
 
 // Organization endpoints from OrganizationController - Base path: /organizations
@@ -86,6 +86,17 @@ export const organizationApi = {
 
     countFleets: async (organizationId: number): Promise<number> => {
         const response = await apiClient.get<number>(`/organizations/${organizationId}/fleets/count`);
+        return response.data;
+    },
+
+    // Vehicles
+    getVehicles: async (organizationId: number): Promise<Vehicle[]> => {
+        const response = await apiClient.get<Vehicle[]>(`/organizations/${organizationId}/vehicles`);
+        return response.data;
+    },
+
+    countVehicles: async (organizationId: number): Promise<number> => {
+        const response = await apiClient.get<number>(`/organizations/${organizationId}/vehicles/count`);
         return response.data;
     },
 

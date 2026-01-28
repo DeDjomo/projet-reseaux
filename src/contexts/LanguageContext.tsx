@@ -662,6 +662,30 @@ export const translations: Translations = {
     'drivers.form.uploadVal': { FR: 'Télécharger une photo', ENG: 'Upload a photo' },
     'drivers.form.removePhoto': { FR: 'Supprimer la photo', ENG: 'Remove photo' },
     'drivers.form.photoHint': { FR: 'Format: JPG, PNG. Max: 5MB', ENG: 'Format: JPG, PNG. Max: 5MB' },
+
+    // Vehicle-Geofence Association
+    'geofences.manageVehicles': { FR: 'Gérer les véhicules', ENG: 'Manage Vehicles' },
+    'geofences.manageVehiclesShort': { FR: 'Véhicules', ENG: 'Vehicles' },
+    'geofences.addVehicle': { FR: 'Ajouter un véhicule', ENG: 'Add Vehicle' },
+    'geofences.associatedVehicles': { FR: 'Véhicules associés', ENG: 'Associated Vehicles' },
+    'geofences.noVehiclesAssociated': { FR: 'Aucun véhicule associé', ENG: 'No vehicles associated' },
+    'geofences.vehicleAlreadyAssigned': { FR: 'Ce véhicule est déjà affecté à cette zone', ENG: 'This vehicle is already assigned to this zone' },
+
+    // Common - Additional
+    'common.vehicle': { FR: 'Véhicule', ENG: 'Vehicle' },
+    'common.select': { FR: 'Sélectionner', ENG: 'Select' },
+    'common.notes': { FR: 'Notes', ENG: 'Notes' },
+    'common.optional': { FR: 'Optionnel', ENG: 'Optional' },
+    'common.add': { FR: 'Ajouter', ENG: 'Add' },
+    'common.deactivate': { FR: 'Désactiver', ENG: 'Deactivate' },
+    'common.activate': { FR: 'Activer', ENG: 'Activate' },
+    'common.confirmDelete': { FR: 'Êtes-vous sûr ?', ENG: 'Are you sure?' },
+    'common.deleteSuccess': { FR: 'Supprimé avec succès', ENG: 'Deleted successfully' },
+    'common.errorLoad': { FR: 'Erreur de chargement', ENG: 'Loading error' },
+    'common.errorCreate': { FR: 'Erreur de création', ENG: 'Creation error' },
+    'common.success': { FR: 'Succès', ENG: 'Success' },
+    'common.errorUpdate': { FR: 'Erreur de mise à jour', ENG: 'Update error' },
+    'common.errorDelete': { FR: 'Erreur de suppression', ENG: 'Deletion error' },
 };
 
 interface LanguageContextType {

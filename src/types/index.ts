@@ -10,6 +10,8 @@ export * from './user';
 export * from './trip';
 export * from './misc';
 export * from './driverVehicle';
+export * from './driverStatistics';
+export * from './vehicleGeofence';
 
 // Enums
 export * from './enums';

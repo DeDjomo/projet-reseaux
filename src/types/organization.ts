@@ -10,7 +10,7 @@ export interface Organization {
     organizationAddress: string;
     organizationCity: string;
     organizationCountry: string;
-    organizationLogo: string;
+    logoUrl: string;
     organizationType: OrganizationType;
     registrationNumber: string;
     taxId: string;

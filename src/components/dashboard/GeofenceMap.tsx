@@ -76,8 +76,9 @@ export default function GeofenceMap({
 
             markersLayerRef.current = L.layerGroup().addTo(map);
 
-            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-                attribution: '&copy; OpenStreetMap contributors'
+            L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Street_Map/MapServer/tile/{z}/{y}/{x}', {
+                attribution: 'Tiles &copy; Esri &mdash; Source: Esri, DeLorme, NAVTEQ, USGS, Intermap, iPC, NRCAN, Esri Japan, METI, Esri China (Hong Kong), Esri (Thailand), TomTom, 2012',
+                maxZoom: 19
             }).addTo(map);
 
             // Use ref for callback so it doesn't cause re-init
@@ -87,10 +88,11 @@ export default function GeofenceMap({
 
             setIsReady(true);
 
-            // Invalidate size after a short delay to ensure container has dimensions
-            setTimeout(() => {
-                map.invalidateSize();
-            }, 100);
+            // Invalidate size multiple times to ensure map renders in correct container size
+            const invalidate = () => map.invalidateSize();
+            setTimeout(invalidate, 100);
+            setTimeout(invalidate, 500);
+            setTimeout(invalidate, 1000);
         };
 
         initMap();
@@ -204,7 +206,7 @@ export default function GeofenceMap({
     return (
         <div
             id={mapContainerId}
-            className="h-full w-full"
+            className="h-full w-full min-h-[500px]"
             style={{ width: '100%', height: '100%', minHeight: '500px' }}
         >
             {!isReady && (

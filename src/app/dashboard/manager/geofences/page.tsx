@@ -20,6 +20,10 @@ const GeofenceMap = dynamic(() => import('@/components/dashboard/GeofenceMap'), 
     // Let's stick to files inside component.
 });
 
+// Dynamically import Modal to avoid SSR issues if needed, but standard import is fine for client component
+import VehicleGeofenceModal from '@/components/dashboard/VehicleGeofenceModal';
+import { Car } from 'lucide-react';
+
 export default function GeofencesPage() {
     const { t } = useLanguage();
     const [geofences, setGeofences] = useState<Geofence[]>([]);
@@ -27,6 +31,7 @@ export default function GeofencesPage() {
     const [creationMode, setCreationMode] = useState<'CIRCLE' | 'POLYGON' | null>(null);
     const [selectedGeofence, setSelectedGeofence] = useState<Geofence | null>(null);
     const [geofenceToDelete, setGeofenceToDelete] = useState<Geofence | null>(null);
+    const [geofenceToManageVehicles, setGeofenceToManageVehicles] = useState<Geofence | null>(null);
 
     // Creation State
     const [name, setName] = useState('');
@@ -296,30 +301,44 @@ export default function GeofencesPage() {
                                     <div
                                         key={geo.geofenceId}
                                         onClick={() => setSelectedGeofence(selectedGeofence?.geofenceId === geo.geofenceId ? null : geo)}
-                                        className={`p-3 border rounded-lg cursor-pointer transition flex justify-between items-center group ${selectedGeofence?.geofenceId === geo.geofenceId
+                                        className={`p-3 border rounded-lg cursor-pointer transition flex flex-col gap-2 group ${selectedGeofence?.geofenceId === geo.geofenceId
                                             ? 'border-orange-500 bg-orange-50 dark:bg-orange-900/20'
                                             : 'border-glass bg-glass hover:bg-glass/50'
                                             }`}
                                     >
-                                        <div>
-                                            <h4 className="font-medium text-text-main">{geo.geofenceName}</h4>
-                                            <div className="flex items-center gap-2 mt-1">
-                                                <span className={`text-xs px-2 py-0.5 rounded-full ${geo.geofenceType === GeofenceType.CIRCLE ? 'bg-blue-100 text-blue-700' : 'bg-green-100 text-green-700'}`}>
-                                                    {geo.geofenceType === GeofenceType.CIRCLE ? t('geofences.circle') : t('geofences.polygon')}
-                                                </span>
-                                                {geo.radius && (
-                                                    <span className="text-xs text-text-muted">
-                                                        {t('geofences.radius')}: {geo.radius}m
+                                        <div className="flex justify-between items-start">
+                                            <div>
+                                                <h4 className="font-medium text-text-main">{geo.geofenceName}</h4>
+                                                <div className="flex items-center gap-2 mt-1">
+                                                    <span className={`text-xs px-2 py-0.5 rounded-full ${geo.geofenceType === GeofenceType.CIRCLE ? 'bg-blue-100 text-blue-700' : 'bg-green-100 text-green-700'}`}>
+                                                        {geo.geofenceType === GeofenceType.CIRCLE ? t('geofences.circle') : t('geofences.polygon')}
                                                     </span>
-                                                )}
+                                                    {geo.radius && (
+                                                        <span className="text-xs text-text-muted">
+                                                            {t('geofences.radius')}: {geo.radius}m
+                                                        </span>
+                                                    )}
+                                                </div>
                                             </div>
+                                            <button
+                                                onClick={(e) => { e.stopPropagation(); handleDeleteClick(geo); }}
+                                                className="p-1.5 text-red-500 hover:bg-red-50 rounded-full opacity-0 group-hover:opacity-100 transition"
+                                                title={t('common.delete')}
+                                            >
+                                                <Trash size={16} />
+                                            </button>
                                         </div>
-                                        <button
-                                            onClick={(e) => { e.stopPropagation(); handleDeleteClick(geo); }}
-                                            className="p-2 text-red-500 hover:bg-red-50 rounded-full opacity-0 group-hover:opacity-100 transition"
-                                        >
-                                            <Trash size={16} />
-                                        </button>
+
+                                        {/* Action Buttons */}
+                                        <div className="flex gap-2 mt-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                                            <button
+                                                onClick={(e) => { e.stopPropagation(); setGeofenceToManageVehicles(geo); }}
+                                                className="text-xs flex items-center gap-1 px-2 py-1 bg-secondary/10 text-secondary border border-secondary/20 rounded hover:bg-secondary/20 transition"
+                                            >
+                                                <Car size={12} />
+                                                <span>{t('geofences.manageVehiclesShort') || "Véhicules"}</span>
+                                            </button>
+                                        </div>
                                     </div>
                                 ))
                             )}
@@ -349,6 +368,13 @@ export default function GeofencesPage() {
                         setGeofenceToDelete(null);
                         fetchGeofences();
                     }}
+                />
+            )}
+            {/* Vehicle Management Modal */}
+            {geofenceToManageVehicles && (
+                <VehicleGeofenceModal
+                    geofence={geofenceToManageVehicles}
+                    onClose={() => setGeofenceToManageVehicles(null)}
                 />
             )}
         </div>

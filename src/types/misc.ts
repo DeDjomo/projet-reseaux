@@ -142,15 +142,7 @@ export interface FuelRechargeUpdate {
 
 // Statistics DTOs
 
-export interface DriverStatistics {
-    driverId: number;
-    totalTrips: number;
-    totalDistance: number;
-    averageSpeed: number;
-    totalFuelConsumption: number;
-    incidentCount: number;
-    safetyScore: number;
-}
+// DriverStatistics moved to driverStatistics.ts
 
 export interface FleetStatistics {
     fleetId: number;

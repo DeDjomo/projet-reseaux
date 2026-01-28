@@ -1,0 +1,81 @@
+.container {
+    background: rgba(15, 23, 42, 0.6);
+    backdrop-filter: blur(12px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 16px;
+    padding: 1.5rem;
+    text-align: center;
+}
+
+.gauge {
+    position: relative;
+    margin-bottom: 0.5rem;
+}
+
+.svg {
+    width: 100%;
+    max-width: 200px;
+}
+
+.progressArc {
+    transition: stroke-dasharray 0.5s ease-out;
+}
+
+.marker {
+    font-size: 12px;
+    fill: #94a3b8;
+    font-weight: 500;
+}
+
+.display {
+    position: absolute;
+    bottom: 10px;
+    left: 50%;
+    transform: translateX(-50%);
+    text-align: center;
+}
+
+.speed {
+    display: block;
+    font-size: 2rem;
+    font-weight: 700;
+    color: #f1f5f9;
+    line-height: 1;
+}
+
+.unit {
+    display: block;
+    font-size: 0.875rem;
+    color: #94a3b8;
+    font-weight: 500;
+}
+
+.label {
+    margin: 0;
+    font-size: 0.9rem;
+    color: #94a3b8;
+    font-weight: 600;
+}
+
+/* Light Mode */
+:global([data-theme="light"]) .container {
+    background: rgba(255, 255, 255, 0.9);
+    border-color: rgba(0, 0, 0, 0.1);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+}
+
+:global([data-theme="light"]) .marker {
+    fill: #475569;
+}
+
+:global([data-theme="light"]) .speed {
+    color: #1e293b;
+}
+
+:global([data-theme="light"]) .unit {
+    color: #64748b;
+}
+
+:global([data-theme="light"]) .label {
+    color: #475569;
+}

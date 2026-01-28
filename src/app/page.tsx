@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { FiTruck, FiMapPin, FiUsers, FiBell, FiBarChart2, FiShield, FiArrowRight, FiZap, FiSun, FiMoon } from 'react-icons/fi';
 import { useTheme } from '@/contexts/ThemeContext';
 import { useLanguage } from '@/contexts/LanguageContext';
+import { Language } from '@/types';
 import styles from './landing.module.css';
 
 export default function Home() {
@@ -15,9 +16,7 @@ export default function Home() {
       {/* Navigation */}
       <nav className={styles.nav}>
         <div className={styles.logoContainer}>
-          <div className={styles.logoIcon}>
-            <FiTruck />
-          </div>
+          <img src="/logo.png" alt="FleetMan Logo" className="w-8 h-8 rounded-full object-cover mr-2" />
           <span className={styles.logoText}>FleetMan</span>
         </div>
         <div className={styles.navLinks}>
@@ -28,13 +27,13 @@ export default function Home() {
           <div className="language-switcher">
             <button
               className={`language-btn ${language === 'FR' ? 'active' : ''}`}
-              onClick={() => setLanguage('FR')}
+              onClick={() => setLanguage(Language.FR)}
             >
               FR
             </button>
             <button
-              className={`language-btn ${language === 'EN' ? 'active' : ''}`}
-              onClick={() => setLanguage('EN')}
+              className={`language-btn ${language === 'ENG' ? 'active' : ''}`}
+              onClick={() => setLanguage(Language.ENG)}
             >
               EN
             </button>
@@ -63,13 +62,13 @@ export default function Home() {
           <div className="language-switcher">
             <button
               className={`language-btn ${language === 'FR' ? 'active' : ''}`}
-              onClick={() => setLanguage('FR')}
+              onClick={() => setLanguage(Language.FR)}
             >
               FR
             </button>
             <button
-              className={`language-btn ${language === 'EN' ? 'active' : ''}`}
-              onClick={() => setLanguage('EN')}
+              className={`language-btn ${language === 'ENG' ? 'active' : ''}`}
+              onClick={() => setLanguage(Language.ENG)}
             >
               EN
             </button>
@@ -239,9 +238,7 @@ export default function Home() {
       <footer className={styles.footer}>
         <div className={styles.footerContent}>
           <div className={styles.footerLogo}>
-            <div className={styles.logoIcon}>
-              <FiTruck />
-            </div>
+            <img src="/logo.png" alt="FleetMan Logo" className="w-6 h-6 rounded-full object-cover mr-2" />
             <span className={styles.logoText}>FleetMan</span>
           </div>
           <p className={styles.footerText}>

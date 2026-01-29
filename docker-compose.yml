@@ -1,0 +1,47 @@
+version: '3.8'
+
+services:
+  db:
+    image: postgres:15-alpine
+    container_name: fleetman-db
+    environment:
+      POSTGRES_DB: fleetmanBD
+      POSTGRES_USER: admin
+      POSTGRES_PASSWORD: admin
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+  backend:
+    build: 
+      context: ./Fleetman
+      dockerfile: Dockerfile
+    container_name: fleetman-backend
+    ports:
+      - "8080:8080"
+    environment:
+      spring.datasource.url: jdbc:postgresql://db:5432/fleetmanBD
+      spring.datasource.username: admin
+      spring.datasource.password: admin
+      spring.jpa.hibernate.ddl-auto: update
+    depends_on:
+      - db
+
+  frontend:
+    build: 
+      context: .
+      dockerfile: Dockerfile
+    container_name: fleetman-frontend
+    ports:
+      - "3000:3000"
+    environment:
+      # If using server-side calls, use container name "backend"
+      # If using client-side calls (browser), use "localhost" or public IP
+      # Since Next.js has server components, we might need an internal URL
+      NEXT_PUBLIC_API_URL: http://localhost:8080/api
+    depends_on:
+      - backend
+
+volumes:
+  postgres_data:

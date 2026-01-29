@@ -41,7 +41,7 @@ export const fleetManagerApi = {
     },
 
     updateState: async (managerId: number, newState: DriverState): Promise<FleetManager> => {
-        const response = await apiClient.put<FleetManager>(`/fleet-managers/${managerId}/state`, null, {
+        const response = await apiClient.patch<FleetManager>(`/fleet-managers/${managerId}/state`, null, {
             params: { newState }
         });
         return response.data;

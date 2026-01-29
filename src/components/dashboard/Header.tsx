@@ -10,6 +10,7 @@ import { notificationApi } from '@/services/notificationApi';
 import { vehicleApi } from '@/services/vehicleApi';
 import { driverApi } from '@/services/driverApi';
 import Link from 'next/link';
+import { API_BASE_URL } from '@/lib/axios';
 import styles from './Header.module.css';
 
 export default function Header() {
@@ -31,9 +32,35 @@ export default function Header() {
     const searchRef = useRef<HTMLDivElement>(null);
     const router = useRouter();
 
-    // Mock Organization Logo
-    const orgLogoUrl = null;
-    const orgName = "My Organization";
+    const [orgLogoUrl, setOrgLogoUrl] = useState<string | null>(null);
+    const [orgName, setOrgName] = useState("My Organization");
+
+    useEffect(() => {
+        const orgStr = localStorage.getItem('fleetman-organization');
+        if (orgStr) {
+            const org = JSON.parse(orgStr);
+            setOrgName(org.organizationName || "My Organization");
+            // logoUrl contains the filename or path. Construct full URL.
+            if (org.logoUrl) {
+                // If it's a full URL (e.g. from cloud storage), use as is.
+                if (org.logoUrl.startsWith('http') || org.logoUrl.startsWith('data:')) {
+                    setOrgLogoUrl(org.logoUrl);
+                } else {
+                    // Backend logic: "localhost..../api/{logoUrl}"
+                    // Use API_BASE_URL handling the prefix
+                    // logoUrl starts with /, so direct concatenation to avoid double slash
+                    setOrgLogoUrl(`${API_BASE_URL}${org.logoUrl}`);
+                }
+            } else if (org.organizationLogo) {
+                // Fallback for legacy cached data if any
+                if (org.organizationLogo.startsWith('http') || org.organizationLogo.startsWith('data:')) {
+                    setOrgLogoUrl(org.organizationLogo);
+                } else {
+                    setOrgLogoUrl(`${API_BASE_URL}/uploads/${org.organizationLogo}`);
+                }
+            }
+        }
+    }, []);
 
     // Get adminId from localStorage
     const getAdminId = (): number | null => {
@@ -420,13 +447,15 @@ export default function Header() {
                 </div>
 
                 {/* Organization Logo / Avatar */}
-                <div className="h-8 w-8 rounded-full bg-secondary/20 border border-secondary flex items-center justify-center overflow-hidden">
+                <Link href="/dashboard/manager/organization" className="h-8 w-8 rounded-full bg-secondary/20 border border-secondary flex items-center justify-center overflow-hidden cursor-pointer hover:ring-2 hover:ring-secondary/50 transition-all">
                     {orgLogoUrl ? (
                         <img src={orgLogoUrl} alt={orgName} className="h-full w-full object-cover" />
                     ) : (
-                        <span className="text-xs font-bold text-secondary">Org</span>
+                        <span className="text-xs font-bold text-secondary">
+                            {orgName.substring(0, 2).toUpperCase()}
+                        </span>
                     )}
-                </div>
+                </Link>
             </div>
         </header>
     );

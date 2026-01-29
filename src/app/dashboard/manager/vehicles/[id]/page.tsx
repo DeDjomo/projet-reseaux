@@ -5,9 +5,9 @@ import Link from 'next/link';
 import { useParams } from 'next/navigation';
 import dynamic from 'next/dynamic';
 import { useLanguage } from '@/contexts/LanguageContext';
-import { FiTruck, FiMapPin, FiInfo, FiClock, FiBarChart2, FiTrash2, FiUserCheck, FiPlus, FiX } from 'react-icons/fi';
-import { vehicleApi, positionApi, tripApi, fuelRechargeApi, maintenanceApi, driverVehicleApi, driverApi } from '@/services';
-import { Vehicle, Trip, FuelRecharge, Maintenance, Position, DriverVehicle, Driver } from '@/types';
+import { FiTruck, FiMapPin, FiInfo, FiClock, FiBarChart2, FiTrash2, FiUserCheck, FiPlus, FiX, FiImage, FiUpload } from 'react-icons/fi';
+import { vehicleApi, positionApi, tripApi, fuelRechargeApi, maintenanceApi, driverVehicleApi, driverApi, vehicleImageApi } from '@/services';
+import { Vehicle, Trip, FuelRecharge, Maintenance, Position, DriverVehicle, Driver, VehicleImage } from '@/types';
 import SpeedGauge from '@/components/vehicle/SpeedGauge';
 import FuelGauge from '@/components/vehicle/FuelGauge';
 import PassengerIndicator from '@/components/vehicle/PassengerIndicator';
@@ -20,7 +20,9 @@ const VehicleMap = dynamic(() => import('@/components/vehicle/VehicleMap'), {
     loading: () => <div className="h-full w-full flex items-center justify-center bg-gray-100">Loading map...</div>
 });
 
-type TabType = 'position' | 'details' | 'historique' | 'bilans' | 'assignations';
+
+
+type TabType = 'position' | 'details' | 'historique' | 'bilans' | 'assignations' | 'images';
 
 export default function VehicleDetailPage() {
     const params = useParams();
@@ -34,6 +36,7 @@ export default function VehicleDetailPage() {
     const [maintenances, setMaintenances] = useState<Maintenance[]>([]);
     const [assignments, setAssignments] = useState<DriverVehicle[]>([]);
     const [availableDrivers, setAvailableDrivers] = useState<Driver[]>([]);
+    const [images, setImages] = useState<VehicleImage[]>([]);
     const [activeTab, setActiveTab] = useState<TabType>('position');
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
@@ -94,6 +97,14 @@ export default function VehicleDetailPage() {
                 setAssignments(vehicleAssignments);
             } catch (err: any) {
                 console.warn('Assignations non disponibles');
+            }
+
+            // Fetch images
+            try {
+                const vehicleImages = await vehicleImageApi.getImagesByVehicle(vehicleId);
+                setImages(vehicleImages);
+            } catch (err) {
+                console.warn('Images unavailable');
             }
 
             // Récupérer les conducteurs disponibles (filtrés par organisation)
@@ -167,14 +178,41 @@ export default function VehicleDetailPage() {
     };
 
     const getStatusLabel = (state?: string) => {
-        const labels: { [key: string]: string } = {
-            'ACTIVE': t('vehicle.status.active'),
-            'INACTIVE': t('vehicle.status.inactive'),
-            'MOVING': t('vehicle.status.moving'),
-            'PARKED': t('vehicle.status.parked'),
-            'MAINTENANCE': t('vehicle.status.maintenance')
-        };
-        return labels[state || ''] || state || t('vehicle.status.unknown');
+        const s = String(state);
+        switch (s) {
+            case 'IN_SERVICE':
+            case 'ACTIVE':
+                return t('vehicle.status.active');
+            case 'OUT_OF_SERVICE':
+            case 'INACTIVE':
+                return t('vehicle.status.inactive');
+            case 'MOVING':
+                return t('vehicle.status.moving');
+            case 'PARKED':
+                return t('vehicle.status.parked');
+            case 'UNDER_MAINTENANCE':
+            case 'MAINTENANCE':
+                return t('vehicle.status.maintenance');
+            case 'IN_ALARM':
+                return t('vehicles.inAlarm');
+            default:
+                return state || t('vehicle.status.unknown');
+        }
+    };
+
+    const getTypeLabel = (type?: string) => {
+        const tKey = `vehicles.type.${String(type).toLowerCase()}`;
+        // Simple check if key exists would be ideal but t() returns key if missing.
+        // Let's use strict mapping for known types based on enums.ts
+        switch (String(type)) {
+            case 'CAR': return t('vehicles.type.car');
+            case 'TRUCK': return t('vehicles.type.truck');
+            case 'VAN': return t('vehicles.type.van');
+            case 'BUS': return t('vehicles.type.bus');
+            case 'MOTORCYCLE': return t('vehicles.type.motorcycle');
+            case 'TRAILER': return t('vehicles.type.trailer');
+            default: return type || '';
+        }
     };
 
     const getStatusClass = (state?: string) => {
@@ -221,6 +259,33 @@ export default function VehicleDetailPage() {
         } catch (err) {
             console.error('Erreur suppression:', err);
             alert(t('vehicle.history.deleteError'));
+        }
+    };
+
+    const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+        if (!e.target.files || e.target.files.length === 0) return;
+        const file = e.target.files[0];
+
+        try {
+            setLoading(true);
+            const newImage = await vehicleImageApi.uploadImage(vehicleId, file);
+            setImages(prev => [newImage, ...prev]);
+            setLoading(false);
+        } catch (err) {
+            console.error('Upload failed:', err);
+            setLoading(false);
+            alert(t('common.error'));
+        }
+    };
+
+    const handleDeleteImage = async (imageId: number) => {
+        if (!confirm(t('common.deleteConfirm'))) return;
+        try {
+            await vehicleImageApi.deleteImage(imageId);
+            setImages(prev => prev.filter(img => img.imageId !== imageId));
+        } catch (err) {
+            console.error('Delete failed:', err);
+            alert(t('common.error'));
         }
     };
 
@@ -280,7 +345,7 @@ export default function VehicleDetailPage() {
                     </div>
                     <div className={styles.infoRow}>
                         <span className={styles.infoLabel}>{t('vehicle.info.type')} :</span>
-                        <span className={styles.infoValue}>{vehicle.type}</span>
+                        <span className={styles.infoValue}>{getTypeLabel(vehicle.type)}</span>
                     </div>
                 </div>
             </div>
@@ -321,6 +386,13 @@ export default function VehicleDetailPage() {
                 >
                     <FiUserCheck />
                     {t('vehicle.tabs.assignments')}
+                </button>
+                <button
+                    className={`${styles.tab} ${activeTab === 'images' ? styles.tabActive : ''}`}
+                    onClick={() => setActiveTab('images')}
+                >
+                    <FiImage />
+                    {t('vehicle.tabs.images')}
                 </button>
             </div>
 
@@ -377,7 +449,7 @@ export default function VehicleDetailPage() {
                                             <h3 className={styles.tripId}>{trip.tripReference || `${t('vehicle.history.tripPrefix')}${trip.tripId}`}</h3>
                                             <div className={styles.tripActions}>
                                                 <span className={`${styles.tripStatus} ${styles[`status${trip.tripStatus}`]}`}>
-                                                    {trip.tripStatus}
+                                                    {t(`trip.status.${trip.tripStatus}`)}
                                                 </span>
                                                 <button
                                                     className={styles.deleteButton}
@@ -594,124 +666,182 @@ export default function VehicleDetailPage() {
                         </div>
                     </div>
                 )}
+
+
+                {activeTab === 'images' && (
+                    <div className={styles.bilansContent}>
+                        <div className={styles.bilansSection}>
+                            <div className="flex justify-between items-center mb-6">
+                                <h3 className={styles.bilansSectionTitle} style={{ borderBottom: 'none', margin: 0 }}>
+                                    {t('vehicle.images.title')}
+                                </h3>
+                                <label className="flex items-center gap-2 px-4 py-2 bg-secondary text-white rounded-lg cursor-pointer hover:bg-secondary/90 transition-colors">
+                                    <FiUpload />
+                                    <span>{t('vehicle.images.upload')}</span>
+                                    <input type="file" className="hidden" accept="image/*" onChange={handleImageUpload} />
+                                </label>
+                            </div>
+
+                            {images.length === 0 ? (
+                                <div className="text-center py-12 bg-surface rounded-lg border border-glass">
+                                    <FiImage size={48} className="mx-auto text-text-muted mb-4" />
+                                    <p className="text-text-muted">{t('vehicle.images.noImages')}</p>
+                                </div>
+                            ) : (
+                                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+                                    {images.map((image) => (
+                                        <div key={image.imageId} className="group relative aspect-video bg-gray-100 rounded-lg overflow-hidden border border-glass">
+                                            <img
+                                                src={`http://localhost:8080${image.imageUrl}`}
+                                                alt={image.originalFileName}
+                                                className="w-full h-full object-cover transition-transform group-hover:scale-105"
+                                            />
+                                            <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2">
+                                                <a
+                                                    href={`http://localhost:8080${image.imageUrl}`}
+                                                    target="_blank"
+                                                    rel="noopener noreferrer"
+                                                    className="p-2 bg-white/20 hover:bg-white/40 rounded-full text-white backdrop-blur-sm transition-colors"
+                                                >
+                                                    <FiPlus size={20} />
+                                                </a>
+                                                <button
+                                                    onClick={() => handleDeleteImage(image.imageId)}
+                                                    className="p-2 bg-red-500/80 hover:bg-red-500 rounded-full text-white backdrop-blur-sm transition-colors"
+                                                >
+                                                    <FiTrash2 size={20} />
+                                                </button>
+                                            </div>
+                                            <div className="absolute bottom-0 left-0 right-0 p-2 bg-gradient-to-t from-black/80 to-transparent text-white text-xs truncate">
+                                                {new Date(image.uploadedAt).toLocaleDateString()}
+                                            </div>
+                                        </div>
+                                    ))}
+                                </div>
+                            )}
+                        </div>
+                    </div>
+                )}
             </div>
 
             {/* Modal d'assignation */}
-            {showAssignModal && (
-                <div style={{
-                    position: 'fixed',
-                    top: 0,
-                    left: 0,
-                    right: 0,
-                    bottom: 0,
-                    background: 'rgba(0, 0, 0, 0.6)',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    zIndex: 1000
-                }}>
+            {
+                showAssignModal && (
                     <div style={{
-                        background: 'var(--bg-surface, #1e293b)',
-                        borderRadius: '16px',
-                        padding: '2rem',
-                        width: '100%',
-                        maxWidth: '500px',
-                        border: '1px solid rgba(255, 255, 255, 0.1)'
+                        position: 'fixed',
+                        top: 0,
+                        left: 0,
+                        right: 0,
+                        bottom: 0,
+                        background: 'rgba(0, 0, 0, 0.6)',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        zIndex: 1000
                     }}>
-                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
-                            <h3 style={{ margin: 0, color: 'var(--text-main, #f1f5f9)' }}>{t('vehicle.assignModal.title')}</h3>
-                            <button
-                                onClick={() => setShowAssignModal(false)}
-                                style={{ background: 'none', border: 'none', color: '#94a3b8', cursor: 'pointer' }}
-                            >
-                                <FiX size={24} />
-                            </button>
-                        </div>
+                        <div style={{
+                            background: 'var(--bg-surface, #1e293b)',
+                            borderRadius: '16px',
+                            padding: '2rem',
+                            width: '100%',
+                            maxWidth: '500px',
+                            border: '1px solid rgba(255, 255, 255, 0.1)'
+                        }}>
+                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
+                                <h3 style={{ margin: 0, color: 'var(--text-main, #f1f5f9)' }}>{t('vehicle.assignModal.title')}</h3>
+                                <button
+                                    onClick={() => setShowAssignModal(false)}
+                                    style={{ background: 'none', border: 'none', color: '#94a3b8', cursor: 'pointer' }}
+                                >
+                                    <FiX size={24} />
+                                </button>
+                            </div>
 
-                        <div style={{ marginBottom: '1rem' }}>
-                            <label style={{ display: 'block', marginBottom: '0.5rem', color: '#94a3b8', fontWeight: 500 }}>
-                                {t('vehicle.assignModal.driver')}
-                            </label>
-                            <select
-                                value={selectedDriverId || ''}
-                                onChange={(e) => setSelectedDriverId(Number(e.target.value) || null)}
-                                style={{
-                                    width: '100%',
-                                    padding: '0.75rem',
-                                    borderRadius: '8px',
-                                    border: '1px solid rgba(255, 255, 255, 0.1)',
-                                    background: 'rgba(0, 0, 0, 0.2)',
-                                    color: 'var(--text-main, #f1f5f9)'
-                                }}
-                            >
-                                <option value="">{t('vehicle.assignModal.selectDriver')}</option>
-                                {availableDrivers.map(driver => (
-                                    <option key={driver.driverId} value={driver.driverId}>
-                                        {driver.driverFirstName} {driver.driverLastName}
-                                    </option>
-                                ))}
-                            </select>
-                        </div>
+                            <div style={{ marginBottom: '1rem' }}>
+                                <label style={{ display: 'block', marginBottom: '0.5rem', color: '#94a3b8', fontWeight: 500 }}>
+                                    {t('vehicle.assignModal.driver')}
+                                </label>
+                                <select
+                                    value={selectedDriverId || ''}
+                                    onChange={(e) => setSelectedDriverId(Number(e.target.value) || null)}
+                                    style={{
+                                        width: '100%',
+                                        padding: '0.75rem',
+                                        borderRadius: '8px',
+                                        border: '1px solid rgba(255, 255, 255, 0.1)',
+                                        background: 'rgba(0, 0, 0, 0.2)',
+                                        color: 'var(--text-main, #f1f5f9)'
+                                    }}
+                                >
+                                    <option value="">{t('vehicle.assignModal.selectDriver')}</option>
+                                    {availableDrivers.map(driver => (
+                                        <option key={driver.driverId} value={driver.driverId}>
+                                            {driver.driverFirstName} {driver.driverLastName}
+                                        </option>
+                                    ))}
+                                </select>
+                            </div>
 
-                        <div style={{ marginBottom: '1.5rem' }}>
-                            <label style={{ display: 'block', marginBottom: '0.5rem', color: '#94a3b8', fontWeight: 500 }}>
-                                {t('vehicle.assignModal.notes')}
-                            </label>
-                            <textarea
-                                value={assignNotes}
-                                onChange={(e) => setAssignNotes(e.target.value)}
-                                placeholder={t('vehicle.assignModal.notesPlaceholder')}
-                                rows={3}
-                                style={{
-                                    width: '100%',
-                                    padding: '0.75rem',
-                                    borderRadius: '8px',
-                                    border: '1px solid rgba(255, 255, 255, 0.1)',
-                                    background: 'rgba(0, 0, 0, 0.2)',
-                                    color: 'var(--text-main, #f1f5f9)',
-                                    resize: 'vertical'
-                                }}
-                            />
-                        </div>
+                            <div style={{ marginBottom: '1.5rem' }}>
+                                <label style={{ display: 'block', marginBottom: '0.5rem', color: '#94a3b8', fontWeight: 500 }}>
+                                    {t('vehicle.assignModal.notes')}
+                                </label>
+                                <textarea
+                                    value={assignNotes}
+                                    onChange={(e) => setAssignNotes(e.target.value)}
+                                    placeholder={t('vehicle.assignModal.notesPlaceholder')}
+                                    rows={3}
+                                    style={{
+                                        width: '100%',
+                                        padding: '0.75rem',
+                                        borderRadius: '8px',
+                                        border: '1px solid rgba(255, 255, 255, 0.1)',
+                                        background: 'rgba(0, 0, 0, 0.2)',
+                                        color: 'var(--text-main, #f1f5f9)',
+                                        resize: 'vertical'
+                                    }}
+                                />
+                            </div>
 
-                        <div style={{ display: 'flex', gap: '1rem' }}>
-                            <button
-                                onClick={() => setShowAssignModal(false)}
-                                style={{
-                                    flex: 1,
-                                    padding: '0.75rem',
-                                    borderRadius: '8px',
-                                    border: '1px solid rgba(255, 255, 255, 0.1)',
-                                    background: 'transparent',
-                                    color: '#94a3b8',
-                                    cursor: 'pointer',
-                                    fontWeight: 500
-                                }}
-                            >
-                                {t('vehicle.assignModal.cancel')}
-                            </button>
-                            <button
-                                onClick={handleCreateAssignment}
-                                disabled={!selectedDriverId}
-                                style={{
-                                    flex: 1,
-                                    padding: '0.75rem',
-                                    borderRadius: '8px',
-                                    border: 'none',
-                                    background: selectedDriverId
-                                        ? 'linear-gradient(135deg, #22c55e 0%, #16a34a 100%)'
-                                        : 'rgba(100, 116, 139, 0.3)',
-                                    color: 'white',
-                                    cursor: selectedDriverId ? 'pointer' : 'not-allowed',
-                                    fontWeight: 600
-                                }}
-                            >
-                                {t('vehicle.assignModal.submit')}
-                            </button>
+                            <div style={{ display: 'flex', gap: '1rem' }}>
+                                <button
+                                    onClick={() => setShowAssignModal(false)}
+                                    style={{
+                                        flex: 1,
+                                        padding: '0.75rem',
+                                        borderRadius: '8px',
+                                        border: '1px solid rgba(255, 255, 255, 0.1)',
+                                        background: 'transparent',
+                                        color: '#94a3b8',
+                                        cursor: 'pointer',
+                                        fontWeight: 500
+                                    }}
+                                >
+                                    {t('vehicle.assignModal.cancel')}
+                                </button>
+                                <button
+                                    onClick={handleCreateAssignment}
+                                    disabled={!selectedDriverId}
+                                    style={{
+                                        flex: 1,
+                                        padding: '0.75rem',
+                                        borderRadius: '8px',
+                                        border: 'none',
+                                        background: selectedDriverId
+                                            ? 'linear-gradient(135deg, #22c55e 0%, #16a34a 100%)'
+                                            : 'rgba(100, 116, 139, 0.3)',
+                                        color: 'white',
+                                        cursor: selectedDriverId ? 'pointer' : 'not-allowed',
+                                        fontWeight: 600
+                                    }}
+                                >
+                                    {t('vehicle.assignModal.submit')}
+                                </button>
+                            </div>
                         </div>
                     </div>
-                </div>
-            )}
-        </div>
+                )
+            }
+        </div >
     );
 }

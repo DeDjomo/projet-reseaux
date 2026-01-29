@@ -25,13 +25,14 @@ export { default as maintenanceApi } from './maintenanceApi';
 export { default as fuelRechargeApi } from './fuelRechargeApi';
 
 // Geofencing
-export { default as geofenceApi, vehicleGeofenceApi } from './geofenceApi';
+export { default as geofenceApi } from './geofenceApi';
 
 // Notifications
 export { default as notificationApi } from './notificationApi';
 
 // Statistics
 export { default as driverStatisticsApi } from './driverStatisticsApi';
+export * from './vehicleGeofenceApi';
 
 // Images
 export { default as vehicleImageApi } from './vehicleImageApi';

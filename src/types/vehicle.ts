@@ -51,3 +51,17 @@ export interface VehicleUpdate {
     type?: VehicleType;
     driverId?: number | null;
 }
+
+export interface VehicleImage {
+    imageId: number;
+    imageUrl: string;
+    originalFileName: string;
+    uploadedAt: string;
+    vehicleId: number;
+}
+
+export interface VehicleImageCreate {
+    vehicleId: number;
+    imageUrl?: string;
+    imageFile?: string;
+}

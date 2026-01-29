@@ -83,13 +83,13 @@
   --surface-card: #ffffff;
   --border-glass: #e1e5eb;
 
-  /* Navigation - Sidebar gets dark blue */
-  --nav-bg: #1e3a5f;
-  --nav-text: #ffffff;
-  --nav-text-muted: rgba(255, 255, 255, 0.7);
-  --nav-border: rgba(255, 255, 255, 0.1);
-  --nav-hover: rgba(255, 255, 255, 0.1);
-  --nav-active: rgba(255, 255, 255, 0.15);
+  /* Navigation - Sidebar gets clean white */
+  --nav-bg: #ffffff;
+  --nav-text: #0F172A;
+  --nav-text-muted: #64748B;
+  --nav-border: #E2E8F0;
+  --nav-hover: #F1F5F9;
+  --nav-active: #F8FAFC;
 
   /* Header - White with blue accent */
   --header-bg: #ffffff;
@@ -217,6 +217,28 @@ button {
 }
 
 /* ============================================================================
+   SCROLLBAR STYLING
+   ============================================================================ */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--border-glass);
+  border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.5);
+  /* Lighter on hover for visibility on blue */
+}
+
+/* ============================================================================
    COMPONENT: Theme Toggle Button
    ============================================================================ */
 .theme-toggle {
@@ -321,8 +343,11 @@ button {
 /* ============================================================================
    LIGHT THEME - Sidebar Styling (Dark Blue)
    ============================================================================ */
+/* ============================================================================
+   LIGHT THEME - Sidebar Styling (Custom Blue)
+   ============================================================================ */
 [data-theme="light"] aside.bg-nav {
-  background: linear-gradient(180deg, #1e3a5f 0%, #0f2847 100%) !important;
+  background: rgb(0, 106, 198) !important;
   border-right-color: rgba(255, 255, 255, 0.1) !important;
 }
 
@@ -333,7 +358,7 @@ button {
 
 [data-theme="light"] aside.bg-nav .text-text-muted,
 [data-theme="light"] aside.bg-nav .text-text-sub {
-  color: rgba(255, 255, 255, 0.7) !important;
+  color: rgba(255, 255, 255, 0.8) !important;
 }
 
 [data-theme="light"] aside.bg-nav a:hover,
@@ -343,7 +368,9 @@ button {
 
 [data-theme="light"] aside.bg-nav a.bg-secondary\/10,
 [data-theme="light"] aside.bg-nav .bg-secondary\/10 {
-  background-color: rgba(255, 255, 255, 0.15) !important;
+  background-color: rgba(255, 255, 255, 0.2) !important;
+  color: #ffffff !important;
+  border: 1px solid rgba(255, 255, 255, 0.1) !important;
 }
 
 [data-theme="light"] aside.bg-nav .border-glass {
@@ -351,14 +378,14 @@ button {
 }
 
 [data-theme="light"] aside.bg-nav .bg-glass {
-  background-color: rgba(255, 255, 255, 0.05) !important;
+  background-color: rgba(255, 255, 255, 0.1) !important;
 }
 
 /* ============================================================================
-   LIGHT THEME - Header Styling (Same Blue as Sidebar)
+   LIGHT THEME - Header Styling (Custom Blue)
    ============================================================================ */
 [data-theme="light"] header.bg-nav {
-  background: linear-gradient(90deg, #1e3a5f 0%, #0f2847 100%) !important;
+  background: rgb(0, 106, 198) !important;
   border-bottom-color: rgba(255, 255, 255, 0.1) !important;
 }
 
@@ -369,25 +396,27 @@ button {
 
 [data-theme="light"] header.bg-nav .text-text-muted,
 [data-theme="light"] header.bg-nav .text-text-sub {
-  color: rgba(255, 255, 255, 0.7) !important;
+  color: rgba(255, 255, 255, 0.8) !important;
 }
 
 [data-theme="light"] header.bg-nav input {
-  background-color: rgba(255, 255, 255, 0.1) !important;
+  background-color: rgba(255, 255, 255, 0.15) !important;
   border-color: rgba(255, 255, 255, 0.2) !important;
   color: #ffffff !important;
 }
 
 [data-theme="light"] header.bg-nav input::placeholder {
-  color: rgba(255, 255, 255, 0.5) !important;
+  color: rgba(255, 255, 255, 0.6) !important;
 }
 
 [data-theme="light"] header.bg-nav button:hover {
   background-color: rgba(255, 255, 255, 0.1) !important;
+  color: #ffffff !important;
 }
 
 [data-theme="light"] header.bg-nav .bg-glass {
   background-color: rgba(255, 255, 255, 0.1) !important;
+  border: 1px solid rgba(255, 255, 255, 0.1) !important;
 }
 
 /* ============================================================================

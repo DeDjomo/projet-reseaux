@@ -1,5 +1,5 @@
 import apiClient from '@/lib/axios';
-import { Organization, OrganizationCreate, OrganizationUpdate, OrganizationType, SubscriptionPlan, Fleet, Driver, Trip, Incident, Maintenance, FleetManager, Admin } from '@/types';
+import { Organization, OrganizationCreate, OrganizationUpdate, OrganizationType, SubscriptionPlan, Fleet, Driver, Trip, Incident, Maintenance, FleetManager, Admin, Vehicle } from '@/types';
 import { Geofence } from '@/types/geofence';
 
 // Organization endpoints from OrganizationController - Base path: /organizations
@@ -47,6 +47,24 @@ export const organizationApi = {
         await apiClient.delete(`/organizations/${organizationId}`);
     },
 
+    // Logo Operations
+    uploadLogo: async (organizationId: number, file: File): Promise<Organization> => {
+        const formData = new FormData();
+        formData.append('file', file);
+
+        const response = await apiClient.post<Organization>(`/organizations/${organizationId}/logo`, formData, {
+            headers: {
+                'Content-Type': 'multipart/form-data',
+            },
+        });
+        return response.data;
+    },
+
+    deleteLogo: async (organizationId: number): Promise<Organization> => {
+        const response = await apiClient.delete<Organization>(`/organizations/${organizationId}/logo`);
+        return response.data;
+    },
+
     // Count Operations
     count: async (): Promise<number> => {
         const response = await apiClient.get<number>('/organizations/count');
@@ -68,6 +86,17 @@ export const organizationApi = {
 
     countFleets: async (organizationId: number): Promise<number> => {
         const response = await apiClient.get<number>(`/organizations/${organizationId}/fleets/count`);
+        return response.data;
+    },
+
+    // Vehicles
+    getVehicles: async (organizationId: number): Promise<Vehicle[]> => {
+        const response = await apiClient.get<Vehicle[]>(`/organizations/${organizationId}/vehicles`);
+        return response.data;
+    },
+
+    countVehicles: async (organizationId: number): Promise<number> => {
+        const response = await apiClient.get<number>(`/organizations/${organizationId}/vehicles/count`);
         return response.data;
     },
 

@@ -156,6 +156,23 @@ export const translations: Translations = {
     'incidents.vehicleId': { FR: 'Véhicule ID: {0}', ENG: 'Vehicle ID: {0}' },
     'incidents.resolve': { FR: 'Résoudre', ENG: 'Resolve' },
 
+    // Incident Types
+    'incidents.type.ACCIDENT': { FR: 'Accident', ENG: 'Accident' },
+    'incidents.type.BREAKDOWN': { FR: 'Panne', ENG: 'Breakdown' },
+    'incidents.type.THEFT': { FR: 'Vol', ENG: 'Theft' },
+    'incidents.type.VANDALISM': { FR: 'Vandalisme', ENG: 'Vandalisme' },
+    'incidents.type.TRAFFIC_VIOLATION': { FR: 'Infraction au code', ENG: 'Traffic Violation' },
+    'incidents.type.FUEL_THEFT': { FR: 'Vol de carburant', ENG: 'Fuel Theft' },
+    'incidents.type.UNAUTHORIZED_USE': { FR: 'Utilisation non autorisée', ENG: 'Unauthorized Use' },
+    'incidents.type.SPEEDING': { FR: 'Excès de vitesse', ENG: 'Speeding' },
+    'incidents.type.OTHER': { FR: 'Autre', ENG: 'Other' },
+
+    // Incident Severity
+    'incidents.severity.CRITICAL': { FR: 'Critique', ENG: 'Critical' },
+    'incidents.severity.MAJOR': { FR: 'Majeur', ENG: 'Major' },
+    'incidents.severity.MODERATE': { FR: 'Modéré', ENG: 'Moderate' },
+    'incidents.severity.MINOR': { FR: 'Mineur', ENG: 'Minor' },
+
     'sidebar.geofences': { FR: 'Zones (Geofencing)', ENG: 'Geofences' },
     'sidebar.reports': { FR: 'Bilans', ENG: 'Reports' },
     'sidebar.history': { FR: 'Historique', ENG: 'History' },
@@ -206,6 +223,8 @@ export const translations: Translations = {
     'drivers.new': { FR: 'Nouveau Chauffeur', ENG: 'New Driver' },
     'drivers.searchPlaceholder': { FR: 'Rechercher par nom, email, téléphone...', ENG: 'Search by name, email, phone...' },
     'drivers.noDrivers': { FR: 'Aucun chauffeur trouvé', ENG: 'No drivers found' },
+    'fleets.filter.allTypes': { FR: 'Tous les types', ENG: 'All types' },
+    'fleets.filter.allManagers': { FR: 'Tous les gestionnaires', ENG: 'All managers' },
     'drivers.addFirst': { FR: 'Ajoutez votre premier chauffeur', ENG: 'Add your first driver' },
     'drivers.active': { FR: 'Actif', ENG: 'Active' },
     'drivers.inactive': { FR: 'Inactif', ENG: 'Inactive' },
@@ -218,6 +237,15 @@ export const translations: Translations = {
     'drivers.typeNameToConfirm': { FR: 'Saisissez le nom complet du chauffeur pour confirmer:', ENG: 'Type the full driver name to confirm:' },
     'drivers.nameDoesNotMatch': { FR: 'Le nom ne correspond pas', ENG: 'The name does not match' },
     'drivers.nameMatches': { FR: 'Nom confirmé', ENG: 'Name confirmed' },
+
+    // Driver Actions
+    'drivers.actions.title': { FR: 'Actions Rapides', ENG: 'Quick Actions' },
+    'drivers.actions.activate': { FR: 'Activer le conducteur', ENG: 'Activate Driver' },
+    'drivers.actions.suspend': { FR: 'Suspendre', ENG: 'Suspend' },
+    'drivers.actions.leave': { FR: 'Mettre en congé', ENG: 'Set as On Leave' },
+    'drivers.actions.deactivate': { FR: 'Désactiver', ENG: 'Deactivate' },
+    'drivers.actions.updateSuccess': { FR: 'Statut mis à jour avec succès', ENG: 'Status updated successfully' },
+    'drivers.actions.updateError': { FR: 'Erreur lors de la mise à jour', ENG: 'Error updating status' },
 
     // Reports Page
     'reports.title': { FR: 'Bilans', ENG: 'Reports' },
@@ -435,11 +463,22 @@ export const translations: Translations = {
     'geofences.selectCenter': { FR: 'Veuillez sélectionner un centre sur la carte', ENG: 'Please select a center on the map' },
     'geofences.minPoints': { FR: 'Un polygone doit avoir au moins 3 points', ENG: 'A polygon must have at least 3 points' },
     'geofences.createSuccess': { FR: 'Zone créée avec succès', ENG: 'Zone created successfully' },
-    'geofences.createError': { FR: 'Erreur lors de la création', ENG: 'Error during creation' },
-    'geofences.deleteConfirm': { FR: 'Êtes-vous sûr de vouloir supprimer cette zone ?', ENG: 'Are you sure you want to delete this zone?' },
-    'geofences.deleteSuccess': { FR: 'Zone supprimée', ENG: 'Zone deleted' },
-    'geofences.deleteError': { FR: 'Erreur lors de la suppression', ENG: 'Error during deletion' },
+    'geofences.createError': { FR: 'Erreur lors de la création', ENG: 'Error creating geofence' },
+    'geofences.deleteConfirm': { FR: 'Êtes-vous sûr de vouloir supprimer cette zone ?', ENG: 'Are you sure you want to delete this geofence?' },
+    'geofences.deleteWarning': { FR: 'Cette action est irréversible.', ENG: 'This action is irreversible.' },
+    'geofences.deleteSuccess': { FR: 'Zone supprimée avec succès', ENG: 'Geofence deleted successfully' },
+    'geofences.deleteError': { FR: 'Erreur lors de la suppression', ENG: 'Error deleting geofence' },
+    'geofences.typeNameToConfirm': { FR: 'Saisissez le nom de la zone pour confirmer:', ENG: 'Type the geofence name to confirm:' },
+    'geofences.nameDoesNotMatch': { FR: 'Le nom ne correspond pas', ENG: 'The name does not match' },
+    'geofences.nameMatches': { FR: 'Nom confirmé', ENG: 'Name confirmed' },
     'geofences.loadingMap': { FR: 'Chargement de la carte...', ENG: 'Loading map...' },
+    'geofences.status': { FR: 'Statut', ENG: 'Status' },
+    'geofences.status.operational': { FR: 'Zone Opérationnelle', ENG: 'Operational Zone' },
+    'geofences.status.parking': { FR: 'Parking', ENG: 'Parking' },
+    'geofences.status.restricted': { FR: 'Zone Interdite', ENG: 'Restricted Zone' },
+    // Keys for list display (lowercase enum)
+    'geofences.status.operational_zone': { FR: 'Zone Opérationnelle', ENG: 'Operational Zone' },
+    'geofences.status.restricted_zone': { FR: 'Zone Interdite', ENG: 'Restricted Zone' },
 
     // Header & Global
     'header.search.placeholder': { FR: 'Rechercher véhicule (plaque), conducteur...', ENG: 'Search vehicle (plate), driver...' },
@@ -498,6 +537,12 @@ export const translations: Translations = {
     'vehicle.history.distance': { FR: 'Distance', ENG: 'Distance' },
     'vehicle.history.deleteConfirm': { FR: 'Êtes-vous sûr de vouloir supprimer ce trajet ?', ENG: 'Are you sure you want to delete this trip?' },
     'vehicle.history.deleteError': { FR: 'Erreur lors de la suppression du trajet', ENG: 'Error deleting trip' },
+
+    // Trip Status
+    'trip.status.PLANNED': { FR: 'Planifié', ENG: 'Planned' },
+    'trip.status.IN_PROGRESS': { FR: 'En cours', ENG: 'In Progress' },
+    'trip.status.COMPLETED': { FR: 'Terminé', ENG: 'Completed' },
+    'trip.status.CANCELLED': { FR: 'Annulé', ENG: 'Cancelled' },
 
     'vehicle.reports.title': { FR: 'Bilans du véhicule', ENG: 'Vehicle Reports' },
     'vehicle.reports.fuel.title': { FR: 'Recharges de carburant', ENG: 'Fuel Recharges' },
@@ -612,6 +657,7 @@ export const translations: Translations = {
     'vehicles.type.van': { FR: 'Van', ENG: 'Van' },
     'vehicles.type.motorcycle': { FR: 'Moto', ENG: 'Motorcycle' },
     'vehicles.type.bus': { FR: 'Bus', ENG: 'Bus' },
+    'vehicles.type.trailer': { FR: 'Remorque', ENG: 'Trailer' },
 
     'vehicles.fuel.petrol': { FR: 'Essence', ENG: 'Petrol' },
     'vehicles.fuel.diesel': { FR: 'Diesel', ENG: 'Diesel' },
@@ -623,6 +669,30 @@ export const translations: Translations = {
     'drivers.form.uploadVal': { FR: 'Télécharger une photo', ENG: 'Upload a photo' },
     'drivers.form.removePhoto': { FR: 'Supprimer la photo', ENG: 'Remove photo' },
     'drivers.form.photoHint': { FR: 'Format: JPG, PNG. Max: 5MB', ENG: 'Format: JPG, PNG. Max: 5MB' },
+
+    // Vehicle-Geofence Association
+    'geofences.manageVehicles': { FR: 'Gérer les véhicules', ENG: 'Manage Vehicles' },
+    'geofences.manageVehiclesShort': { FR: 'Véhicules', ENG: 'Vehicles' },
+    'geofences.addVehicle': { FR: 'Ajouter un véhicule', ENG: 'Add Vehicle' },
+    'geofences.associatedVehicles': { FR: 'Véhicules associés', ENG: 'Associated Vehicles' },
+    'geofences.noVehiclesAssociated': { FR: 'Aucun véhicule associé', ENG: 'No vehicles associated' },
+    'geofences.vehicleAlreadyAssigned': { FR: 'Ce véhicule est déjà affecté à cette zone', ENG: 'This vehicle is already assigned to this zone' },
+
+    // Common - Additional
+    'common.vehicle': { FR: 'Véhicule', ENG: 'Vehicle' },
+    'common.select': { FR: 'Sélectionner', ENG: 'Select' },
+    'common.notes': { FR: 'Notes', ENG: 'Notes' },
+    'common.optional': { FR: 'Optionnel', ENG: 'Optional' },
+    'common.add': { FR: 'Ajouter', ENG: 'Add' },
+    'common.deactivate': { FR: 'Désactiver', ENG: 'Deactivate' },
+    'common.activate': { FR: 'Activer', ENG: 'Activate' },
+    'common.confirmDelete': { FR: 'Êtes-vous sûr ?', ENG: 'Are you sure?' },
+    'common.deleteSuccess': { FR: 'Supprimé avec succès', ENG: 'Deleted successfully' },
+    'common.errorLoad': { FR: 'Erreur de chargement', ENG: 'Loading error' },
+    'common.errorCreate': { FR: 'Erreur de création', ENG: 'Creation error' },
+    'common.success': { FR: 'Succès', ENG: 'Success' },
+    'common.errorUpdate': { FR: 'Erreur de mise à jour', ENG: 'Update error' },
+    'common.errorDelete': { FR: 'Erreur de suppression', ENG: 'Deletion error' },
 };
 
 interface LanguageContextType {

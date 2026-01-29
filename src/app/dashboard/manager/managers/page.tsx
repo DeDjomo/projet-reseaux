@@ -6,6 +6,7 @@ import fleetManagerApi from '@/services/fleetManagerApi';
 import { organizationApi } from '@/services';
 import { FleetManager, FleetManagerCreate, DriverState, Gender, Language } from '@/types';
 import { Plus, UserCog, Edit, Trash2, Search, Filter, Phone, Mail, X, AlertTriangle, AlertCircle, CheckCircle, Building2 } from 'lucide-react';
+import toast from 'react-hot-toast';
 
 export default function ManagersPage() {
     const { t } = useLanguage();
@@ -16,6 +17,7 @@ export default function ManagersPage() {
     const [showCreateModal, setShowCreateModal] = useState(false);
     const [editingManager, setEditingManager] = useState<FleetManager | null>(null);
     const [deletingManager, setDeletingManager] = useState<FleetManager | null>(null);
+    const [statusManager, setStatusManager] = useState<FleetManager | null>(null);
 
     useEffect(() => {
         fetchManagers();
@@ -178,7 +180,7 @@ export default function ManagersPage() {
                                     <tr key={manager.managerId} className="hover:bg-glass/30 transition-colors">
                                         <td className="px-6 py-4">
                                             <div className="flex items-center gap-3">
-                                                <div className="w-10 h-10 rounded-full bg-gradient-to-br from-accent to-secondary flex items-center justify-center text-white font-bold text-sm">
+                                                <div className="w-10 h-10 rounded-full bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center text-white font-bold text-sm">
                                                     {manager.managerFirstName?.[0]}{manager.managerLastName?.[0]}
                                                 </div>
                                                 <div>
@@ -216,6 +218,13 @@ export default function ManagersPage() {
                                         <td className="px-6 py-4">
                                             <div className="flex items-center justify-end gap-2">
                                                 <button
+                                                    onClick={() => setStatusManager(manager)}
+                                                    className="p-2 rounded-lg hover:bg-glass text-text-muted hover:text-blue-500 transition-colors"
+                                                    title="Changer le statut"
+                                                >
+                                                    <UserCog size={18} />
+                                                </button>
+                                                <button
                                                     onClick={() => setEditingManager(manager)}
                                                     className="p-2 rounded-lg hover:bg-glass text-text-muted hover:text-accent transition-colors"
                                                     title={t('common.edit')}
@@ -243,7 +252,7 @@ export default function ManagersPage() {
                             <div key={manager.managerId} className="p-4 hover:bg-glass/30 transition-colors">
                                 <div className="flex items-start justify-between">
                                     <div className="flex items-center gap-3">
-                                        <div className="w-12 h-12 rounded-full bg-gradient-to-br from-accent to-secondary flex items-center justify-center text-white font-bold">
+                                        <div className="w-12 h-12 rounded-full bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center text-white font-bold">
                                             {manager.managerFirstName?.[0]}{manager.managerLastName?.[0]}
                                         </div>
                                         <div>
@@ -256,6 +265,12 @@ export default function ManagersPage() {
                                         </div>
                                     </div>
                                     <div className="flex gap-1">
+                                        <button
+                                            onClick={() => setStatusManager(manager)}
+                                            className="p-2 rounded-lg hover:bg-glass text-text-muted text-blue-500"
+                                        >
+                                            <UserCog size={18} />
+                                        </button>
                                         <button
                                             onClick={() => setEditingManager(manager)}
                                             className="p-2 rounded-lg hover:bg-glass text-text-muted"
@@ -308,6 +323,18 @@ export default function ManagersPage() {
                     onClose={() => setEditingManager(null)}
                     onSuccess={() => {
                         setEditingManager(null);
+                        fetchManagers();
+                    }}
+                />
+            )}
+
+            {/* Status Manager Modal */}
+            {statusManager && (
+                <ChangeStatusModal
+                    manager={statusManager}
+                    onClose={() => setStatusManager(null)}
+                    onSuccess={() => {
+                        setStatusManager(null);
                         fetchManagers();
                     }}
                 />
@@ -759,6 +786,61 @@ function CreateManagerModal({ onClose, onSuccess }: { onClose: () => void; onSuc
                         </button>
                     </div>
                 </form>
+            </div>
+        </div>
+    );
+}
+// Status Change Modal
+function ChangeStatusModal({ manager, onClose, onSuccess }: { manager: FleetManager; onClose: () => void; onSuccess: () => void }) {
+    const { t } = useLanguage();
+    const [loading, setLoading] = useState(false);
+
+    // Status handling
+    const handleStatusChange = async (newState: DriverState) => {
+        setLoading(true);
+        try {
+            await fleetManagerApi.updateState(manager.managerId, newState);
+            toast.success(t('common.success'));
+            onSuccess();
+        } catch (error) {
+            console.error('Error updating status', error);
+            toast.error(t('common.error'));
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    return (
+        <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
+            <div className="bg-surface rounded-lg border border-glass shadow-xl w-full max-w-sm">
+                <div className="p-4 border-b border-glass flex justify-between items-center">
+                    <h3 className="font-semibold text-text-main">Changer le statut</h3>
+                    <button onClick={onClose}><X size={20} className="text-text-muted" /></button>
+                </div>
+                <div className="p-4 flex flex-col gap-2">
+                    <p className="text-sm text-text-muted mb-2">Sélectionnez le nouveau statut pour {manager.managerFirstName} :</p>
+
+                    {[DriverState.ACTIVE, DriverState.ON_LEAVE, DriverState.SUSPENDED, DriverState.INACTIVE].map(state => (
+                        <button
+                            key={state}
+                            disabled={loading || manager.managerState === state}
+                            onClick={() => handleStatusChange(state)}
+                            className={`p-3 rounded-lg text-left text-sm font-medium transition flex items-center justify-between
+                                ${manager.managerState === state
+                                    ? 'bg-secondary/10 text-secondary border border-secondary/20 cursor-default'
+                                    : 'bg-glass hover:bg-glass/80 text-text-main border border-glass hover:border-text-muted/20'
+                                }`}
+                        >
+                            <span>
+                                {state === DriverState.ACTIVE && t('managers.active')}
+                                {state === DriverState.INACTIVE && t('managers.inactive')}
+                                {state === DriverState.ON_LEAVE && t('managers.onLeave')}
+                                {state === DriverState.SUSPENDED && t('managers.suspended')}
+                            </span>
+                            {manager.managerState === state && <CheckCircle size={16} />}
+                        </button>
+                    ))}
+                </div>
             </div>
         </div>
     );

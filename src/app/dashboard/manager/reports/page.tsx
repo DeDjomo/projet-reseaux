@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState } from 'react';
 import { useLanguage } from '@/contexts/LanguageContext';
-import { fuelRechargeApi, maintenanceApi, vehicleApi, incidentApi, tripApi } from '@/services';
+import { fuelRechargeApi, maintenanceApi, vehicleApi, incidentApi, tripApi, organizationApi } from '@/services';
 import { FuelRecharge, Maintenance, Vehicle, Incident, Trip } from '@/types';
 import {
     Fuel,
@@ -34,11 +34,28 @@ export default function ReportsPage() {
     const fetchData = async () => {
         try {
             setLoading(true);
+            // Get organization from localStorage
+            const orgStr = localStorage.getItem('fleetman-organization');
+            const userStr = localStorage.getItem('fleetman-user');
+
+            let organizationId: number | undefined;
+            if (orgStr) {
+                const org = JSON.parse(orgStr);
+                organizationId = org.organizationId;
+            } else if (userStr) {
+                const user = JSON.parse(userStr);
+                organizationId = user.organizationId;
+            }
+
+            const fetchIncidents = organizationId
+                ? organizationApi.getIncidents(organizationId).catch(() => [])
+                : incidentApi.getAll().catch(() => []);
+
             const [fuelData, maintenanceData, vehicleData, incidentData, tripData] = await Promise.all([
                 fuelRechargeApi.getAll().catch(() => []),
                 maintenanceApi.getAll().catch(() => []),
                 vehicleApi.getAll().catch(() => []),
-                incidentApi.getAll().catch(() => []),
+                fetchIncidents,
                 tripApi.getAll().catch(() => [])
             ]);
 

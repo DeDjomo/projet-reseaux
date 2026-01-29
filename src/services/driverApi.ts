@@ -43,7 +43,7 @@ export const driverApi = {
     },
 
     updateState: async (driverId: number, newState: DriverState): Promise<Driver> => {
-        const response = await apiClient.put<Driver>(`/drivers/${driverId}/state`, null, {
+        const response = await apiClient.patch<Driver>(`/drivers/${driverId}/state`, null, {
             params: { newState }
         });
         return response.data;
@@ -56,6 +56,24 @@ export const driverApi = {
     // Count Operations
     countByState: async (state: DriverState): Promise<number> => {
         const response = await apiClient.get<number>(`/drivers/count/state/${state}`);
+        return response.data;
+    },
+
+    // Photo Operations
+    uploadPhoto: async (driverId: number, file: File): Promise<Driver> => {
+        const formData = new FormData();
+        formData.append('file', file);
+
+        const response = await apiClient.post<Driver>(`/drivers/${driverId}/photo`, formData, {
+            headers: {
+                'Content-Type': 'multipart/form-data',
+            },
+        });
+        return response.data;
+    },
+
+    deletePhoto: async (driverId: number): Promise<Driver> => {
+        const response = await apiClient.delete<Driver>(`/drivers/${driverId}/photo`);
         return response.data;
     },
 

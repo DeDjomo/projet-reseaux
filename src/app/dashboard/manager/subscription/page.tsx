@@ -101,7 +101,7 @@ export default function SubscriptionPage() {
 
             {/* Current Plan */}
             {!loading && organization && (
-                <div className="bg-gradient-to-r from-secondary to-accent rounded-lg p-6 text-white">
+                <div className="bg-gradient-to-br from-blue-500 to-indigo-600 rounded-lg p-6 text-white">
                     <div className="flex items-center gap-3 mb-2">
                         <CreditCard size={24} />
                         <span className="text-sm font-medium opacity-90">{t('subscription.currentPlan')}</span>
@@ -114,7 +114,7 @@ export default function SubscriptionPage() {
             )}
 
             {/* Plans Grid */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                 {plans.map((plan) => (
                     <div key={plan.id} className={`relative bg-surface rounded-lg border ${plan.popular ? 'border-secondary shadow-lg' : 'border-glass'} p-6 flex flex-col`}>
                         {plan.popular && (

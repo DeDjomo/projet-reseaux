@@ -1,10 +1,17 @@
 "use client";
 
+import dynamic from 'next/dynamic';
 import React from 'react';
 import { useLanguage } from '@/contexts/LanguageContext';
-import { Truck, Users, AlertTriangle } from 'lucide-react';
-import { organizationApi } from '@/services';
-import { LayoutDashboard } from 'lucide-react';
+import { Truck, Users, AlertTriangle, LayoutDashboard } from 'lucide-react';
+import { positionApi, organizationApi } from '@/services';
+import { Vehicle, Position } from '@/types';
+
+// Dynamically import map to avoid SSR issues with Leaflet
+const FleetMap = dynamic(() => import('@/components/vehicle/FleetMap'), {
+    ssr: false,
+    loading: () => <div className="h-full w-full bg-gray-100 animate-pulse rounded-lg flex items-center justify-center">Chargement de la carte...</div>
+});
 
 export default function DashboardManagerPage() {
     const { t } = useLanguage();
@@ -15,22 +22,16 @@ export default function DashboardManagerPage() {
         fleets: 0
     });
     const [loading, setLoading] = React.useState(true);
-    const [organizationName, setOrganizationName] = React.useState<string>('');
+    const [vehicles, setVehicles] = React.useState<Vehicle[]>([]);
+    const [positions, setPositions] = React.useState<Record<number, Position>>({});
 
     React.useEffect(() => {
         const fetchData = async () => {
             try {
-                // Get organization from localStorage
-                const orgStr = localStorage.getItem('fleetman-organization');
                 const userStr = localStorage.getItem('fleetman-user');
-
                 let organizationId: number | undefined;
 
-                if (orgStr) {
-                    const org = JSON.parse(orgStr);
-                    organizationId = org.organizationId;
-                    setOrganizationName(org.organizationName || '');
-                } else if (userStr) {
+                if (userStr) {
                     const user = JSON.parse(userStr);
                     organizationId = user.organizationId;
                 }
@@ -41,18 +42,37 @@ export default function DashboardManagerPage() {
                     return;
                 }
 
-                // Fetch counts using organization-based endpoints
+                // Fetch stats
                 const [fleetCount, driverCount, incidentCount] = await Promise.all([
                     organizationApi.countFleets(organizationId),
                     organizationApi.countDrivers(organizationId),
                     organizationApi.countIncidents(organizationId)
                 ]);
 
-                // For vehicles, we need to get fleets first then count vehicles
+                // Fetch vehicles
+                const orgVehicles = await organizationApi.getVehicles(organizationId);
+                setVehicles(orgVehicles);
+
+                // Fetch latest positions for all vehicles
+                const posMap: Record<number, Position> = {};
+                // Use Promise.all with map to fetch concurrent
+                await Promise.all(orgVehicles.map(async (v) => {
+                    try {
+                        const pos = await positionApi.getLatestByVehicleId(v.vehicleId);
+                        if (pos) {
+                            posMap[v.vehicleId] = pos;
+                        }
+                    } catch (e) {
+                        // No position or error, ignore
+                    }
+                }));
+                setPositions(posMap);
+
+                // Calculate total vehicles from fleets if needed, or just use length of vehicles array
+                // The previous code summed fleet.vehiclesCount, which is good for stats
                 const fleets = await organizationApi.getFleets(organizationId);
                 let vehicleCount = 0;
                 for (const fleet of fleets) {
-                    // Count vehicles per fleet (use existing vehicle API or estimate)
                     vehicleCount += fleet.vehiclesCount || 0;
                 }
 
@@ -81,7 +101,7 @@ export default function DashboardManagerPage() {
     ];
 
     return (
-        <div className="space-y-6 animate-fade-in">
+        <div className="space-y-6 animate-fade-in pb-10">
             {/* Welcome Section */}
             <div>
                 <h1 className="text-2xl font-bold text-text-main">
@@ -121,10 +141,19 @@ export default function DashboardManagerPage() {
                 ))}
             </div>
 
-            {/* Recent Activity / Map Placeholder */}
-            <div className="bg-surface shadow rounded-lg border border-glass p-6 min-h-[400px] flex items-center justify-center">
-                <div className="text-center">
-                    <p className="text-text-muted">{t('dashboard.mapComingSoon')}</p>
+            {/* Map Section */}
+            <div className="bg-surface shadow rounded-lg border border-glass overflow-hidden h-[500px] flex flex-col">
+                <div className="p-4 border-b border-glass bg-surface/50 backdrop-blur-sm">
+                    <h2 className="font-semibold text-lg text-text-main flex items-center gap-2">
+                        <Truck size={20} className="text-blue-500" />
+                        Carte de la flotte
+                        <span className="text-xs font-normal text-text-muted ml-2">
+                            ({Object.keys(positions).length} véhicules localisés)
+                        </span>
+                    </h2>
+                </div>
+                <div className="flex-1 relative z-0">
+                    <FleetMap vehicles={vehicles} positions={positions} />
                 </div>
             </div>
         </div>

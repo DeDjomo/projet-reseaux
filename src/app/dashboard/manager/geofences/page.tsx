@@ -286,13 +286,12 @@ export default function GeofencesPage() {
                                 <div>
                                     <label className="block text-sm font-medium text-text-sub">{t('geofences.radius')}: {radius}m</label>
                                     <input
-                                        type="range"
-                                        min="50"
-                                        max="5000"
-                                        step="50"
+                                        type="number"
+                                        min="1"
                                         value={radius}
                                         onChange={(e) => setRadius(Number(e.target.value))}
-                                        className="w-full mt-2"
+                                        className="mt-1 block w-full rounded-md border border-gray-300 dark:border-gray-600 bg-transparent p-2 text-text-main"
+                                        placeholder="Enter radius in meters"
                                     />
                                 </div>
                             )}
@@ -429,7 +428,7 @@ function DeleteGeofenceModal({ geofence, onClose, onSuccess }: { geofence: Geofe
     };
 
     return (
-        <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
+        <div className="fixed inset-0 bg-black/50 z-[9999] flex items-center justify-center p-4">
             <div className="bg-surface rounded-lg border border-glass shadow-xl w-full max-w-md">
                 <div className="p-6 border-b border-glass">
                     <div className="flex items-center justify-between">

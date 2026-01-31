@@ -152,7 +152,7 @@
 }
 
 .tabActive {
-    background: linear-gradient(135deg, #22c55e 0%, #06b6d4 100%) !important;
+    background: rgb(0, 106, 198) !important;
     color: white !important;
 }
 

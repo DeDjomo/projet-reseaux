@@ -186,9 +186,19 @@ export default function RegisterPage() {
             };
 
             // Creating Organization...
-            await organizationApi.create(orgData);
+            const createdOrg = await organizationApi.create(orgData);
 
-            // 3. Redirect
+            // 3. Upload logo if provided
+            if (logoFile && createdOrg.organizationId) {
+                try {
+                    await organizationApi.uploadLogo(createdOrg.organizationId, logoFile);
+                } catch (logoError) {
+                    // Logo upload failed but org was created - continue anyway
+                    console.warn('Logo upload failed:', logoError);
+                }
+            }
+
+            // 4. Redirect
             router.push('/login?registered=true');
 
         } catch (err: any) {

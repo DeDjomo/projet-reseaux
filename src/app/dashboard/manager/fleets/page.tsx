@@ -572,6 +572,7 @@ function CreateFleetWizard({ onClose, onSuccess }: { onClose: () => void; onSucc
     const [step, setStep] = useState<1 | 2 | 3>(1);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState('');
+    const [selfAsManager, setSelfAsManager] = useState(false);
 
     // Fleet form data (Step 1)
     const [fleetData, setFleetData] = useState<FleetCreate>({
@@ -600,7 +601,11 @@ function CreateFleetWizard({ onClose, onSuccess }: { onClose: () => void; onSucc
 
     const handleSubmitFleet = (e: React.FormEvent) => {
         e.preventDefault();
-        setStep(2);
+        if (selfAsManager) {
+            setStep(3); // Skip manager step
+        } else {
+            setStep(2);
+        }
     };
 
     const handleSubmitManager = (e: React.FormEvent) => {
@@ -621,11 +626,20 @@ function CreateFleetWizard({ onClose, onSuccess }: { onClose: () => void; onSucc
                 adminId = user.adminId || user.userId || 1;
             }
 
-            // Step 1: Create Fleet Manager first (backend requirement)
-            const newManager = await fleetManagerApi.create(adminId, managerData as unknown as FleetManagerCreate);
+            let managerId: number;
 
-            // Step 2: Create Fleet with the new manager ID
-            await fleetApi.create(newManager.managerId, fleetData as unknown as FleetCreate);
+            if (selfAsManager) {
+                // Use admin's system fleet manager
+                const systemManager = await fleetManagerApi.getOrCreateSystemFleetManager(adminId);
+                managerId = systemManager.managerId;
+            } else {
+                // Create new Fleet Manager
+                const newManager = await fleetManagerApi.create(adminId, managerData as unknown as FleetManagerCreate);
+                managerId = newManager.managerId;
+            }
+
+            // Create Fleet with the manager ID
+            await fleetApi.create(managerId, fleetData as unknown as FleetCreate);
 
             // Success!
             setTimeout(() => {
@@ -656,7 +670,7 @@ function CreateFleetWizard({ onClose, onSuccess }: { onClose: () => void; onSucc
                     {/* Progress indicator */}
                     <div className="flex items-center gap-2">
                         <div className={`flex-1 h-2 rounded-full ${step >= 1 ? 'bg-secondary' : 'bg-glass'}`} />
-                        <div className={`flex-1 h-2 rounded-full ${step >= 2 ? 'bg-secondary' : 'bg-glass'}`} />
+                        {!selfAsManager && <div className={`flex-1 h-2 rounded-full ${step >= 2 ? 'bg-secondary' : 'bg-glass'}`} />}
                         <div className={`flex-1 h-2 rounded-full ${step >= 3 ? 'bg-green-500' : 'bg-glass'}`} />
                     </div>
                 </div>
@@ -707,6 +721,22 @@ function CreateFleetWizard({ onClose, onSuccess }: { onClose: () => void; onSucc
                                 <option value="MIXED">{t('fleetType.mixed')}</option>
                                 <option value="OTHER">{t('fleetType.other')}</option>
                             </select>
+                        </div>
+
+                        {/* Self-assignment option */}
+                        <div className="p-4 bg-glass/50 rounded-lg border border-glass">
+                            <label className="flex items-center gap-3 cursor-pointer">
+                                <input
+                                    type="checkbox"
+                                    checked={selfAsManager}
+                                    onChange={(e) => setSelfAsManager(e.target.checked)}
+                                    className="w-5 h-5 rounded border-glass text-secondary focus:ring-secondary"
+                                />
+                                <div>
+                                    <span className="font-medium text-text-main">{t('fleets.selfAsManager')}</span>
+                                    <p className="text-xs text-text-muted mt-0.5">{t('fleets.selfAsManagerDesc')}</p>
+                                </div>
+                            </label>
                         </div>
 
                         <p className="text-xs text-text-muted">{t('form.requiredFields')}</p>
@@ -968,38 +998,47 @@ function CreateFleetWizard({ onClose, onSuccess }: { onClose: () => void; onSucc
                                 <UserPlus size={18} />
                                 {t('wizard.successManager')}
                             </h3>
-                            <div className="grid grid-cols-2 gap-2 text-sm">
-                                <div>
-                                    <span className="text-text-muted">{t('form.firstName')}:</span>
-                                    <span className="ml-2 text-text-main font-medium">{managerData.managerFirstName}</span>
-                                </div>
-                                <div>
-                                    <span className="text-text-muted">{t('form.lastName')}:</span>
-                                    <span className="ml-2 text-text-main font-medium">{managerData.managerLastName}</span>
-                                </div>
-                                <div className="col-span-2">
-                                    <span className="text-text-muted">{t('form.email')}:</span>
-                                    <span className="ml-2 text-text-main">{managerData.managerEmail}</span>
-                                </div>
-                                {managerData.managerPhoneNumber && (
-                                    <div>
-                                        <span className="text-text-muted">{t('form.phone')}:</span>
-                                        <span className="ml-2 text-text-main">{managerData.managerPhoneNumber}</span>
+                            {selfAsManager ? (
+                                <div className="flex items-center gap-3 text-sm">
+                                    <div className="w-10 h-10 rounded-full bg-secondary/20 flex items-center justify-center">
+                                        <UserPlus size={20} className="text-secondary" />
                                     </div>
-                                )}
-                                {managerData.personalCity && (
+                                    <span className="text-text-main font-medium">{t('fleets.managedByYou')}</span>
+                                </div>
+                            ) : (
+                                <div className="grid grid-cols-2 gap-2 text-sm">
                                     <div>
-                                        <span className="text-text-muted">{t('form.city')}:</span>
-                                        <span className="ml-2 text-text-main">{managerData.personalCity}</span>
+                                        <span className="text-text-muted">{t('form.firstName')}:</span>
+                                        <span className="ml-2 text-text-main font-medium">{managerData.managerFirstName}</span>
                                     </div>
-                                )}
-                            </div>
+                                    <div>
+                                        <span className="text-text-muted">{t('form.lastName')}:</span>
+                                        <span className="ml-2 text-text-main font-medium">{managerData.managerLastName}</span>
+                                    </div>
+                                    <div className="col-span-2">
+                                        <span className="text-text-muted">{t('form.email')}:</span>
+                                        <span className="ml-2 text-text-main">{managerData.managerEmail}</span>
+                                    </div>
+                                    {managerData.managerPhoneNumber && (
+                                        <div>
+                                            <span className="text-text-muted">{t('form.phone')}:</span>
+                                            <span className="ml-2 text-text-main">{managerData.managerPhoneNumber}</span>
+                                        </div>
+                                    )}
+                                    {managerData.personalCity && (
+                                        <div>
+                                            <span className="text-text-muted">{t('form.city')}:</span>
+                                            <span className="ml-2 text-text-main">{managerData.personalCity}</span>
+                                        </div>
+                                    )}
+                                </div>
+                            )}
                         </div>
 
                         <div className="flex gap-3 pt-4">
                             <button
                                 type="button"
-                                onClick={() => setStep(2)}
+                                onClick={() => setStep(selfAsManager ? 1 : 2)}
                                 disabled={loading}
                                 className="flex-1 px-4 py-2 border border-glass rounded-lg text-text-main hover:bg-glass transition-colors disabled:opacity-50"
                             >

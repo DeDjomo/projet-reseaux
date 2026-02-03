@@ -382,42 +382,41 @@ button {
 }
 
 /* ============================================================================
-   LIGHT THEME - Header Styling (White)
+   LIGHT THEME - Header Styling (Custom Blue)
    ============================================================================ */
 [data-theme="light"] header.bg-nav {
-  background: #ffffff !important;
-  border-bottom: 1px solid #e2e8f0 !important;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+  background: rgb(0, 106, 198) !important;
+  border-bottom-color: rgba(255, 255, 255, 0.1) !important;
 }
 
 [data-theme="light"] header.bg-nav .text-text-main,
 [data-theme="light"] header.bg-nav h1 {
-  color: #1a202c !important;
+  color: #ffffff !important;
 }
 
 [data-theme="light"] header.bg-nav .text-text-muted,
 [data-theme="light"] header.bg-nav .text-text-sub {
-  color: #64748b !important;
+  color: rgba(255, 255, 255, 0.8) !important;
 }
 
 [data-theme="light"] header.bg-nav input {
-  background-color: #f1f5f9 !important;
-  border-color: #e2e8f0 !important;
-  color: #1a202c !important;
+  background-color: rgba(255, 255, 255, 0.15) !important;
+  border-color: rgba(255, 255, 255, 0.2) !important;
+  color: #ffffff !important;
 }
 
 [data-theme="light"] header.bg-nav input::placeholder {
-  color: #94a3b8 !important;
+  color: rgba(255, 255, 255, 0.6) !important;
 }
 
 [data-theme="light"] header.bg-nav button:hover {
-  background-color: #f1f5f9 !important;
-  color: #1a202c !important;
+  background-color: rgba(255, 255, 255, 0.1) !important;
+  color: #ffffff !important;
 }
 
 [data-theme="light"] header.bg-nav .bg-glass {
-  background-color: #f1f5f9 !important;
-  border: 1px solid #e2e8f0 !important;
+  background-color: rgba(255, 255, 255, 0.1) !important;
+  border: 1px solid rgba(255, 255, 255, 0.1) !important;
 }
 
 /* ============================================================================

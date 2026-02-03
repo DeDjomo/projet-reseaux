@@ -96,12 +96,6 @@ export const fleetManagerApi = {
         const managers = await fleetManagerApi.getByAdminId(adminId);
         return managers.length;
     },
-
-    // Get or create system fleet manager for admin (for self-assignment)
-    getOrCreateSystemFleetManager: async (adminId: number): Promise<FleetManager> => {
-        const response = await apiClient.get<FleetManager>(`/fleet-managers/admin/${adminId}/system`);
-        return response.data;
-    },
 };
 
 export default fleetManagerApi;

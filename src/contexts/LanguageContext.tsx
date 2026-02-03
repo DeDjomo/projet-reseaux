@@ -596,9 +596,6 @@ export const translations: Translations = {
     'fleets.typeNameToConfirm': { FR: 'Tapez le nom de la flotte pour confirmer', ENG: 'Type the fleet name to confirm' },
     'fleets.nameDoesNotMatch': { FR: 'Le nom ne correspond pas', ENG: 'Name does not match' },
     'fleets.nameMatches': { FR: 'Nom confirmé', ENG: 'Name confirmed' },
-    'fleets.selfAsManager': { FR: 'Je serai le gestionnaire de cette flotte', ENG: 'I will manage this fleet myself' },
-    'fleets.selfAsManagerDesc': { FR: 'Cochez si vous ne souhaitez pas désigner un autre gestionnaire', ENG: 'Check if you don\'t want to assign another manager' },
-    'fleets.managedByYou': { FR: 'Gérée par vous', ENG: 'Managed by you' },
 
     'fleets.btn.new': { FR: 'Nouvelle Flotte', ENG: 'New Fleet' },
     'fleets.table.fleet': { FR: 'Flotte', ENG: 'Fleet' },

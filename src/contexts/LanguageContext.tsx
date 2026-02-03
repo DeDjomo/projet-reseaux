@@ -133,6 +133,7 @@ export const translations: Translations = {
     'login.rememberMe': { FR: 'Se souvenir de moi', ENG: 'Remember me' },
 
     // Dashboard - Sidebar
+    'sidebar.dashboard': { FR: 'Mon Dashboard', ENG: 'My Dashboard' },
     'sidebar.fleets': { FR: 'Mes Flottes', ENG: 'My Fleets' },
     'sidebar.vehicles': { FR: 'Mes Véhicules', ENG: 'My Vehicles' },
     'sidebar.drivers': { FR: 'Mes Chauffeurs', ENG: 'My Drivers' },

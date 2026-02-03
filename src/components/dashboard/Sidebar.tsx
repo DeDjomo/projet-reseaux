@@ -19,7 +19,8 @@ import {
     ChevronLeft,
     MapPin,
     AlertTriangle,
-    Menu
+    Menu,
+    Home
 } from 'lucide-react';
 
 interface SidebarProps {
@@ -33,6 +34,7 @@ export default function Sidebar({ isOpen, setIsOpen }: SidebarProps) {
     const { theme } = useTheme();
 
     const menuItems = [
+        { name: t('sidebar.dashboard'), icon: Home, href: '/dashboard/manager' },
         { name: t('sidebar.fleets'), icon: LayoutDashboard, href: '/dashboard/manager/fleets' },
         { name: t('sidebar.vehicles'), icon: Car, href: '/dashboard/manager/vehicles' },
         { name: t('sidebar.drivers'), icon: Users, href: '/dashboard/manager/drivers' },
@@ -98,7 +100,10 @@ export default function Sidebar({ isOpen, setIsOpen }: SidebarProps) {
                 {/* Navigation Links */}
                 <nav className="flex-1 overflow-y-auto py-4 space-y-1 px-3">
                     {menuItems.map((item) => {
-                        const isActive = pathname.startsWith(item.href);
+                        // Special case for dashboard: only active on exact match
+                        const isActive = item.href === '/dashboard/manager'
+                            ? pathname === '/dashboard/manager'
+                            : pathname.startsWith(item.href);
                         return (
                             <Link
                                 key={item.href}

@@ -50,4 +50,5 @@ export interface OrganizationUpdate {
     taxId?: string;
     organizationUIN?: string;
     subscriptionPlan?: SubscriptionPlan;
+    isActive?: boolean;
 }

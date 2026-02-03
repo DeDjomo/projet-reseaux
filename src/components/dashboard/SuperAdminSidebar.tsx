@@ -2,7 +2,7 @@
 
 import React from 'react';
 import Link from 'next/link';
-import { usePathname } from 'next/navigation';
+import { usePathname } from 'next/navigation'
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useTheme } from '@/contexts/ThemeContext';
 import {
@@ -13,7 +13,9 @@ import {
     LogOut,
     Shield,
     Moon,
-    Sun
+    Sun,
+    AlertTriangle,
+    Bell
 } from 'lucide-react';
 
 interface NavItem {
@@ -27,10 +29,15 @@ export default function SuperAdminSidebar() {
     const { t } = useLanguage();
     const { theme, toggleTheme } = useTheme();
 
+    // Super Admin = Propriétaire de la plateforme
+    // Il voit SEULEMENT: Organisations, Admins, Incidents globaux, Notifications
+    // Il ne voit PAS: Flottes, Véhicules, Chauffeurs (ce sont des éléments d'organisation)
     const navItems: NavItem[] = [
-        { href: '/dashboard/superadmin', icon: <LayoutDashboard size={20} />, label: 'Vue d\'ensemble' },
+        { href: '/dashboard/superadmin', icon: <LayoutDashboard size={20} />, label: 'Tableau de bord' },
         { href: '/dashboard/superadmin/organizations', icon: <Building2 size={20} />, label: 'Organisations' },
-        { href: '/dashboard/superadmin/admins', icon: <Users size={20} />, label: 'Administrateurs' },
+
+        { href: '/dashboard/superadmin/incidents', icon: <AlertTriangle size={20} />, label: 'Incidents' },
+        { href: '/dashboard/superadmin/notifications', icon: <Bell size={20} />, label: 'Notifications' },
         { href: '/dashboard/superadmin/settings', icon: <Settings size={20} />, label: 'Paramètres' },
     ];
 
@@ -69,8 +76,8 @@ export default function SuperAdminSidebar() {
                         key={item.href}
                         href={item.href}
                         className={`flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all ${isActive(item.href)
-                                ? 'bg-gradient-to-r from-purple-500/20 to-indigo-500/20 text-purple-400 border-l-4 border-purple-500'
-                                : 'text-text-sub hover:bg-glass hover:text-text-main'
+                            ? 'bg-gradient-to-r from-purple-500/20 to-indigo-500/20 text-purple-400 border-l-4 border-purple-500'
+                            : 'text-text-sub hover:bg-glass hover:text-text-main'
                             }`}
                     >
                         {item.icon}
@@ -81,13 +88,6 @@ export default function SuperAdminSidebar() {
 
             {/* Footer Actions */}
             <div className="p-4 border-t border-glass space-y-2">
-                <button
-                    onClick={toggleTheme}
-                    className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-text-sub hover:bg-glass hover:text-text-main transition-all"
-                >
-                    {theme === 'dark' ? <Sun size={20} /> : <Moon size={20} />}
-                    <span className="font-medium">{theme === 'dark' ? 'Mode clair' : 'Mode sombre'}</span>
-                </button>
                 <button
                     onClick={handleLogout}
                     className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-red-400 hover:bg-red-500/10 transition-all"

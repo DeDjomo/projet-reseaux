@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState } from 'react';
+import { usePathname } from 'next/navigation';
 import Sidebar from '@/components/dashboard/Sidebar';
 import Header from '@/components/dashboard/Header';
 
@@ -9,8 +10,18 @@ export default function DashboardLayout({
 }: {
     children: React.ReactNode;
 }) {
+    const pathname = usePathname();
     const [isSidebarOpen, setIsSidebarOpen] = useState(true);
 
+    // Si on est dans /dashboard/superadmin, on laisse le layout enfant gérer tout
+    const isSuperAdmin = pathname.startsWith('/dashboard/superadmin');
+
+    if (isSuperAdmin) {
+        // Le layout de superadmin gère son propre sidebar et header
+        return <>{children}</>;
+    }
+
+    // Layout pour Fleet Manager (manager)
     return (
         <div className="h-screen bg-primary flex overflow-hidden transition-colors duration-300">
             {/* Sidebar - Fixed position */}

@@ -182,7 +182,6 @@ export default function RegisterPage() {
                 taxId: data.taxId,
                 organizationUIN: data.organizationUIN,
                 subscriptionPlan: data.subscriptionPlan,
-                organizationLogo: "", // Optional
                 createdByAdminId: createdAdmin.adminId, // Link!
             };
 

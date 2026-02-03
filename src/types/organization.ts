@@ -32,7 +32,6 @@ export interface OrganizationCreate {
     registrationNumber: string;
     taxId?: string;
     organizationUIN: string;
-    organizationLogo?: string;
     subscriptionPlan: SubscriptionPlan;
     createdByAdminId: number;
 }

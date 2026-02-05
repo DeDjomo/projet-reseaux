@@ -76,7 +76,7 @@ async function main() {
 
     // 2. Création Organisations
     for (let i = 1; i <= CONFIG.orgCount; i++) {
-        const suffix = Math.floor(Math.random() * 1000);
+        const suffix = Date.now();
         const orgName = `Organisaton ${i} ${suffix}`;
         console.log(`\n🏢 Création: ${orgName}`);
 
@@ -100,8 +100,7 @@ async function main() {
             adminLastName: orgName,
             adminEmail: `manager${i}_${suffix}@test.com`,
             adminPassword: 'password123',
-            adminRole: 'ORGANIZATION_MANAGER',
-            isActive: true
+            adminRole: 'ORGANIZATION_MANAGER'
         }, token);
 
         if (!admin) continue;

@@ -71,6 +71,11 @@ export const organizationApi = {
         return response.data;
     },
 
+    countDeleted: async (): Promise<number> => {
+        const response = await apiClient.get<number>('/organizations/count/deleted');
+        return response.data;
+    },
+
     countByPlan: async (plan: SubscriptionPlan): Promise<number> => {
         const response = await apiClient.get<number>(`/organizations/count/subscription/${plan}`);
         return response.data;

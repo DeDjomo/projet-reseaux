@@ -19,6 +19,7 @@ export interface Organization {
     subscriptionPlan: SubscriptionPlan;
     subscriptionExpiry: string;
     createdAt: string;
+    createdByAdminId?: number;
 }
 
 export interface OrganizationCreate {
@@ -51,4 +52,5 @@ export interface OrganizationUpdate {
     organizationUIN?: string;
     subscriptionPlan?: SubscriptionPlan;
     isActive?: boolean;
+    createdByAdminId?: number;
 }

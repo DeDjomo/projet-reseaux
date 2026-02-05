@@ -126,7 +126,7 @@ export default function NotificationsPage() {
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                 <div>
                     <h1 className="text-2xl font-bold text-text-main flex items-center gap-2">
-                        <Bell className="h-7 w-7 text-purple-500" />
+                        <Bell className="h-7 w-7 text-cyan-500" />
                         Notifications
                     </h1>
                     <p className="mt-1 text-sm text-text-muted">
@@ -135,38 +135,28 @@ export default function NotificationsPage() {
                 </div>
             </div>
 
-            {/* Stats */}
-            <div className="grid grid-cols-2 lg:grid-cols-3 gap-4">
-                <div className="bg-surface rounded-lg border border-glass p-4">
-                    <div className="flex items-center gap-3">
-                        <div className="p-2 rounded-lg bg-purple-100 dark:bg-purple-900/30">
-                            <Send className="h-5 w-5 text-purple-600" />
+            {/* Premium Stats Cards */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                <div className="bg-surface rounded-2xl border border-glass p-6 shadow-sm transition-all hover:shadow-md">
+                    <div className="flex items-center gap-4">
+                        <div className="p-3 rounded-xl bg-gradient-to-br from-blue-500 to-cyan-600 shadow-lg text-white">
+                            <Send size={24} />
                         </div>
                         <div>
-                            <p className="text-sm text-text-sub">Reçues</p>
-                            <p className="text-2xl font-bold text-text-main">{notifications.length}</p>
+                            <p className="text-xs font-bold text-text-sub uppercase tracking-wider">Reçues</p>
+                            <p className="text-3xl font-black text-text-main">{notifications.length}</p>
                         </div>
                     </div>
                 </div>
-                <div className="bg-surface rounded-lg border border-glass p-4">
-                    <div className="flex items-center gap-3">
-                        <div className="p-2 rounded-lg bg-green-100 dark:bg-green-900/30">
-                            <CheckCircle className="h-5 w-5 text-green-600" />
+
+                <div className="bg-surface rounded-2xl border border-glass p-6 shadow-sm transition-all hover:shadow-md">
+                    <div className="flex items-center gap-4">
+                        <div className="p-3 rounded-xl bg-gradient-to-br from-green-400 to-emerald-600 shadow-lg text-white">
+                            <CheckCircle size={24} />
                         </div>
                         <div>
-                            <p className="text-sm text-text-sub">Lues</p>
-                            <p className="text-2xl font-bold text-green-500">{readNotifications}</p>
-                        </div>
-                    </div>
-                </div>
-                <div className="bg-surface rounded-lg border border-glass p-4">
-                    <div className="flex items-center gap-3">
-                        <div className="p-2 rounded-lg bg-orange-100 dark:bg-orange-900/30">
-                            <AlertTriangle className="h-5 w-5 text-orange-600" />
-                        </div>
-                        <div>
-                            <p className="text-sm text-text-sub">Critiques</p>
-                            <p className="text-2xl font-bold text-orange-500">{criticalNotifications}</p>
+                            <p className="text-xs font-bold text-text-sub uppercase tracking-wider">Lues</p>
+                            <p className="text-3xl font-black text-green-500">{readNotifications}</p>
                         </div>
                     </div>
                 </div>
@@ -186,7 +176,7 @@ export default function NotificationsPage() {
                             Chargement...
                         </div>
                     ) : notifications.length === 0 ? (
-                        <div className="p-8 text-center text-text-muted">
+                        <div className="p-8 text-center text-text-main">
                             Aucune notification
                         </div>
                     ) : (

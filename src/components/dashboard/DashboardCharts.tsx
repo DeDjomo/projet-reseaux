@@ -20,17 +20,18 @@ interface DashboardChartsProps {
     stats: {
         activeOrgs: number;
         suspendedOrgs: number;
+        deletedOrgs?: number;
         incidents: number;
     };
-    incidentStats?: {
-        critical: number;
-        major: number;
-        minor: number;
-        info: number;
+    planStats?: {
+        FREE: number;
+        BASIC: number;
+        PROFESSIONAL: number;
+        ENTERPRISE: number;
     };
 }
 
-export default function DashboardCharts({ stats, incidentStats }: DashboardChartsProps) {
+export default function DashboardCharts({ stats, planStats }: DashboardChartsProps) {
     const { theme } = useTheme();
     const isDark = theme === 'dark';
 
@@ -38,27 +39,26 @@ export default function DashboardCharts({ stats, incidentStats }: DashboardChart
     const orgData = [
         { name: 'Actives', value: stats.activeOrgs },
         { name: 'Suspendues', value: stats.suspendedOrgs },
+        { name: 'Supprimées', value: stats.deletedOrgs || 0 },
     ];
 
-    const ORG_COLORS = ['#22c55e', '#f97316']; // Green, Orange
+    const ORG_COLORS = ['#3b82f6', '#f97316', '#ef4444']; // Blue, Orange, Red
 
-    // Data for Incidents Bar Chart (using stats or defaults)
-    // If we don't have detailed stats yet, we simulate or use what we have
-    const incidentData = [
-        { name: 'Critique', value: incidentStats?.critical || 0, color: '#ef4444' },
-        { name: 'Majeur', value: incidentStats?.major || 0, color: '#f97316' },
-        { name: 'Mineur', value: incidentStats?.minor || 0, color: '#eab308' },
-        { name: 'Info', value: incidentStats?.info || 0, color: '#3b82f6' },
+    // Data for Plans Bar Chart
+    const planData = [
+        { name: 'Basique', value: planStats?.BASIC || 0, color: '#3b82f6' }, // Blue
+        { name: 'Pro', value: planStats?.PROFESSIONAL || 0, color: '#0ea5e9' }, // Cyan
+        { name: 'Entreprise', value: planStats?.ENTERPRISE || 0, color: '#f59e0b' }, // Amber
     ];
 
     // Custom Tooltip for Recharts
     const CustomTooltip = ({ active, payload, label }: any) => {
         if (active && payload && payload.length) {
             return (
-                <div className="bg-surface border border-border-glass p-3 rounded-lg shadow-lg">
+                <div className="bg-surface border border-glass p-3 rounded-lg shadow-lg">
                     <p className="text-sm font-semibold text-text-main">{label ? label : payload[0].name}</p>
                     <p className="text-sm text-text-sub">
-                        {payload[0].value} {payload[0].name === 'Actives' || payload[0].name === 'Suspendues' ? 'Organisations' : 'Incidents'}
+                        {payload[0].value} Organisations
                     </p>
                 </div>
             );
@@ -71,7 +71,7 @@ export default function DashboardCharts({ stats, incidentStats }: DashboardChart
 
             {/* Organizations Chart */}
             <div className="bg-surface rounded-xl border border-glass p-6 shadow-sm">
-                <h3 className="text-lg font-bold text-text-main mb-4">Répartition des Organisations</h3>
+                <h3 className="text-lg font-bold text-text-main mb-4 uppercase tracking-wider text-xs">Statut des Organisations</h3>
                 <div className="h-64 w-full">
                     <ResponsiveContainer width="100%" height="100%">
                         <PieChart>
@@ -98,22 +98,23 @@ export default function DashboardCharts({ stats, incidentStats }: DashboardChart
                 </div>
             </div>
 
-            {/* Incidents Chart */}
+            {/* Plans Chart */}
             <div className="bg-surface rounded-xl border border-glass p-6 shadow-sm">
-                <h3 className="text-lg font-bold text-text-main mb-4">Incidents par Sévérité</h3>
+                <h3 className="text-lg font-bold text-text-main mb-4 uppercase tracking-wider text-xs">Organisations par Forfait</h3>
                 <div className="h-64 w-full">
                     <ResponsiveContainer width="100%" height="100%">
                         <BarChart
-                            data={incidentData}
+                            data={planData}
                             margin={{ top: 5, right: 30, left: 20, bottom: 5 }}
                         >
-                            <CartesianGrid strokeDasharray="3 3" stroke={isDark ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.1)'} vertical={false} />
+                            <CartesianGrid strokeDasharray="3 3" stroke={isDark ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.05)'} vertical={false} />
                             <XAxis
                                 dataKey="name"
                                 stroke={isDark ? '#a1a1aa' : '#64748b'}
                                 fontSize={12}
                                 tickLine={false}
                                 axisLine={false}
+                                dy={10}
                             />
                             <YAxis
                                 stroke={isDark ? '#a1a1aa' : '#64748b'}
@@ -122,8 +123,8 @@ export default function DashboardCharts({ stats, incidentStats }: DashboardChart
                                 axisLine={false}
                             />
                             <Tooltip cursor={{ fill: 'transparent' }} content={<CustomTooltip />} />
-                            <Bar dataKey="value" radius={[4, 4, 0, 0]}>
-                                {incidentData.map((entry, index) => (
+                            <Bar dataKey="value" radius={[6, 6, 0, 0]} barSize={40}>
+                                {planData.map((entry, index) => (
                                     <Cell key={`cell-${index}`} fill={entry.color} />
                                 ))}
                             </Bar>

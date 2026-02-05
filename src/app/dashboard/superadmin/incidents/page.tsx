@@ -10,16 +10,15 @@ interface Incident {
     incidentType: string;
     incidentDescription: string;
     incidentSeverity: string;
-    incidentCost: number;
     incidentStatus: string;
     incidentReport: string;
-    witnessName: string;
-    witnessContact: string;
     incidentDateTime: string;
     driverId: number;
     driverName: string;
     vehicleId: number;
     vehicleRegistration: string;
+    organizationName?: string;
+    fleetName?: string;
 }
 
 const SEVERITY_COLORS: Record<string, { bg: string; text: string; label: string }> = {
@@ -30,8 +29,6 @@ const SEVERITY_COLORS: Record<string, { bg: string; text: string; label: string 
 };
 
 const STATUS_COLORS: Record<string, { bg: string; text: string; icon: React.ElementType; label: string }> = {
-    REPORTED: { bg: 'bg-blue-100 dark:bg-blue-900/30', text: 'text-blue-700 dark:text-blue-400', icon: AlertCircle, label: 'Signalé' },
-    // UNDER_INVESTIGATION removed as per request
     RESOLVED: { bg: 'bg-green-100 dark:bg-green-900/30', text: 'text-green-700 dark:text-green-400', icon: CheckCircle, label: 'Résolu' },
     CLOSED: { bg: 'bg-gray-100 dark:bg-gray-800', text: 'text-gray-700 dark:text-gray-400', icon: XCircle, label: 'Fermé' },
 };
@@ -66,11 +63,7 @@ export default function IncidentsPage() {
             const response = await fetch('/api/incidents');
             if (response.ok) {
                 const data = await response.json();
-                // Filter out 'UNDER_INVESTIGATION' from backend data if present?
-                // Or just don't show it as an option. User said "retirer le en cours".
-                // Let'filter it out from display if present, or just leave it but not selectable.
-                // Safest is to filter out if we want it "removed".
-                const safeData = Array.isArray(data) ? data.filter((i: any) => i.incidentStatus !== 'UNDER_INVESTIGATION') : [];
+                const safeData = Array.isArray(data) ? data.filter((i: any) => i.incidentStatus !== 'UNDER_INVESTIGATION' && i.incidentStatus !== 'REPORTED') : [];
                 setIncidents(safeData);
             }
         } catch (error) {
@@ -88,7 +81,9 @@ export default function IncidentsPage() {
             result = result.filter(inc =>
                 inc.incidentDescription?.toLowerCase().includes(query) ||
                 inc.driverName?.toLowerCase().includes(query) ||
-                inc.vehicleRegistration?.toLowerCase().includes(query)
+                inc.vehicleRegistration?.toLowerCase().includes(query) ||
+                inc.organizationName?.toLowerCase().includes(query) ||
+                inc.fleetName?.toLowerCase().includes(query)
             );
         }
 
@@ -118,16 +113,8 @@ export default function IncidentsPage() {
         });
     };
 
-    const formatCost = (cost: number) => {
-        if (!cost) return '-';
-        return new Intl.NumberFormat('fr-FR', { style: 'currency', currency: 'EUR' }).format(cost);
-    };
-
     // Stats
     const totalIncidents = incidents.length;
-    const openIncidents = incidents.filter(i => i.incidentStatus === 'REPORTED').length; // Removed UNDER_INVESTIGATION
-    const criticalIncidents = incidents.filter(i => i.incidentSeverity === 'CRITICAL' || i.incidentSeverity === 'HIGH').length;
-    const totalCost = incidents.reduce((sum, i) => sum + (i.incidentCost || 0), 0);
 
     return (
         <div className="space-y-6 animate-fade-in">
@@ -144,49 +131,16 @@ export default function IncidentsPage() {
                 </div>
             </div>
 
-            {/* Stats Cards */}
-            <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-                <div className="bg-surface rounded-lg border border-glass p-4">
-                    <div className="flex items-center gap-3">
-                        <div className="p-2 rounded-lg bg-blue-100 dark:bg-blue-900/30">
-                            <AlertTriangle className="h-5 w-5 text-blue-600" />
+            {/* Premium Stats Card */}
+            <div className="flex justify-center">
+                <div className="bg-surface rounded-2xl border border-glass p-6 shadow-sm transition-all hover:shadow-md w-full max-w-md">
+                    <div className="flex items-center gap-4">
+                        <div className="p-3 rounded-xl bg-gradient-to-br from-orange-500 to-red-600 shadow-lg text-white">
+                            <AlertTriangle size={24} />
                         </div>
                         <div>
-                            <p className="text-sm text-text-sub">Total Incidents</p>
-                            <p className="text-2xl font-bold text-text-main">{totalIncidents}</p>
-                        </div>
-                    </div>
-                </div>
-                <div className="bg-surface rounded-lg border border-glass p-4">
-                    <div className="flex items-center gap-3">
-                        <div className="p-2 rounded-lg bg-yellow-100 dark:bg-yellow-900/30">
-                            <Clock className="h-5 w-5 text-yellow-600" />
-                        </div>
-                        <div>
-                            <p className="text-sm text-text-sub">Signalés</p>
-                            <p className="text-2xl font-bold text-yellow-500">{openIncidents}</p>
-                        </div>
-                    </div>
-                </div>
-                <div className="bg-surface rounded-lg border border-glass p-4">
-                    <div className="flex items-center gap-3">
-                        <div className="p-2 rounded-lg bg-red-100 dark:bg-red-900/30">
-                            <XCircle className="h-5 w-5 text-red-600" />
-                        </div>
-                        <div>
-                            <p className="text-sm text-text-sub">Critiques</p>
-                            <p className="text-2xl font-bold text-red-500">{criticalIncidents}</p>
-                        </div>
-                    </div>
-                </div>
-                <div className="bg-surface rounded-lg border border-glass p-4">
-                    <div className="flex items-center gap-3">
-                        <div className="p-2 rounded-lg bg-purple-100 dark:bg-purple-900/30">
-                            <Car className="h-5 w-5 text-purple-600" />
-                        </div>
-                        <div>
-                            <p className="text-sm text-text-sub">Coût Total</p>
-                            <p className="text-xl font-bold text-purple-500">{formatCost(totalCost)}</p>
+                            <p className="text-xs font-bold text-text-sub uppercase tracking-wider">Total Incidents</p>
+                            <p className="text-3xl font-black text-text-main">{totalIncidents}</p>
                         </div>
                     </div>
                 </div>
@@ -199,17 +153,17 @@ export default function IncidentsPage() {
                         <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-text-muted" size={18} />
                         <input
                             type="text"
-                            placeholder="Rechercher..."
+                            placeholder="Rechercher par description, conducteur, véhicule, organisation ou flotte..."
                             value={searchQuery}
                             onChange={(e) => setSearchQuery(e.target.value)}
-                            className="w-full pl-10 pr-4 py-2 rounded-lg bg-background border border-glass focus:ring-2 focus:ring-purple-500/20 focus:border-purple-500 transition-all outline-none"
+                            className="px-3 py-2 rounded-lg bg-background border border-glass focus:ring-2 focus:ring-cyan-500/20 outline-none"
                         />
                     </div>
 
                     <select
                         value={typeFilter}
                         onChange={(e) => setTypeFilter(e.target.value)}
-                        className="px-3 py-2 rounded-lg bg-background border border-glass focus:ring-2 focus:ring-purple-500/20 outline-none"
+                        className="px-3 py-2 rounded-lg bg-background border border-glass focus:ring-2 focus:ring-cyan-500/20 outline-none"
                     >
                         <option value="ALL">Tous types</option>
                         {Object.entries(INCIDENT_TYPES).map(([key, label]) => (
@@ -220,12 +174,14 @@ export default function IncidentsPage() {
                     <select
                         value={severityFilter}
                         onChange={(e) => setSeverityFilter(e.target.value)}
-                        className="px-3 py-2 rounded-lg bg-background border border-glass focus:ring-2 focus:ring-purple-500/20 outline-none"
+                        className="px-3 py-2 rounded-lg bg-background border border-glass focus:ring-2 focus:ring-cyan-500/20 outline-none"
                     >
                         <option value="ALL">Toutes sévérités</option>
-                        {Object.entries(SEVERITY_COLORS).map(([key, { label }]) => (
-                            <option key={key} value={key}>{label}</option>
-                        ))}
+                        {Object.entries(SEVERITY_COLORS)
+                            .filter(([key]) => key !== 'CRITICAL')
+                            .map(([key, { label }]) => (
+                                <option key={key} value={key}>{label}</option>
+                            ))}
                     </select>
 
                     <select
@@ -245,29 +201,28 @@ export default function IncidentsPage() {
             <div className="bg-surface shadow rounded-lg border border-glass overflow-hidden">
                 <div className="overflow-x-auto">
                     <table className="w-full text-left text-sm">
-                        <thead className="bg-background/50 text-text-sub font-medium">
+                        <thead className="bg-background/50 text-text-main font-semibold uppercase text-xs tracking-wider">
                             <tr>
                                 <th className="px-4 py-3">Type</th>
+                                <th className="px-4 py-3">Organisation & Flotte</th>
                                 <th className="px-4 py-3">Description</th>
                                 <th className="px-4 py-3">Sévérité</th>
                                 <th className="px-4 py-3">Statut</th>
                                 <th className="px-4 py-3">Conducteur</th>
                                 <th className="px-4 py-3">Véhicule</th>
-                                <th className="px-4 py-3">Coût</th>
                                 <th className="px-4 py-3">Date</th>
-                                <th className="px-4 py-3 text-right">Actions</th>
                             </tr>
                         </thead>
                         <tbody className="divide-y divide-glass text-text-main">
                             {loading ? (
                                 <tr>
-                                    <td colSpan={9} className="px-6 py-8 text-center text-text-muted">
+                                    <td colSpan={8} className="px-6 py-8 text-center text-text-main">
                                         Chargement...
                                     </td>
                                 </tr>
                             ) : filteredIncidents.length === 0 ? (
                                 <tr>
-                                    <td colSpan={9} className="px-6 py-8 text-center text-text-muted">
+                                    <td colSpan={8} className="px-6 py-8 text-center text-text-main">
                                         Aucun incident trouvé
                                     </td>
                                 </tr>
@@ -280,46 +235,48 @@ export default function IncidentsPage() {
                                     return (
                                         <tr key={incident.incidentId} className="hover:bg-glass/50 transition-colors">
                                             <td className="px-4 py-3">
-                                                <span className="font-medium">
+                                                <span className="font-bold text-text-main">
                                                     {INCIDENT_TYPES[incident.incidentType] || incident.incidentType}
                                                 </span>
+                                            </td>
+                                            <td className="px-4 py-3">
+                                                <div className="flex flex-col">
+                                                    <span className="text-xs font-bold text-blue-600 dark:text-blue-400 uppercase tracking-tighter">
+                                                        {incident.organizationName || 'Sans Org.'}
+                                                    </span>
+                                                    <span className="text-sm font-medium text-text-sub">
+                                                        {incident.fleetName || 'Sans Flotte'}
+                                                    </span>
+                                                </div>
                                             </td>
                                             <td className="px-4 py-3 max-w-[200px] truncate">
                                                 {incident.incidentDescription || '-'}
                                             </td>
                                             <td className="px-4 py-3">
-                                                <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${severity.bg} ${severity.text}`}>
+                                                <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-bold ${severity.bg} ${severity.text}`}>
                                                     {severity.label}
                                                 </span>
                                             </td>
                                             <td className="px-4 py-3">
-                                                <span className={`inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium ${status.bg} ${status.text}`}>
+                                                <span className={`inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-bold ${status.bg} ${status.text}`}>
                                                     <StatusIcon size={12} />
                                                     {status.label}
                                                 </span>
                                             </td>
                                             <td className="px-4 py-3 text-text-sub">
                                                 <div className="flex items-center gap-1">
-                                                    <User size={14} />
-                                                    {incident.driverName || '-'}
+                                                    <User size={14} className="text-text-sub" />
+                                                    <span className="font-medium">{incident.driverName || '-'}</span>
                                                 </div>
                                             </td>
                                             <td className="px-4 py-3 text-text-sub">
                                                 <div className="flex items-center gap-1">
-                                                    <Car size={14} />
-                                                    {incident.vehicleRegistration || '-'}
+                                                    <Car size={14} className="text-blue-500" />
+                                                    <span className="font-mono text-xs font-bold">{incident.vehicleRegistration || '-'}</span>
                                                 </div>
                                             </td>
-                                            <td className="px-4 py-3 font-medium">
-                                                {formatCost(incident.incidentCost)}
-                                            </td>
-                                            <td className="px-4 py-3 text-text-sub text-xs">
+                                            <td className="px-4 py-3 text-text-sub text-xs font-medium">
                                                 {formatDate(incident.incidentDateTime)}
-                                            </td>
-                                            <td className="px-4 py-3 text-right">
-                                                <button className="p-2 hover:bg-glass rounded-full transition-colors text-text-sub hover:text-text-main">
-                                                    <Eye size={16} />
-                                                </button>
                                             </td>
                                         </tr>
                                     );
@@ -330,7 +287,7 @@ export default function IncidentsPage() {
                 </div>
 
                 {/* Footer */}
-                <div className="px-4 py-3 border-t border-glass text-sm text-text-sub">
+                <div className="px-4 py-3 border-t border-glass text-sm text-text-sub font-medium">
                     {filteredIncidents.length} incident(s) affiché(s)
                 </div>
             </div>

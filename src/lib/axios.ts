@@ -15,6 +15,13 @@ const apiClient: AxiosInstance = axios.create({
 // Request interceptor - add auth token if available
 apiClient.interceptors.request.use(
     (config: InternalAxiosRequestConfig) => {
+        // Detailed request logging for debugging
+        console.log(`🚀 API Request: ${config.method?.toUpperCase()} ${config.url}`, {
+            data: config.data,
+            params: config.params,
+            timestamp: new Date().toISOString()
+        });
+
         // Get token from localStorage if available
         if (typeof window !== 'undefined') {
             const token = localStorage.getItem('fleetman-token');
@@ -52,8 +59,14 @@ apiClient.interceptors.response.use(
             }
 
             if (status >= 500) {
-                // Server error
-                console.error('Server error:', error.response.data);
+                // Server error - log detailed information to help debug
+                console.warn('🔴 Server Error 500:', {
+                    endpoint: error.config?.url,
+                    method: error.config?.method?.toUpperCase(),
+                    status: status,
+                    message: error.response?.data || error.message,
+                    timestamp: new Date().toISOString()
+                });
             }
         } else if (error.request) {
             // Request made but no response received

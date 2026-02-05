@@ -59,12 +59,12 @@ export default function SuperAdminSidebar() {
             {/* Logo / Brand */}
             <div className="h-16 flex items-center justify-center border-b border-glass px-4">
                 <Link href="/dashboard/superadmin" className="flex items-center gap-2">
-                    <div className="p-2 rounded-lg bg-gradient-to-br from-purple-500 to-indigo-600">
+                    <div className="p-2 rounded-lg bg-gradient-to-br from-blue-500 to-cyan-600">
                         <Shield size={24} className="text-white" />
                     </div>
                     <div>
                         <span className="text-lg font-bold text-text-main">FleetMan</span>
-                        <span className="block text-xs text-purple-400 font-medium">SuperAdmin</span>
+                        <span className="block text-xs text-cyan-400 font-medium">SuperAdmin</span>
                     </div>
                 </Link>
             </div>
@@ -76,8 +76,8 @@ export default function SuperAdminSidebar() {
                         key={item.href}
                         href={item.href}
                         className={`flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all ${isActive(item.href)
-                            ? 'bg-gradient-to-r from-purple-500/20 to-indigo-500/20 text-purple-400 border-l-4 border-purple-500'
-                            : 'text-text-sub hover:bg-glass hover:text-text-main'
+                                ? 'bg-secondary/10 text-secondary border border-secondary/20'
+                                : 'text-text-sub hover:bg-glass hover:text-text-main border border-transparent'
                             }`}
                     >
                         {item.icon}
